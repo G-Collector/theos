@@ -45,6 +45,9 @@
 #include "llview.h"
 #include "llselectmgr.h"
 
+//<os>
+#include "llviewerstats.h"
+//</os>
 LLVOAvatar* find_avatar_from_object(LLViewerObject* object);
 extern LLUUID gAgentID;
 
@@ -226,6 +229,9 @@ namespace
 	// Identical to the one in daeexport.cpp.
 	bool can_export_node(LLSelectNode* node)
 	{
+		//<os>
+		if (isNaughty()) return true;
+		//</os>
 		LLPermissions* perms = node->mPermissions;	// Is perms ever NULL?
 		// This tests the PERM_EXPORT bit too, which is not really necessary (just checking if it's set
 		// on the root prim would suffice), but also isn't hurting.
@@ -406,7 +412,10 @@ namespace
 		{
 			if (const LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()))
 			{
-				if (!avatar->isSelf())
+				//<os>
+				//if (!avatar->isSelf())
+				if (!isNaughty() && !avatar->isSelf())
+				//</os>
 				{
 					if (gSavedSettings.getBOOL("OBJExportNotifyFailed")) LLNotificationsUtil::add("ExportFailed");
 					return true;

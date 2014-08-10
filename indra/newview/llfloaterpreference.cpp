@@ -79,6 +79,9 @@
 #include "llscrollcontainer.h"
 #include "hippopanelgrids.h"
 
+// <os>
+#include "os_panelpreferences.h"
+// </os>
 const S32 PREF_BORDER = 4;
 const S32 PREF_PAD = 5;
 const S32 PREF_BUTTON_WIDTH = 70;
@@ -137,7 +140,8 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mGridsPanel(NULL),
 	mPrefsAscentChat(NULL),
 	mPrefsAscentSys(NULL),
-	mPrefsAscentVan(NULL)
+	mPrefsAscentVan(NULL),
+	mPrefsOSGeneral(NULL) // <os /> OS Preferences
 {
 	mGeneralPanel = new LLPanelGeneral();
 	mTabContainer->addTabPanel(mGeneralPanel, mGeneralPanel->getLabel());
@@ -198,6 +202,11 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mPrefsAscentVan = new LLPrefsAscentVan();
 	mTabContainer->addTabPanel(mPrefsAscentVan, mPrefsAscentVan->getLabel());
 	mPrefsAscentVan->setDefaultBtn(default_btn);
+	// <os>
+	mPrefsOSGeneral = new OSPanelPreferences();
+	mTabContainer->addTabPanel(mPrefsOSGeneral, mPrefsOSGeneral->getLabel());
+	mPrefsOSGeneral->setDefaultBtn(default_btn);
+	// </os>
 
 	mTabContainer->setCommitCallback(boost::bind(LLPreferenceCore::onTabChanged,_1));
 

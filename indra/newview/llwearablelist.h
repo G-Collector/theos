@@ -60,8 +60,9 @@ public:
 	
 	// Callback
 	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);
-
-protected:
+//<os>
+//protected:
+//</os>
 	LLViewerWearable* generateNewWearable(); // used for the create... functions
 private:
 	std::map<LLUUID, LLViewerWearable*> mList;

@@ -80,6 +80,9 @@ public:
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+	//<os>
+	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	//</os>
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 						BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 						EAcceptance *accept,
@@ -200,6 +203,9 @@ private:
 	BOOL					 mAllowNoTexture; // If true, the user can select "none" as an option
 	BOOL					 mAllowInvisibleTexture; // If true, the user can select "Invisible" as an option
 	LLCoordGL				 mLastFloaterLeftTop;
+	//<os>
+	LLHandle<LLView>		mPopupMenuHandle;
+	//</os>
 	PermissionMask			 mImmediateFilterPermMask;
 	PermissionMask				mDnDFilterPermMask;
 	PermissionMask			 mNonImmediateFilterPermMask;

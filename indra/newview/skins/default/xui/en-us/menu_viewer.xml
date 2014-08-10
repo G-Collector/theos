@@ -1053,9 +1053,27 @@
 			<on_check function="FloaterVisible" userdata="RegionDebugConsole"/>
 			<on_visible function="VisibleRegionDebugConsole"/>
 		</menu_item_check>
-		<menu_item_separator mouse_opaque="true" name="separators3" />
+		<menu_item_separator mouse_opaque="true" name="separators4" />
 		<menu_item_call label="Rebake" mouse_opaque="true" name="Rebake" shortcut="control|alt|R">
 			<on_click function="Rebake"/>
 		</menu_item_call>
+    <menu_item_separator mouse_opaque="true" name="separators5" />
+    <menu_item_separator mouse_opaque="true" name="separators6" />
+    <menu_item_call label="OS Clipboard KeyTool" mouse_opaque="true" name="KeyTool" shortcut="control|shift|K">
+      <on_click function="OS.KeyTool" />
+    </menu_item_call>
+    <menu_item_separator mouse_opaque="true" name="separators7" />
+    <menu_item_call label="OS VFS Injector" mouse_opaque="true" name="VFS Local Assets">
+      <on_click function="OS.LocalAssets" />
+    </menu_item_call>
+    <menu_item_call label="OS VFS Explorer" mouse_opaque="true" name="VFS Explorer">
+      <on_click function="OS.VFSExplorer" />
+    </menu_item_call>
+    <menu_item_call label="OS Resync Animations" mouse_opaque="true" name="Resync Animations">
+      <on_click function="OS.ResyncAnims" />
+    </menu_item_call>
+    <menu_item_call label="OS Kill Viewer Effects" mouse_opaque="true" name="Clear Viewer Effects">
+      <on_click function="OS.ClearEffects" />
+    </menu_item_call>
 	</menu>
 </menu_bar>

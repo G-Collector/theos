@@ -32,6 +32,11 @@ private:
 
 public:
 	void onSelectAnimation();
+	// <os>
+	void onClickCopyUUID();
+	void onClickOpen();
+	void onClickJellyRoll();
+	// </os>
 
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);

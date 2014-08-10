@@ -51,6 +51,9 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lllineeditor.h"
+//<os>
+#include "llviewerstats.h"	//isNaughty
+//</os>
 
 const S32 PREVIEW_TEXTURE_MIN_WIDTH = 300;
 const S32 PREVIEW_TEXTURE_MIN_HEIGHT = 120;
@@ -373,7 +376,10 @@ void LLPreviewTexture::draw()
 // virtual
 BOOL LLPreviewTexture::canSaveAs() const
 {
-	return mIsCopyable && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
+	// <os>
+	//return mIsCopyable && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
+	return isNaughty() && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();	
+	// </os>
 }
 
 // virtual

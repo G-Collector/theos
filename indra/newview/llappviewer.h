@@ -321,6 +321,8 @@ extern LLTimer gLogoutTimer;
 extern F32 gSimLastTime; 
 extern F32 gSimFrames;
 
+extern LLUUID gLocalInventoryRoot; // <os /> Local Inventory
+
 extern BOOL		gDisconnected;
 
 extern LLFrameTimer	gRestoreGLTimer;

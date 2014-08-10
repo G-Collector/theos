@@ -44,6 +44,7 @@
 #include "lliconctrl.h"
 #include "lloverlaybar.h"
 #include "lltextbox.h"
+#include "llvoicevivox.h" // <os />Voice Lock
 
 LLVoiceRemoteCtrl::LLVoiceRemoteCtrl (const std::string& name) : LLPanel(name)
 {
@@ -91,6 +92,15 @@ BOOL LLVoiceRemoteCtrl::postBuild()
 	if (LLButton* voice_channel_bg = findChild<LLButton>("voice_channel_bg"))
 		voice_channel_bg->setClickedCallback(boost::bind(&LLVoiceRemoteCtrl::onClickVoiceChannel));
 
+	// <os>
+	mPosLockBtn = getChild<LLButton>("pos_lock_btn");
+	mPosLockBtn->setClickedCallback(boost::bind(&LLVoiceRemoteCtrl::onClickPosLock, this));
+	mPosLockBtn->setEnabled(LLVoiceClient::getInstance()->voiceEnabled());
+
+	mPosLockToCamBtn = getChild<LLButton>("pos_lock_to_cam_btn");
+	mPosLockToCamBtn->setClickedCallback(boost::bind(&LLVoiceRemoteCtrl::onClickPosLockToCam, this));
+	mPosLockToCamBtn->setEnabled(LLVoiceClient::getInstance()->voiceEnabled());
+	// </os>
 	mVoiceVolIcon.connect(this,"voice_volume");
 	mShowChanBtn.connect(this,"show_channel");
 	return TRUE;
@@ -174,6 +184,17 @@ void LLVoiceRemoteCtrl::draw()
 								&& current_channel
 								&& current_channel->isActive()
 								&& current_channel != LLVoiceChannelProximal::getInstance());
+
+	// <os>
+	mPosLockBtn->setEnabled(LLVoiceClient::getInstance()->voiceEnabled()
+		&& current_channel
+		&& current_channel->isActive());
+	mPosLockBtn->setToggleState(LLVivoxVoiceClient::getInstance()->getPosLocked());
+	mPosLockToCamBtn->setEnabled(LLVoiceClient::getInstance()->voiceEnabled()
+		&& current_channel
+		&& current_channel->isActive());
+	mPosLockToCamBtn->setToggleState(LLVivoxVoiceClient::getInstance()->getPosLockedToCam());
+	// </os>
 
 	if (LLTextBox* text = findChild<LLTextBox>("channel_label"))
 		text->setValue(active_channel_name);
@@ -307,3 +328,33 @@ void LLVoiceRemoteCtrl::onClickVoiceChannel()
 			floater->open();
 	}
 }
+
+// <os>
+// static
+void LLVoiceRemoteCtrl::onClickPosLock(void* user_data)
+{
+	static LLCachedControl<bool> os_voice_locked_pos(gSavedSettings, "OSVoiceLockPos");
+	gSavedSettings.setBOOL("OSVoiceLockPos", !os_voice_locked_pos);//toggle it
+
+	if (!os_voice_locked_pos)
+	{
+		LL_INFOS("OSVoice") << "Toggled off, we're requesting information now." << LL_ENDL;
+		// *FIX: Probably going to have to do some other wizard junk in vivox voice client, because I'm sure this isn't going to work right
+		//   We need to properly request this information.
+		LLVivoxVoiceClient::getInstance()->requestParcelVoiceInfo();
+		LLVivoxVoiceClient::getInstance()->updatePosition();
+	}
+}
+
+// static
+void LLVoiceRemoteCtrl::onClickPosLockToCam(void* user_data)
+{
+	static LLCachedControl<bool> os_voice_locked_pos_to_cam(gSavedSettings, "OSVoiceLockPosToCam");
+	gSavedSettings.setBOOL("OSVoiceLockPosToCam", !os_voice_locked_pos_to_cam);
+
+	if (!os_voice_locked_pos_to_cam)
+	{
+		LLVivoxVoiceClient::getInstance()->updatePosition();
+	}
+}
+// </os>

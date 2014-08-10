@@ -179,6 +179,28 @@ BOOL LLToolPie::handleLeftClickPick()
 	LLViewerObject *object = mPick.getObject();
 	LLViewerObject *parent = NULL;
 
+	// <os>
+	if (mPick.mKeyMask == MASK_SHIFT)
+	{
+		if (object && !object->isAvatar())
+		{
+			if( !LLToolMgr::getInstance()->inBuildMode() ) handle_object_edit();
+			parent = object->getRootEdit();
+		}
+
+		if (parent)
+		{
+			mLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
+			if (LLSelectMgr::getInstance()->selectGetAllValid())
+			{
+				// call this right away, since we have all the info we need to continue the action
+				selectionPropertiesReceived();
+				return TRUE;
+			}
+		}
+	}
+	// </os>
+
 	if (mPick.mPickType != LLPickInfo::PICK_LAND)
 	{
 		LLViewerParcelMgr::getInstance()->deselectLand();

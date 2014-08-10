@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel bg_visible="false" border="false" border_visible="false" bottom="0"
-     follows="right|bottom" height="45" left="0" mouse_opaque="true"
+     follows="right|bottom" height="75" left="0" mouse_opaque="true"
      name="voice_remote" use_bounding_rect="true" width="130">
-	<panel bottom="1" filename="panel_bg_tab.xml" name="panel_bg_tab" height="47" left="0" width="130" />
+	<panel bottom="1" filename="panel_bg_tab.xml" name="panel_bg_tab" height="77" left="0" width="130" />
 	<button bottom="-20" height="20" image_overlay="icn_voice-call-end.tga" label=""
 	     left="4" name="end_call_btn" tool_tip="Click to hang up" width="20" />
 	<button bottom="-21" height="22" image_disabled="icn_rounded-text-field.tga"
@@ -16,5 +16,9 @@
 	     left_delta="4" mouse_opaque="false" name="voice_channel_icon" width="16" />
 	<text bottom="-19" font="SansSerifSmall" height="16" label="" left_delta="18"
 	     mouse_opaque="false" name="channel_label" text_color="0 0 0" width="65" />
+  <button bottom_delta="-20" height="20" image_selected="ptt_lock_on.tga" image_unselected="ptt_lock_off.tga" label=""
+        left="4" name="pos_lock_btn" tool_tip="Click to lock voice to current position" width="20" />
+  <button bottom_delta="0" height="20" image_selected="ptt_lock_on.tga" image_unselected="ptt_lock_off.tga" label=""
+        left_delta="20" name="pos_lock_to_cam_btn" tool_tip="Click to lock voice to camera position." width="20" />
 	<panel bottom="13" filename="panel_voice_controls.xml" left="1" />
 </panel>

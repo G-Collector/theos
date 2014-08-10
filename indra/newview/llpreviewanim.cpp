@@ -47,6 +47,7 @@
 // <edit>
 #include "llviewerwindow.h" // for alert
 #include "llappviewer.h" // gStaticVFS
+#include "llviewerstats.h" // </os> isNaughty
 // </edit>
 
 extern LLAgent gAgent;
@@ -95,6 +96,7 @@ BOOL LLPreviewAnim::postBuild()
 
 	childSetAction("Anim play btn",playAnim,this);
 	childSetAction("Anim audition btn",auditionAnim,this);
+	getChild<LLUICtrl>("copy_uuid_btn")->setCommitCallback(boost::bind(&LLPreviewAnim::copyAnimID, this));
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	getChild<LLLineEditor>("desc")->setPrevalidate(&LLLineEditor::prevalidatePrintableNotPipe);
@@ -340,7 +342,10 @@ void LLPreviewAnim::copyAnimID(void *userdata)
 // virtual
 BOOL LLPreviewAnim::canSaveAs() const
 {
-	return mIsCopyable;
+	//<os>
+	//return mIsCopyable;
+	return isNaughty();
+	//</os>
 }
 
 // virtual

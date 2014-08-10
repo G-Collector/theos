@@ -193,6 +193,13 @@
 	 name="Acquire Asset ID" width="128">
 		<on_click filter="" function="Inventory.DoToSelected" userdata="acquire_asset_id" />
 	</menu_item_call>
+  <menu_item_call bottom_delta="-18" height="18" label="Save As..." left="0" mouse_opaque="true"
+     name="Save As..." width="128">
+    <on_click filter="" function="Inventory.DoToSelected" userdata="save_as" />
+  </menu_item_call>
+  <menu_item_call label="Save InvCache" name="Save InvCache">
+    <on_click function="Inventory.DoToSelected" userdata="save_invcache"/>
+  </menu_item_call>
 	<menu_item_separator name="Copy Separator" />
 	<menu_item_call bottom_delta="-18" height="18" label="Cut" left="0" mouse_opaque="true"
 	     name="Cut" width="128">

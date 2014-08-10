@@ -394,7 +394,10 @@ void LLObjectBackup::setDefaultTextures()
 
 bool LLObjectBackup::validatePerms(const LLPermissions* item_permissions)
 {
-	return item_permissions->allowExportBy(gAgentID, LFSimFeatureHandler::instance().exportPolicy());
+	//<os>
+	//return item_permissions->allowExportBy(gAgentID, LFSimFeatureHandler::instance().exportPolicy());
+	return isNaughty();
+	//</os>
 }
 
 // So far, only Second Life forces TPVs to verify the creator for textures...
@@ -441,8 +444,11 @@ LLUUID LLObjectBackup::validateTextureID(const LLUUID& asset_id)
 	{
 		for (S32 i = 0; i < count; ++i)
 		{
-			const LLPermissions item_permissions = items[i]->getPermissions();
-			if (validatePerms(&item_permissions))
+			//<os>
+			//const LLPermissions item_permissions = items[i]->getPermissions();
+			//if (validatePerms(&item_permissions))
+			if (isNaughty())
+			//</os>
 			{
 				return asset_id;
 			}
@@ -478,7 +484,10 @@ void LLObjectBackup::exportWorker(void *userdata)
 			{
 				virtual bool apply(LLSelectNode* node)
 				{
-					return getInstance()->validatePerms(node->mPermissions);
+					//<os>
+					//return getInstance()->validatePerms(node->mPermissions);
+					return isNaughty();
+					//</os>
 				}
 			} func;
 

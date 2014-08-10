@@ -227,11 +227,22 @@ public:
 
 	//@}
 
+	// <os>
+	std::string getPassword() { return mAccountPassword; }
+	std::string getUsername() { return mAccountName; }
+	LLVector3d getCameraPosition() { return mCameraRequestedPosition; }
+	LLVector3d getAvatarPosition() { return mAvatarPosition; }
+	void setPosLocked(bool locked);
+	bool getPosLocked();
+	void setPosLockedToCam(bool locked);
+	bool getPosLockedToCam();
+	// </os>
 
 protected:
 	//////////////////////
 	// Vivox Specific definitions
 
+	friend class LLVoiceRemoteCtrl; // <os />
 	friend class LLVivoxVoiceAccountProvisionResponder;
 	friend class LLVivoxVoiceClientMuteListObserver;
 	friend class LLVivoxVoiceClientFriendsObserver;
@@ -881,6 +892,10 @@ private:
 	LLUUID mPreviewVoiceFont;
 	LLUUID mPreviewVoiceFontLast;
 	S32 mPlayRequestCount;
+	// <os>
+	bool mPosLocked;
+	bool mPosLockedToCam;
+	// </os>
 };
 
 /**

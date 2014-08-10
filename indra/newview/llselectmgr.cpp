@@ -5719,6 +5719,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		// <edit>
 		//for (S32 pass = 0; pass < 2; pass++)
 		// </edit>
+		for (S32 pass = 0; pass < 2; pass++) //</os> - Re edit
 		{
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
 				 iter != mSelectedObjects->end(); iter++)

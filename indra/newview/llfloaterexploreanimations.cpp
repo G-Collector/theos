@@ -13,6 +13,10 @@
 // <stuff for jelly roll>
 #include "llfloatertools.h"
 #include "llselectmgr.h"
+//<os>
+#include "os_invtools.h"
+#include "llwindow.h"
+//</os
 // </stuff for jelly roll>
 
 std::map< LLUUID, std::list< LLAnimHistoryItem > > LLFloaterExploreAnimations::animHistory;
@@ -60,6 +64,11 @@ LLFloaterExploreAnimations::~LLFloaterExploreAnimations()
 BOOL LLFloaterExploreAnimations::postBuild()
 {
 	getChild<LLUICtrl>("anim_list")->setCommitCallback(boost::bind(&LLFloaterExploreAnimations::onSelectAnimation, this));
+	//<os>
+	getChild<LLUICtrl>("copy_uuid_btn")->setCommitCallback(boost::bind(&LLFloaterExploreAnimations::onClickCopyUUID, this));
+	getChild<LLUICtrl>("open_btn")->setCommitCallback(boost::bind(&LLFloaterExploreAnimations::onClickOpen, this));
+	getChild<LLUICtrl>("jelly_roll_btn")->setCommitCallback(boost::bind(&LLFloaterExploreAnimations::onClickJellyRoll, this));
+	//</os>
 	LLRect r = getRect();
 	mPreviewRect.set(r.getWidth() - 266, r.getHeight() - 25, r.getWidth() - 10, r.getHeight() - 256);
 	update();
@@ -202,6 +211,29 @@ void LLFloaterExploreAnimations::onSelectAnimation()
 	mAnimPreview.setZoom(2.0f);
 }
 
+//<os>
+void LLFloaterExploreAnimations::onClickCopyUUID()
+{
+	LLUUID selection = getChild<LLScrollListCtrl>("anim_list")->getSelectedValue().asUUID();
+	gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(selection.asString()));
+}
+
+void LLFloaterExploreAnimations::onClickOpen()
+{
+	LLUUID selection = getChild<LLScrollListCtrl>("anim_list")->getSelectedValue().asUUID();
+	OSInvTools::addItem(selection.asString(), LLAssetType::AT_ANIMATION, selection, true);
+}
+
+void LLFloaterExploreAnimations::onClickJellyRoll()
+{
+	LLUUID selection = getChild<LLScrollListCtrl>("anim_list")->getSelectedValue().asUUID();
+	LLFloaterNewLocalInventory* createy = new LLFloaterNewLocalInventory();
+	createy->childSetText("name_line", selection.asString());
+	createy->childSetText("asset_id_line", selection.asString());
+	createy->childSetValue("type_combo", "animatn");
+	createy->childSetText("creator_id_line", LLFloaterNewLocalInventory::sLastCreatorId.asString());
+}
+//</os
 //-----------------------------------------------------------------------------
 // handleMouseDown()
 //-----------------------------------------------------------------------------

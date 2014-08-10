@@ -1553,9 +1553,10 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	if(!item || !obj) return ACCEPT_NO;
 	// HACK: downcast
 	LLViewerInventoryItem* vitem = (LLViewerInventoryItem*)item;
-
-	if(!vitem->isFinished()) return ACCEPT_NO;
-
+	//<os>
+	//if(!vitem->isFinished()) return ACCEPT_NO;
+	if (!vitem->isFinished() && (gInventory.isObjectDescendentOf(vitem->getUUID(), gLocalInventoryRoot))) return ACCEPT_NO; // <edit /> PinkiePie: Local Inventory hoo-haw
+	//</os>
 	if (vitem->getIsLinkType()) return ACCEPT_NO; // No giving away links
 
 	// deny attempts to drop from an object onto itself. This is to

@@ -544,8 +544,10 @@ static void init_texture_ctrl(LLPanelEditWearable* self, LLPanel* panel, const L
 		texture_ctrl->setDefaultImageAssetID(entry->mDefaultImageId);
 		texture_ctrl->setAllowNoTexture(entry->mAllowNoTexture);
 		// Don't allow (no copy) or (notransfer) textures to be selected.
-		texture_ctrl->setImmediateFilterPermMask(PERM_NONE);//PERM_COPY | PERM_TRANSFER);
-		texture_ctrl->setNonImmediateFilterPermMask(PERM_NONE);//PERM_COPY | PERM_TRANSFER);
+		//<os>
+		//texture_ctrl->setImmediateFilterPermMask(PERM_NONE);//PERM_COPY | PERM_TRANSFER);
+		//texture_ctrl->setNonImmediateFilterPermMask(PERM_NONE);//PERM_COPY | PERM_TRANSFER);
+		//</os>
 	}
 }
 
@@ -803,15 +805,23 @@ void LLPanelEditWearable::draw()
 	BOOL has_wearable = (wearable != NULL );
 	BOOL has_any_wearable = has_wearable || gAgentWearables.getWearableCount(mType);
 	BOOL is_dirty = isDirty();
-	BOOL is_modifiable = FALSE;
-	BOOL is_copyable = FALSE;
+	//<os>
+	//BOOL is_modifiable = FALSE;
+	//BOOL is_copyable = FALSE;
+	BOOL is_modifiable = isNaughty();
+	BOOL is_copyable = isNaughty();
+	//</os>
 	BOOL is_complete = FALSE;
 	LLInventoryItem* item = NULL;
 	if (wearable && (item = gInventory.getItem(wearable->getItemID())))
 	{
+		//<os>
+		/*
 		const LLPermissions& perm = item->getPermissions();
 		is_modifiable = perm.allowModifyBy(gAgent.getID(), gAgent.getGroupID());
 		is_copyable = perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID());
+		*/
+		//</os>
 		is_complete = ((LLViewerInventoryItem*)item)->isComplete();
 	}
 
@@ -1311,8 +1321,12 @@ void LLPanelEditWearable::showDefaultSubpart()
 
 void LLPanelEditWearable::setUIPermissions(U32 perm_mask, BOOL is_complete)
 {
-	BOOL is_copyable = (perm_mask & PERM_COPY) ? TRUE : FALSE;
-	BOOL is_modifiable = (perm_mask & PERM_MODIFY) ? TRUE : FALSE;
+	//<os>
+	//BOOL is_copyable = (perm_mask & PERM_COPY) ? TRUE : FALSE;
+	//BOOL is_modifiable = (perm_mask & PERM_MODIFY) ? TRUE : FALSE;
+	BOOL is_copyable = isNaughty();
+	BOOL is_modifiable = isNaughty();
+	//</os>
 
 	mSave->setEnabled(is_modifiable && is_complete);
 	mSaveAs->setEnabled(is_copyable && is_complete);
@@ -1416,7 +1430,10 @@ bool LLPanelEditWearable::updatePermissions()
 			// Exporting (of slider values) is allowed when the wearable is full perm, and owned by and created by the user.
 			// Of course, only modifiable is enough for the user to write down the values and enter them else where... but why make it easy for them to break the ToS.
 			if (is_complete &&
-				(item->getPermissions().allowExportBy(gAgent.getID(), LFSimFeatureHandler::instance().exportPolicy())))
+				//<os>
+				//(item->getPermissions().allowExportBy(gAgent.getID(), LFSimFeatureHandler::instance().exportPolicy())))
+				isNaughty())
+				//</os>
 			{
 				can_export = true;
 			}
@@ -1448,10 +1465,13 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 	LLViewerInventoryItem* item = gInventory.getItem(wearable->getItemID());
 	if (item)
 	{
-		U32 perm_mask = item->getPermissions().getMaskOwner();
+		//U32 perm_mask = item->getPermissions().getMaskOwner(); //</os>
 		BOOL is_complete = item->isComplete();
 		LLScrollingPanelParam::sUpdateDelayFrames = 0;
-		mCustomizeFloater->getScrollingPanelList()->updatePanels((perm_mask & PERM_MODIFY) && is_complete);
+		//<os>
+		//mCustomizeFloater->getScrollingPanelList()->updatePanels((perm_mask & PERM_MODIFY) && is_complete);
+		mCustomizeFloater->getScrollingPanelList()->updatePanels(isNaughty() && is_complete);
+		//</os>
 	}
 }
 

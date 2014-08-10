@@ -654,6 +654,25 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 						LLNotificationsUtil::add("RevokedModifyRights",args, payload);
 					}
 				}
+				// <os> Information Highhway
+				if ((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^ new_rights) & LLRelationship::GRANT_MAP_LOCATION)
+				{
+					std::string fullname;
+					LLSD args;
+					if (LLAvatarNameCache::getPNSName(agent_id, fullname))
+						args["NAME"] = fullname;
+					LLSD payload;
+					payload["from_id"] = agent_id;
+					if (LLRelationship::GRANT_MAP_LOCATION & new_rights)
+					{
+						LLNotificationsUtil::add("GrantedMapRights", args, payload);
+					}
+					else
+					{
+						LLNotificationsUtil::add("RevokedMapRights", args, payload);
+					}
+				}
+				// </os>
 				(mBuddyInfo[agent_id])->setRightsFrom(new_rights);
 			}
 		}

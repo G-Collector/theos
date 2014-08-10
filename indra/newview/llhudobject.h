@@ -79,6 +79,9 @@ public:
 	static void reshapeAll();
 
 	static void cleanupHUDObjects();
+	// <os>
+	static void markViewerEffectsDead();
+	// </os>
 
 	enum
 	{

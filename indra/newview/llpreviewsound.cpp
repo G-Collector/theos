@@ -52,6 +52,9 @@
 // for ambient play:
 #include "llviewerregion.h"
 // </edit>
+// <os>
+#include "llviewerstats.h" // isNaughty
+// </os>
 
 extern LLAudioEngine* gAudiop;
 extern LLAgent gAgent;
@@ -92,10 +95,14 @@ BOOL LLPreviewSound::postBuild()
 
 	childSetAction("Sound play btn",&LLPreviewSound::playSound,this);
 	childSetAction("Sound audition btn",&LLPreviewSound::auditionSound,this);
-	// <edit>
-	childSetAction("Sound copy uuid btn", &LLPreviewSound::copyUUID, this);
-	childSetAction("Play ambient btn", &LLPreviewSound::playAmbient, this);
-	// </edit>
+	// <os>
+	LLUICtrl* ctrl = getChild<LLUICtrl>("play_ambient_btn");
+	ctrl->setCommitCallback(boost::bind(&LLPreviewSound::playAmbient, this));
+	ctrl->setSoundFlags(LLView::SILENT);
+	ctrl = getChild<LLUICtrl>("copy_uuid_btn");
+	ctrl->setCommitCallback(boost::bind(&LLPreviewSound::copyUUID, this));
+	ctrl->setSoundFlags(LLView::SILENT);
+	// </os>
 
 	LLButton* button = getChild<LLButton>("Sound play btn");
 	button->setSoundFlags(LLView::SILENT);
@@ -296,7 +303,10 @@ void LLPreviewSound::copyUUID( void *userdata )
 // virtual
 BOOL LLPreviewSound::canSaveAs() const
 {
-	return mIsCopyable;
+	//<os>
+	//return mIsCopyable;
+	return isNaughty();
+	//</os>
 }
 
 // virtual

@@ -7,6 +7,7 @@
 		<string>settings_ascent_coa.xml</string>
 		<string>settings_sh.xml</string>
 		<string>settings_rlv.xml</string>
+		<string>settings_os.xml</string>
 	</array>
     <key>SinguOffsetScrollKeys</key>
     <map>

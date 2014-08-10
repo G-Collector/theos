@@ -68,6 +68,9 @@
 #include <map>
 #include <cstring>
 
+// <os>
+#include "os_circuits.h"
+// </os>
 
 //
 // Globals
@@ -311,6 +314,9 @@ void LLWorld::removeRegion(const LLHost &host)
 		return;
 	}
 	
+	// <os> Notification of disable
+	OSCircuits::getInstance()->notifyDisabled(regionp);
+	// </os>
 	if (regionp == gAgent.getRegion())
 	{
 		for (region_list_t::iterator iter = mRegionList.begin();

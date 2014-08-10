@@ -864,6 +864,21 @@ void SHClientTagMgr::updateAvatarTag(LLVOAvatar* pAvatar)
 	std::map<LLUUID, LLSD>::iterator it = mAvatarTags.find(id);
 
 	LLSD new_tag = generateClientTag(pAvatar);
+	// <os> Firestorm Detection
+	if (new_tag.isUndefined())
+	{
+		for (LLViewerObject::child_list_t::const_iterator iter = pAvatar->getChildren().begin();
+				iter != pAvatar->getChildren().end(); iter++)
+		{
+			if (iter->get()->getAttachmentPointNumber() == 127)
+			{
+				new_tag.insert("name", "Firestorm");
+				new_tag.insert("color", LLColor4(0.8f, 0.4f, 0.0f).getValue());
+				break;
+			}
+		}
+	}
+	// </os>
 	LLSD old_tag = (it != mAvatarTags.end()) ? it->second : LLSD();
 
 	bool dirty = old_tag.size() != new_tag.size() || !llsd_equals(new_tag,old_tag);
@@ -2373,6 +2388,26 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	//LL_INFOS() << getRotation() << LL_ENDL;
 	//LL_INFOS() << getPosition() << LL_ENDL;
+	// <os>
+	if (update_type == OUT_FULL)
+	{
+		if (isSelf())
+		{
+			if (gSavedSettings.getBOOL("OSReSit"))
+			{
+				LLMessageSystem* msg = gMessageSystem;
+				msg->newMessageFast(_PREHASH_AgentRequestSit);
+				msg->nextBlockFast(_PREHASH_AgentData);
+				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+				msg->nextBlockFast(_PREHASH_TargetObject);
+				msg->addUUIDFast(_PREHASH_TargetID, gReSitTargetID);
+				msg->addVector3Fast(_PREHASH_Offset, gReSitOffset);
+				gAgent.getRegion()->sendReliableMessage();
+			}
+		}
+	}
+	// </os>
 
 	return retval;
 }

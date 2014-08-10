@@ -268,6 +268,8 @@ LLTimer gLogoutTimer;
 static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
 F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 
+LLUUID gLocalInventoryRoot; // <os /> Local Inventory
+
 BOOL				gDisconnected = FALSE;
 
 // used to restore texture state after a mode switch
@@ -412,7 +414,29 @@ static void ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		gAudiop->triggerSound(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+		//<os>
+		static LLCachedControl<bool> play_sounds(gSavedSettings, "OSUIPlaySndInWorld");
+		if (!play_sounds)
+		{
+			gAudiop->triggerSound(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+		}
+		else
+		{
+			LLMessageSystem *msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_SoundTrigger);
+			msg->nextBlockFast(_PREHASH_SoundData);
+			msg->addUUIDFast(_PREHASH_SoundID, uuid);
+			msg->addUUIDFast(_PREHASH_OwnerID, LLUUID::null);
+			msg->addUUIDFast(_PREHASH_ObjectID, LLUUID::null);
+			msg->addUUIDFast(_PREHASH_ParentID, LLUUID::null);
+			msg->addU64Fast(_PREHASH_Handle, gAgent.getRegion()->getHandle());
+			LLVector3d pos = -from_region_handle(gAgent.getRegion()->getHandle());
+			msg->addVector3Fast(_PREHASH_Position, (LLVector3)pos);
+			msg->addF32Fast(_PREHASH_Gain, 1.0f);
+
+			gMessageSystem->sendReliable(gAgent.getRegionHost());
+		}
+		//</os>
 	}
 }
 

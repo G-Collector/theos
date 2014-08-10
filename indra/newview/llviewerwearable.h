@@ -44,8 +44,9 @@ class LLViewerWearable : public LLWearable
 private:
 	// Private constructors used by LLWearableList
 	LLViewerWearable(const LLTransactionID& transactionID);
-	LLViewerWearable(const LLAssetID& assetID);
+	//LLViewerWearable(const LLAssetID& assetID);
 public:
+	LLViewerWearable(const LLAssetID& assetID);//</os> - made public
 	virtual ~LLViewerWearable();
 
 	//--------------------------------------------------------------------

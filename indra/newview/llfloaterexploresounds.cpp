@@ -13,7 +13,11 @@
 #include "llfloaterblacklist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
-
+//<os>
+#include "os_invtools.h"
+#include "llwindow.h"
+#include "llviewerwindow.h"
+//</os>
 static const size_t num_collision_sounds = 29;
 const LLUUID collision_sounds[num_collision_sounds] =
 {
@@ -92,6 +96,12 @@ BOOL LLFloaterExploreSounds::postBuild(void)
 	childSetAction("stop_btn", handle_stop, this);
 	childSetAction("bl_btn", blacklistSound, this);
 
+	// <os>
+	childSetAction("play_in_world", handle_play_in_world, this);
+	childSetAction("play_ambient_btn", handle_play_ambient, this);
+	childSetAction("open_btn", handle_open, this);
+	childSetAction("copy_uuid_btn", handle_copy_uuid, this);
+	// </os>
 
 	return TRUE;
 }
@@ -276,7 +286,7 @@ BOOL LLFloaterExploreSounds::tick()
 		sound_column["column"] = "sound";
 
 		std::string uuid = item.mAssetID.asString();
-		sound_column["value"] = uuid.substr(0, uuid.find_first_of("-")) + "...";
+		sound_column["value"] = uuid;// uuid.substr(0, uuid.find_first_of("-")) + "..."; // <os />
 
 		list->addElement(element, ADD_BOTTOM);
 	}
@@ -309,6 +319,107 @@ void LLFloaterExploreSounds::handle_play_locally(void* user_data)
 		}
 	}
 }
+
+// <os>
+// static
+void LLFloaterExploreSounds::handle_play_in_world(void* user_data)
+{
+	LLFloaterExploreSounds* floater = (LLFloaterExploreSounds*)user_data;
+	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("sound_list");
+	std::vector<LLScrollListItem*> selection = list->getAllSelected();
+	std::vector<LLScrollListItem*>::iterator selection_iter = selection.begin();
+	std::vector<LLScrollListItem*>::iterator selection_end = selection.end();
+	for (; selection_iter != selection_end; ++selection_iter)
+	{
+		LLSoundHistoryItem item = floater->getItem((*selection_iter)->getValue());
+		if (item.mID.isNull()) continue;
+
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_SoundTrigger);
+		msg->nextBlockFast(_PREHASH_SoundData);
+		msg->addUUIDFast(_PREHASH_SoundID, item.mAssetID);
+		// Client untrusted, ids set on sim
+		msg->addUUIDFast(_PREHASH_OwnerID, LLUUID::null);
+		msg->addUUIDFast(_PREHASH_ObjectID, LLUUID::null);
+		msg->addUUIDFast(_PREHASH_ParentID, LLUUID::null);
+		msg->addU64Fast(_PREHASH_Handle, gAgent.getRegion()->getHandle());
+		LLVector3 position = gAgent.getPositionAgent();
+		msg->addVector3Fast(_PREHASH_Position, position);
+		msg->addF32Fast(_PREHASH_Gain, 1.0f);
+
+		gAgent.sendMessage();
+	}
+}
+
+// static
+void LLFloaterExploreSounds::handle_play_ambient(void* user_data)
+{
+	LLFloaterExploreSounds* floater = (LLFloaterExploreSounds*)user_data;
+	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("sound_list");
+	std::vector<LLScrollListItem*> selection = list->getAllSelected();
+	std::vector<LLScrollListItem*>::iterator selection_iter = selection.begin();
+	std::vector<LLScrollListItem*>::iterator selection_end = selection.end();
+	for (; selection_iter != selection_end; ++selection_iter)
+	{
+		LLSoundHistoryItem item = floater->getItem((*selection_iter)->getValue());
+		if (item.mID.isNull()) continue;
+		int gain = 0.01f;
+		for (int i = 0; i < 2; i++)
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_SoundTrigger);
+			msg->nextBlockFast(_PREHASH_SoundData);
+			msg->addUUIDFast(_PREHASH_SoundID, item.mAssetID);
+			// Client untrusted, ids set on sim
+			msg->addUUIDFast(_PREHASH_OwnerID, LLUUID::null);
+			msg->addUUIDFast(_PREHASH_ObjectID, LLUUID::null);
+			msg->addUUIDFast(_PREHASH_ParentID, LLUUID::null);
+			msg->addU64Fast(_PREHASH_Handle, gAgent.getRegion()->getHandle());
+
+			LLVector3d position = -from_region_handle(gAgent.getRegion()->getHandle()); // PinkiePie: What actually makes this "ambient," lol.
+			msg->addVector3Fast(_PREHASH_Position, (LLVector3)position);
+
+			msg->addF32Fast(_PREHASH_Gain, 1.0f);
+			msg->sendReliable(gAgent.getRegionHost());
+
+			gain = 1.0f;
+		}
+	}
+}
+
+// static
+void LLFloaterExploreSounds::handle_open(void* user_data)
+{
+	LLFloaterExploreSounds* floater = (LLFloaterExploreSounds*)user_data;
+	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("sound_list");
+	std::vector<LLScrollListItem*> selection = list->getAllSelected();
+	std::vector<LLScrollListItem*>::iterator selection_iter = selection.begin();
+	std::vector<LLScrollListItem*>::iterator selection_end = selection.end();
+	std::vector<LLUUID> asset_list;
+	for (; selection_iter != selection_end; ++selection_iter)
+	{
+		LLSoundHistoryItem item = floater->getItem((*selection_iter)->getValue());
+		if (item.mID.isNull()) continue;
+		// Unique assets only
+		if (std::find(asset_list.begin(), asset_list.end(), item.mAssetID) == asset_list.end())
+		{
+			asset_list.push_back(item.mAssetID);
+			LLUUID inv_item = OSInvTools::addItem(item.mAssetID.asString(), LLAssetType::AT_SOUND, item.mAssetID, true);
+		}
+	}
+}
+
+// static
+void LLFloaterExploreSounds::handle_copy_uuid(void* user_data)
+{
+	LLFloaterExploreSounds* floater = (LLFloaterExploreSounds*)user_data;
+	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("sound_list");
+	LLUUID selection = list->getSelectedValue().asUUID(); // Single item only
+	LLSoundHistoryItem item = floater->getItem(selection);
+	if (item.mID.isNull()) return;
+	gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(item.mAssetID.asString()));
+}
+// </os>
 
 // static
 void LLFloaterExploreSounds::handle_look_at(void* user_data)

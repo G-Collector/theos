@@ -294,6 +294,7 @@ void LLViewerInventoryItem::cloneViewerItem(LLPointer<LLViewerInventoryItem>& ne
 
 void LLViewerInventoryItem::removeFromServer()
 {
+	if ((mParentUUID == gLocalInventoryRoot) || (gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot))) return; // <os />
 	lldebugs << "Removing inventory item " << mUUID << " from server."
 			 << llendl;
 
@@ -312,6 +313,7 @@ void LLViewerInventoryItem::removeFromServer()
 
 void LLViewerInventoryItem::updateServer(BOOL is_new) const
 {
+	if ((mParentUUID == gLocalInventoryRoot) || (gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot))) return; // <os />
 	if(getWearableType() == LLWearableType::WT_UNKNOWN)
 	{
 		llwarns << "LLViewerInventoryItem::updateServer() - for item with unknown wearable type"
@@ -493,6 +495,7 @@ bool LLViewerInventoryItem::exportFileLocal(LLFILE* fp) const
 
 void LLViewerInventoryItem::updateParentOnServer(BOOL restamp) const
 {
+	if (gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot)) return; // <os />
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_MoveInventoryItem);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -562,6 +565,7 @@ void LLViewerInventoryCategory::copyViewerCategory(const LLViewerInventoryCatego
 
 void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
 {
+	if (gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot)) return; // <os />
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_MoveInventoryFolder);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -626,6 +630,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 
 bool LLViewerInventoryCategory::fetch()
 {
+	if ((mUUID == gLocalInventoryRoot) || (gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot))) return false; // <os />
 	if((VERSION_UNKNOWN == getVersion()) &&
 		(!mDescendentsRequested.getStarted() ||
 		mDescendentsRequested.hasExpired()))	//Expired check prevents multiple downloads.
