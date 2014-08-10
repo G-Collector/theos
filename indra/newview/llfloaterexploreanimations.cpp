@@ -15,6 +15,7 @@
 #include "llselectmgr.h"
 //<os>
 #include "os_invtools.h"
+#include "llavatarnamecache.h"
 #include "llwindow.h"
 //</os
 // </stuff for jelly roll>
@@ -47,12 +48,11 @@ void LLFloaterExploreAnimations::show()
 }
 
 LLFloaterExploreAnimations::LLFloaterExploreAnimations(const LLUUID avatarid)
-:	LLInstanceTracker<LLFloaterExploreAnimations, LLUUID>(avatarid)
+:	LLInstanceTracker<LLFloaterExploreAnimations, LLUUID>(avatarid), mID(avatarid)
 ,	mAnimPreview(256, 256)
 {
 	mLastMouseX = 0;
 	mLastMouseY = 0;
-
 	mAnimPreview.setZoom(2.0f);
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_explore_animations.xml");
 }
@@ -65,6 +65,15 @@ BOOL LLFloaterExploreAnimations::postBuild()
 {
 	getChild<LLUICtrl>("anim_list")->setCommitCallback(boost::bind(&LLFloaterExploreAnimations::onSelectAnimation, this));
 	//<os>
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::get(mID, &av_name))
+	{
+		setTitle("Animations for : "+av_name.getCompleteName());
+	}
+	else
+	{
+		setTitle("Animations for : "+mID.asString());
+	}
 	getChild<LLUICtrl>("copy_uuid_btn")->setCommitCallback(boost::bind(&LLFloaterExploreAnimations::onClickCopyUUID, this));
 	getChild<LLUICtrl>("open_btn")->setCommitCallback(boost::bind(&LLFloaterExploreAnimations::onClickOpen, this));
 	getChild<LLUICtrl>("jelly_roll_btn")->setCommitCallback(boost::bind(&LLFloaterExploreAnimations::onClickJellyRoll, this));

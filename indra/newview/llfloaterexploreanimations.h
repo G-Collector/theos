@@ -58,6 +58,10 @@ protected:
 	LLRect				mPreviewRect;
 	S32					mLastMouseX;
 	S32					mLastMouseY;
+//<os>
+private:
+	LLUUID	mID;
+//</os>
 };
 
 #endif

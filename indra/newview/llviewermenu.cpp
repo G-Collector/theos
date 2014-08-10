@@ -42,6 +42,7 @@
 #include "llfeaturemanager.h"
 #include "llsecondlifeurls.h"
 // <edit>
+#include "llfloaterexploreanimations.h"	// </os>
 #include "llfloaterblacklist.h"
 // </edit>
 #include "statemachine/aifilepicker.h"
@@ -8951,6 +8952,19 @@ class OSMarkAllDead : public view_listener_t
 		return true;
 	}
 };
+
+class LLAvatarAnims : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			new LLFloaterExploreAnimations(avatar->getID()); //temporary
+		}
+		return true;
+	}
+};
 // </os>
 
 class SinguCloseAllDialogs : public view_listener_t
@@ -9573,6 +9587,7 @@ void initialize_menus()
 	addMenu(new LLAvatarClientUUID(), "Avatar.ClientID");
 	//<os>
 	addMenu(new LLObjectExport(), "Avatar.Export");
+	addMenu(new LLAvatarAnims(),"Avatar.Anims");
 	//</os>
 
 	// Object pie menu
