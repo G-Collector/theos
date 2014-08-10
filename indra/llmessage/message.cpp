@@ -80,7 +80,9 @@
 #include "v4math.h"
 #include "lltransfertargetvfile.h"
 #include "llpacketring.h"
-
+// <os>
+#include <boost/array.hpp>
+// < /os>
 class AIHTTPTimeoutPolicy;
 extern AIHTTPTimeoutPolicy fnPtrResponder_timeout;
 
@@ -2982,18 +2984,40 @@ void LLMessageSystem::addTemplate(LLMessageTemplate *templatep)
 	mMessageNumbers[templatep->mMessageNumber] = templatep;
 }
 
-
-void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+//<os>
+//void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+boost::signals2::connection LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+//< /os>
 {
 	LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
 	if (msgtemplate)
 	{
-		msgtemplate->setHandlerFunc(handler_func, user_data);
+		//<os>
+		//msgtemplate->setHandlerFunc(handler_func, user_data);
+		return msgtemplate->setHandlerFunc(handler_func, user_data);
+		//</os>
 	}
 	else
 	{
 		LL_ERRS("Messaging") << name << " is not a known message name!" << llendl;
 	}
+//<os>
+	return boost::signals2::connection();//dummy connection.
+}
+
+boost::signals2::connection LLMessageSystem::addHandlerFuncFast(const char *name, boost::function<void (LLMessageSystem *msgsystem)> handler_slot)
+{
+	LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
+	if(msgtemplate)
+	{
+		return msgtemplate->addHandlerFunc(handler_slot);
+	}
+	else
+	{
+		LL_ERRS("Messaging") << name << " is not a known message name!" << LL_ENDL;
+	}
+	return boost::signals2::connection();//dummy connection.
+//< /os>
 }
 
 bool LLMessageSystem::callHandler(const char *name,
