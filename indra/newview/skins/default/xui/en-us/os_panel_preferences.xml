@@ -14,7 +14,8 @@
 
 <!-- Old Skool Security Tab: For settings that involve user security and spoofing information -->
     <panel border="true" left="1" bottom="-580" height="525" width="418" label="Security" name="Security">
-      <check_box bottom="-25" left="10" follows="top" label="Notify on Enable Simulator" name="chat_cmd_toggle" control_name="OSNotifyEnabledSimulator"/>
+	  <check_box bottom="-25" left="10" follows="top" label="Detect avatars sending out abnormal commands." name="display_typingstop_toggle" control_name="OSReportAbnormalTypeStop"/>
+      <check_box bottom_delta="-18" left="10" follows="top" label="Notify on Enable Simulator" name="chat_cmd_toggle" control_name="OSNotifyEnabledSimulator"/>
       <check_box bottom_delta="-18" left="10" follows="top" label="Notify on Disable Simulator" name="chat_cmd_toggle" control_name="OSNotifyDisabledSimulator"/>
       <check_box bottom_delta="-18" left="10" follows="top" label="Send a spoofed language to the server" name="chat_cmd_toggle" control_name="OSSpoofLanguage"/>
       <text bottom_delta="-22" follows="top" height="16" left_delta="10" name="security_text_1">Below is the specified language:</text>
