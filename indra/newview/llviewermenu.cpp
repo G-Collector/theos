@@ -912,7 +912,7 @@ void init_client_menu(LLMenuGL* menu)
 										   &handle_toggle_hacked_godmode,
 										   NULL,
 										   &check_toggle_hacked_godmode,
-										   (void*)"HackedGodmode"));
+										   (void*)"HackedGodmode", 'G', MASK_ALT | MASK_CONTROL));
 	}
 //<os>
 //#endif
@@ -1101,7 +1101,7 @@ void init_client_menu(LLMenuGL* menu)
 	menu->addChild(new LLMenuItemCheckGL("View Admin Options", &handle_admin_override_toggle, NULL, &check_admin_override, NULL, 'V', MASK_CONTROL | MASK_ALT));
 
 	menu->addChild(new LLMenuItemCallGL("Request Admin Status", 
-		&handle_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_CONTROL));
+		&handle_god_mode, NULL, NULL));//'G', MASK_ALT | MASK_CONTROL));//</os> pinching this for hacked godmode above
 
 	menu->addChild(new LLMenuItemCallGL("Leave Admin Status", 
 		&handle_leave_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
