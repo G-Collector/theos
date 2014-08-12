@@ -66,6 +66,7 @@ const F32 PREVIEW_TEXTURE_MAX_ASPECT = 200.f;
 const F32 PREVIEW_TEXTURE_MIN_ASPECT = 0.005f;
 
 LLPreviewTexture * LLPreviewTexture::sInstance;
+std::set<LLPreviewTexture*> LLPreviewTexture::sList; // </os>
 LLPreviewTexture::LLPreviewTexture(const std::string& name,
 								   const LLRect& rect,
 								   const std::string& title,
@@ -84,6 +85,7 @@ LLPreviewTexture::LLPreviewTexture(const std::string& name,
 	mImage(NULL),
 	mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
 {
+	sList.insert(this); // </os>
 	const LLInventoryItem *item = getItem();
 	if(item)
 	{
@@ -145,7 +147,7 @@ LLPreviewTexture::LLPreviewTexture(
 	mAspectRatio(0.f),
 	mAlphaMaskResult(0)
 {
-
+	sList.insert(this); // </os>
 	init();
 
 	setTitle(title);
@@ -167,6 +169,7 @@ LLPreviewTexture::~LLPreviewTexture()
 	{
 		mImage->setBoostLevel(mImageOldBoostLevel);
 		mImage = NULL;
+		sList.erase(this); // </os>
 	}
 	sInstance = NULL;
 }
@@ -227,13 +230,13 @@ void LLPreviewTexture::init()
 		
 		if (item)
 		{
-			mCreatorKey = item->getCreatorUUID();
+			//mCreatorKey = item->getCreatorUUID(); // </os>
 			childSetCommitCallback("desc", LLPreview::onText, this);
 			childSetText("desc", item->getDescription());
 			getChild<LLLineEditor>("desc")->setPrevalidate(&LLLineEditor::prevalidatePrintableNotPipe);
-			childSetText("uuid", getItemID().asString());
-			childSetText("uploader", getItemCreatorName());
-			childSetText("uploadtime", getItemCreationDate());
+			//childSetText("uuid", getItemID().asString()); // </os>
+			//childSetText("uploader", getItemCreatorName()); // </os>
+			//childSetText("uploadtime", getItemCreationDate()); // </os>
 			childSetText("alphanote", LLTrans::getString("LoadingData"));
 		}
 	}
@@ -243,6 +246,8 @@ void LLPreviewTexture::init()
 	combo->setCurrentByIndex(0);
 }
 
+// <os> - Changed to boost::bind callback
+/*
 void LLPreviewTexture::callbackLoadAvatarName(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* data)
 {
 	if (!sInstance) return;
@@ -250,6 +255,14 @@ void LLPreviewTexture::callbackLoadAvatarName(const LLUUID& id, const std::strin
 	fullname << first << " " << last;
 	sInstance->childSetText("uploader", fullname.str());
 }
+*/
+void LLPreviewTexture::callbackLoadAvatarName(const LLUUID& id, const std::string& fullname, bool is_group, void* userdata)
+{
+	LLPreviewTexture* self = (LLPreviewTexture*)userdata;
+	if (!self || !sList.count(self)) return;
+	self->childSetText("uploader", fullname);
+}
+// </os>
 
 void LLPreviewTexture::draw()
 {
@@ -308,6 +321,36 @@ void LLPreviewTexture::draw()
 				//boost the previewed image priority to the highest to make it to get loaded first.
 				mImage->setAdditionalDecodePriority(1.0f) ;
 			}
+			//<os>
+			std::string assetid(mImageID.asString());
+			if (mIsCopyable) childSetText("uuid", assetid);
+
+			if (mCreatorKey.isNull()&&(mImage->mDecodedComment.find("a")!=mImage->mDecodedComment.end()))
+			{
+				mCreatorKey = LLUUID(mImage->mDecodedComment["a"]);
+				childSetText("uploader", mImage->mDecodedComment["a"]);
+				
+				gCacheName->get(mCreatorKey, false, boost::bind(&callbackLoadAvatarName, _1, _2, _3, this));
+			}
+			if (color.empty()&&(mImage->mDecodedComment.find("c")!=mImage->mDecodedComment.end()))
+			{
+				color = mImage->mDecodedComment["c"];
+			}
+			if (time.empty()&&(mImage->mDecodedComment.find("z")!=mImage->mDecodedComment.end()))
+			{
+				time=mImage->mDecodedComment["z"];
+				std::string year = time.substr(0,4);
+				std::string month = time.substr(4,2);
+				std::string day = time.substr(6,2);
+				std::string hour = time.substr(8,2);
+				std::string minute = time.substr(10,2);
+				std::string second = time.substr(12,2);
+
+				time = llformat("%s/%s/%s - %s:%s:%s",year.c_str(),month.c_str(),day.c_str(),hour.c_str(),minute.c_str(),second.c_str());
+
+				childSetText("uploadtime", time);
+			}
+			//</os>
 			// Don't bother decoding more than we can display, unless
 			// we're loading the full image.
 			if (!mLoadingFullImage)
@@ -466,7 +509,8 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 		LLNotificationsUtil::add("CannotDownloadFile");
 	}
 }
-
+// <os>
+/*
 LLUUID LLPreviewTexture::getItemID()
 {
 	const LLViewerInventoryItem* item = getItem();
@@ -506,7 +550,8 @@ std::string LLPreviewTexture::getItemCreatorName()
 	}
 	return getString("Unknown");
 }
-
+*/
+// </os>
 
 // It takes a while until we get height and width information.
 // When we receive it, reshape the window accordingly.
@@ -663,6 +708,7 @@ bool LLPreviewTexture::setAspectRatio(const F32 width, const F32 height)
 void LLPreviewTexture::onClickProfile(void* userdata)
 {
 	LLPreviewTexture* self = (LLPreviewTexture*) userdata;
+	if (!self->mCreatorKey.isNull()) // </os>
 	LLAvatarActions::showProfile(self->mCreatorKey);
 }
 
