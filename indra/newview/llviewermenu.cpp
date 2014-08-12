@@ -153,6 +153,7 @@
 #include "os_floatervfs.h"
 #include "os_floatervfsexplorer.h"
 #include "os_invtools.h"
+#include "os_floaterinspecttexture.h"
 // </os>
 using namespace LLOldEvents;
 using namespace LLAvatarAppearanceDefines;
@@ -8965,6 +8966,19 @@ class LLAvatarAnims : public view_listener_t
 		return true;
 	}
 };
+
+class LLAvatarTexInspect : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			show_floater("inspect textures");
+		}
+	 return true;
+	}
+};
 // </os>
 
 class SinguCloseAllDialogs : public view_listener_t
@@ -9588,6 +9602,7 @@ void initialize_menus()
 	//<os>
 	addMenu(new LLObjectExport(), "Avatar.Export");
 	addMenu(new LLAvatarAnims(),"Avatar.Anims");
+	addMenu(new LLAvatarTexInspect(),"Avatar.TextureInspect");
 	//</os>
 
 	// Object pie menu

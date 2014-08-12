@@ -9906,6 +9906,21 @@ Would you like to enable announcing keys to objects in the sim?
      canceltext="No, don't ask again!"/>
   </notification>
 
+<!--os-->
+  <notification
+    icon="alertmodal.tga"
+    name="ScriptRipFunction"
+    type="alertmodal">
+    Please choose where to copy your script.
+    <tag>Clipboard</tag>
+    <tag>Inventory</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Inventory"
+     yestext="Clipboard"/>
+  </notification>
+<!--/os-->   
+
   <notification
    icon="alertmodal.tga"
    name="WavefrontExportPartial"
