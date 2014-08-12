@@ -72,7 +72,9 @@
 				</menu_item_call>
 				<menu_item_separator />
 				<menu_item_separator />
-				<menu_item_separator />
+				<menu_item_call enabled="true" label="OS Textures" mouse_opaque="true" name="Inspect Textures">
+				<on_click function="ShowFloater" userdata="inspect textures" />
+			</menu_item_call>
         <menu_item_call enabled="true" label="Reload" mouse_opaque="true" name="Reload Textures">
           <on_click function="Object.ReloadTextures" />
         </menu_item_call>
