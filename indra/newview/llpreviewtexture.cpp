@@ -421,7 +421,7 @@ BOOL LLPreviewTexture::canSaveAs() const
 {
 	// <os>
 	//return mIsCopyable && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
-	return isNaughty() && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();	
+	return /*mIsCopyable &&*/ !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
 	// </os>
 }
 

@@ -41,7 +41,10 @@
 LLPanelDirPeople::LLPanelDirPeople(const std::string& name, LLFloaterDirectory* floater)
 :	LLPanelDirBrowser(name, floater)
 {
-	mMinSearchChars = 3;
+	// <os>
+	//mMinSearchChars = 3;
+	mMinSearchChars = 0;
+	// </edit>
 }
 
 BOOL LLPanelDirPeople::postBuild()
@@ -51,7 +54,9 @@ BOOL LLPanelDirPeople::postBuild()
 	getChild<LLLineEditor>("name")->setKeystrokeCallback(boost::bind(&LLPanelDirBrowser::onKeystrokeName,this,_1));
 
 	getChild<LLButton>("Search")->setClickedCallback(boost::bind(&LLPanelDirBrowser::onClickSearchCore,this));
-	childDisable("Search");
+	// <os>
+	//childDisable("Search");
+	// </os>
 	setDefaultBtn( "Search" );
 
 	return TRUE;
@@ -66,6 +71,9 @@ LLPanelDirPeople::~LLPanelDirPeople()
 // virtual
 void LLPanelDirPeople::performQuery()
 {
+	// <os>
+	/*
+	// </os>
 	if (childGetValue("name").asString().length() < mMinSearchChars)
 	{
 		return;
@@ -98,6 +106,10 @@ void LLPanelDirPeople::performQuery()
 		args["FINALQUERY"] = query_string;
 		LLNotificationsUtil::add("SeachFilteredOnShortWords", args);
 	}
+	// <os>
+	*/
+	std::string query_string = childGetValue("name").asString();
+	// </os>
 
 	setupNewSearch();
 

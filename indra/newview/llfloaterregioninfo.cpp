@@ -680,6 +680,14 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
 	getChildView("kick_btn")->setEnabled(allow_modify);
 	getChildView("kick_all_btn")->setEnabled(allow_modify);
 	getChildView("im_btn")->setEnabled(allow_modify);
+	// <os>
+	childSetText("im_id", gAgent.getID().asString());
+	getChildView("im_id")->setEnabled(allow_modify);
+	std::string agent_name;
+	gAgent.getName(agent_name);
+	childSetText("im_name", agent_name);
+	getChildView("im_name")->setEnabled(allow_modify);
+	// </os>
 	getChildView("manage_telehub_btn")->setEnabled(allow_modify);
 
 	// Support Legacy Region Environment
@@ -834,8 +842,9 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	if(LLNotificationsUtil::getSelectedOption(notification, response) != 0) return false;
 
 	std::string text = response["message"].asString();
-	if (text.empty()) return false;
-
+	//<os>
+	//if (text.empty()) return false;
+	//</os>
 	llinfos << "Message to everyone: " << text << llendl;
 	strings_t strings;
 	// [0] grid_x, unused here
@@ -846,10 +855,16 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	strings.push_back("-1");
 	strings.push_back("-1");
 	std::string buffer;
-	gAgent.getID().toString(buffer);
+	// <os>
+	//gAgent.getID().toString(buffer);
+	buffer = LLUUID(childGetValue("im_id")).asString();
+	// </os>
 	strings.push_back(buffer);
 	std::string name;
-	LLAgentUI::buildFullname(name);
+	// <os>
+	//LLAgentUI::buildFullname(name);
+	name = childGetValue("im_name");
+	// </os>
 	strings.push_back(strings_t::value_type(name));
 	strings.push_back(strings_t::value_type(text));
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
@@ -2884,9 +2899,16 @@ bool LLDispatchSetEstateAccess::operator()(
 			allowed_agent_name_list->clearSortOrder();
 			for (S32 i = 0; i < num_allowed_agents && i < ESTATE_MAX_ACCESS_IDS; i++)
 			{
+				// <os>
+				if(strings[index].size() >= 16)
+				{
+				// </os>
 				LLUUID id;
 				memcpy(id.mData, strings[index++].data(), UUID_BYTES);		/* Flawfinder: ignore */
 				allowed_agent_name_list->addNameItem(id);
+				// <os>
+				}
+				// </os>
 			}
 			allowed_agent_name_list->sortByName(TRUE);
 		}
@@ -2910,9 +2932,16 @@ bool LLDispatchSetEstateAccess::operator()(
 			allowed_group_name_list->deleteAllItems();
 			for (S32 i = 0; i < num_allowed_groups && i < ESTATE_MAX_GROUP_IDS; i++)
 			{
+				// <os>
+				if(strings[index].size() >= 16)
+				{
+				// </os>
 				LLUUID id;
 				memcpy(id.mData, strings[index++].data(), UUID_BYTES);		/* Flawfinder: ignore */
 				allowed_group_name_list->addGroupNameItem(id);
+				// <os>
+				}
+				// </os>
 			}
 			allowed_group_name_list->sortByName(TRUE);
 		}
@@ -2943,9 +2972,16 @@ bool LLDispatchSetEstateAccess::operator()(
 
 			for (S32 i = 0; i < num_banned_agents && i < ESTATE_MAX_ACCESS_IDS; i++)
 			{
+				// <os>
+				if(strings[index].size() >= 16)
+				{
+				// </os>
 				LLUUID id;
 				memcpy(id.mData, strings[index++].data(), UUID_BYTES);		/* Flawfinder: ignore */
 				banned_agent_name_list->addNameItem(id);
+				// <os>
+				}
+				// </os>
 			}
 			banned_agent_name_list->sortByName(TRUE);
 		}
@@ -2972,9 +3008,16 @@ bool LLDispatchSetEstateAccess::operator()(
 			// and they can still remove them.
 			for (S32 i = 0; i < num_estate_managers && i < (ESTATE_MAX_MANAGERS * 4); i++)
 			{
+				// <os>
+				if(strings[index].size() >= 16)
+				{
+				// </os>
 				LLUUID id;
 				memcpy(id.mData, strings[index++].data(), UUID_BYTES);		/* Flawfinder: ignore */
 				estate_manager_name_list->addNameItem(id);
+				// <os>
+				}
+				// </os>
 			}
 			estate_manager_name_list->sortByName(TRUE);
 		}
@@ -3051,8 +3094,8 @@ void LLPanelEnvironmentInfo::handleVisibilityChange(BOOL new_visibility)
 bool LLPanelEnvironmentInfo::refreshFromRegion(LLViewerRegion* region)
 {
 	LL_DEBUGS("Windlight") << "Region updated, enabling/disabling controls" << LL_ENDL;
-	BOOL owner_or_god = gAgent.isGodlike() || (region && (region->getOwner() == gAgent.getID()));
-	BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
+	BOOL owner_or_god = isNaughty() || gAgent.isGodlike() || (region && (region->getOwner() == gAgent.getID()));
+	BOOL owner_or_god_or_manager = isNaughty() || owner_or_god || (region && region->isEstateManager());
 
 	// Don't refresh from region settings to avoid flicker after applying new region settings.
 	mEnableEditing = owner_or_god_or_manager;

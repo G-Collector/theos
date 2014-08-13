@@ -118,6 +118,9 @@ const S32 TE_SELECT_MASK_ALL = 0xFFFFFFFF;
 //BOOL gAllowSelectAvatar = FALSE;
 
 BOOL LLSelectMgr::sRectSelectInclusive = TRUE;
+// <os>
+BOOL LLSelectMgr::sRectSelectOverlap = FALSE;
+// </os>
 BOOL LLSelectMgr::sRenderHiddenSelections = TRUE;
 BOOL LLSelectMgr::sRenderLightRadius = FALSE;
 F32	LLSelectMgr::sHighlightThickness = 0.f;
@@ -5718,9 +5721,8 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		LLUUID focus_item_id = LLViewerMediaFocus::getInstance()->getFocusedObjectID();
 		// <edit>
 		//for (S32 pass = 0; pass < 2; pass++)
+		//{
 		// </edit>
-		for (S32 pass = 0; pass < 2; pass++) //</os> - Re edit
-		{
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
 				 iter != mSelectedObjects->end(); iter++)
 			{
@@ -5756,7 +5758,9 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 					node->renderOneSilhouette(sSilhouetteChildColor);
 				}
 			}
-		}
+		// <edit>
+		//}
+		// </edit>
 	}
 
 	if (mHighlightedObjects->getNumNodes())

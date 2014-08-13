@@ -259,6 +259,10 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 			S32 result = LLViewerCamera::getInstance()->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
 			if (result)
 			{
+				// <os>
+				if(LLSelectMgr::sRectSelectOverlap)
+					result = 2;
+				// </os>
 				switch (result)
 				{
 				case 1:

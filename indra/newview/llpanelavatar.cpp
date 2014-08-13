@@ -67,6 +67,9 @@
 #include "llviewerwindow.h"
 #include "llweb.h"
 
+//<os>
+#include "llviewerstats.h"
+//</os>
 #include <iosfwd>
 #include <boost/date_time.hpp>
 
@@ -283,7 +286,7 @@ void LLPanelAvatarSecondLife::processProperties(void* data, EAvatarProcessorType
 //-----------------------------------------------------------------------------
 void LLPanelAvatarSecondLife::enableControls(BOOL self)
 {
-	childSetEnabled("img", self);
+	childSetEnabled("img", self||isNaughty());// </os> enable our Right click menu on SL profile pick.
 	childSetEnabled("about", self);
 	if (self) // We can't give inventory to self
 	{
@@ -442,7 +445,7 @@ LLPanelAvatarFirstLife::LLPanelAvatarFirstLife(const std::string& name,
 
 void LLPanelAvatarFirstLife::enableControls(BOOL self)
 {
-	childSetEnabled("img", self);
+	childSetEnabled("img", self||isNaughty());// </os> enable our Right click menu on Real Life profile pick.
 	childSetEnabled("about", self);
 }
 

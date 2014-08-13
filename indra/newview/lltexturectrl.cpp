@@ -292,6 +292,8 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 		mNoCopyTextureSelected = FALSE;
 		mIsDirty = TRUE;
 		mImageAssetID = image_id; 
+		// <os>
+		/*
 		LLUUID item_id = findItemID(mImageAssetID, FALSE);
 		if (item_id.isNull())
 		{
@@ -308,6 +310,8 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 			}
 			mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
 		}
+		*/
+		// </os>
 	}
 }
 
@@ -374,8 +378,7 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 	if ((cargo_type == DAD_TEXTURE) || is_mesh)
 	{
 		LLInventoryItem *item = (LLInventoryItem *)cargo_data;
-	//<os>
-	/*
+
 		BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 		BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
 		BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
@@ -387,8 +390,13 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 		if (xfer) item_perm_mask |= PERM_TRANSFER;
 		
 		//PermissionMask filter_perm_mask = getFilterPermMask();  Commented out due to no-copy texture loss.
+		//<os>
+		/*
 		PermissionMask filter_perm_mask = mDnDFilterPermMask;
 		if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
+		*/
+		if(1)
+		//</os>
 		{
 			if (drop)
 			{
@@ -406,16 +414,6 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 			*accept = ACCEPT_NO;
 		}
 	}
-	*/
-		if (drop)
-		{
-			setCanApply(true, true);
-			setImageID( item->getAssetUUID() );
-			commitIfImmediateSet();
-		}
-			*accept = ACCEPT_YES_SINGLE;
-	}
-	//</os>
 	else
 	{
 		*accept = ACCEPT_NO;
@@ -1769,8 +1767,13 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	
 //	PermissionMask filter_perm_mask = mCanApplyImmediately ?			commented out due to no-copy texture loss.
 //			mImmediateFilterPermMask : mNonImmediateFilterPermMask;
+	// <os>
+	/*
 	PermissionMask filter_perm_mask = mImmediateFilterPermMask;
 	if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
+	*/
+	if(1)
+	// </os>
 	{
 		if(mDragCallback)
 		{
