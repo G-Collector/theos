@@ -157,9 +157,9 @@ LLUUID findUploader(LLViewerTexture* img)
 {
 	LLViewerFetchedTexture* imagep = dynamic_cast<LLViewerFetchedTexture*>(img);
 	//LLPointer<LLViewerFetchedTexture> imagep(static_cast<LLViewerFetchedTexture*>(img));
-	if (imagep && imagep->mDecodedComment.find("a") != imagep->mDecodedComment.end())
+	if (imagep && imagep->mComment.find("a") != imagep->mComment.end())
 	{
-		return LLUUID(imagep->mDecodedComment["a"]);
+		return LLUUID(imagep->mComment["a"]);
 	}
 	return LLUUID::null;
 }
@@ -431,8 +431,8 @@ void LLFloaterInspectTexture::iterateObjects(LLViewerObject* object, U8 te_count
 		if (!img) continue;
 		uuid = img->getID();
 
-		height = img->getWidth();
-		width =  img->getHeight();
+		height = img->getHeight();
+		width =  img->getWidth();
 		components = img->getComponents();
 		type_str = "Diffuse map";
 		uploader = findUploader(img);

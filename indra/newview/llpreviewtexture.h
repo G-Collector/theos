@@ -124,9 +124,9 @@ private:
 	S32 mLastWidth;
 	F32 mAspectRatio;	// 0 = Unconstrained
 	S32 mAlphaMaskResult;
-
+	// <os>
+	LLAvatarNameCache::callback_connection_t mAvatarNameCallbackConnection;
+	// </os>
 	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
-
-	static std::set<LLPreviewTexture*> sList;// </os>
 };
 #endif  // LL_LLPREVIEWTEXTURE_H

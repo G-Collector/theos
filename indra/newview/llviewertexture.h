@@ -386,8 +386,9 @@ public:
 	void        forceToDeleteRequest();
 	void		forceRefetch();
 
-	// <os>
-	std::map<std::string,std::string> mDecodedComment;
+
+	// <os> texture comment decoder
+	std::map<std::string,std::string> mComment;
 	// </os>
 	
 protected:

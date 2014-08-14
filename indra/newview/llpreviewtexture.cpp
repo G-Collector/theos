@@ -66,7 +66,6 @@ const F32 PREVIEW_TEXTURE_MAX_ASPECT = 200.f;
 const F32 PREVIEW_TEXTURE_MIN_ASPECT = 0.005f;
 
 LLPreviewTexture * LLPreviewTexture::sInstance;
-std::set<LLPreviewTexture*> LLPreviewTexture::sList; // </os>
 LLPreviewTexture::LLPreviewTexture(const std::string& name,
 								   const LLRect& rect,
 								   const std::string& title,
@@ -83,9 +82,12 @@ LLPreviewTexture::LLPreviewTexture(const std::string& name,
 	mLastWidth(0),
 	mAspectRatio(0.f),
 	mImage(NULL),
-	mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
+	//os>
+	//mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
+	mImageOldBoostLevel(LLGLTexture::BOOST_NONE),
+	mAvatarNameCallbackConnection()
+	//</os>
 {
-	sList.insert(this); // </os>
 	const LLInventoryItem *item = getItem();
 	if(item)
 	{
@@ -147,7 +149,7 @@ LLPreviewTexture::LLPreviewTexture(
 	mAspectRatio(0.f),
 	mAlphaMaskResult(0)
 {
-	sList.insert(this); // </os>
+
 	init();
 
 	setTitle(title);
@@ -159,6 +161,12 @@ LLPreviewTexture::LLPreviewTexture(
 
 LLPreviewTexture::~LLPreviewTexture()
 {
+	// <os> Handle avatar name callback
+	if (mAvatarNameCallbackConnection.connected())
+	{
+		mAvatarNameCallbackConnection.disconnect();
+	}
+	// </os>
 	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
 
 	if( mLoadingFullImage )
@@ -169,7 +177,6 @@ LLPreviewTexture::~LLPreviewTexture()
 	{
 		mImage->setBoostLevel(mImageOldBoostLevel);
 		mImage = NULL;
-		sList.erase(this); // </os>
 	}
 	sInstance = NULL;
 }
@@ -246,7 +253,7 @@ void LLPreviewTexture::init()
 	combo->setCurrentByIndex(0);
 }
 
-// <os> - Changed to boost::bind callback
+// <os> - Changed to boost::bind callback - Changed to boost below
 /*
 void LLPreviewTexture::callbackLoadAvatarName(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* data)
 {
@@ -258,9 +265,16 @@ void LLPreviewTexture::callbackLoadAvatarName(const LLUUID& id, const std::strin
 */
 void LLPreviewTexture::callbackLoadAvatarName(const LLUUID& id, const std::string& fullname, bool is_group, void* userdata)
 {
-	LLPreviewTexture* self = (LLPreviewTexture*)userdata;
-	if (!self || !sList.count(self)) return;
+	LLPreviewTexture* self = (LLPreviewTexture*) userdata;
+
+	if (!self) return;
+
 	self->childSetText("uploader", fullname);
+
+	if (self->mAvatarNameCallbackConnection.connected())
+	{
+		self->mAvatarNameCallbackConnection.disconnect();
+	}
 }
 // </os>
 
@@ -325,20 +339,20 @@ void LLPreviewTexture::draw()
 			std::string assetid(mImageID.asString());
 			if (mIsCopyable) childSetText("uuid", assetid);
 
-			if (mCreatorKey.isNull()&&(mImage->mDecodedComment.find("a")!=mImage->mDecodedComment.end()))
+			if (mCreatorKey.isNull()&&(mImage->mComment.find("a")!=mImage->mComment.end()))
 			{
-				mCreatorKey = LLUUID(mImage->mDecodedComment["a"]);
-				childSetText("uploader", mImage->mDecodedComment["a"]);
+				mCreatorKey = LLUUID(mImage->mComment["a"]);
+				childSetText("uploader", mImage->mComment["a"]);
 				
 				gCacheName->get(mCreatorKey, false, boost::bind(&callbackLoadAvatarName, _1, _2, _3, this));
 			}
-			if (color.empty()&&(mImage->mDecodedComment.find("c")!=mImage->mDecodedComment.end()))
+			if (color.empty()&&(mImage->mComment.find("c")!=mImage->mComment.end()))
 			{
-				color = mImage->mDecodedComment["c"];
+				color = mImage->mComment["c"];
 			}
-			if (time.empty()&&(mImage->mDecodedComment.find("z")!=mImage->mDecodedComment.end()))
+			if (time.empty()&&(mImage->mComment.find("z")!=mImage->mComment.end()))
 			{
-				time=mImage->mDecodedComment["z"];
+				time=mImage->mComment["z"];
 				std::string year = time.substr(0,4);
 				std::string month = time.substr(4,2);
 				std::string day = time.substr(6,2);
@@ -421,7 +435,7 @@ BOOL LLPreviewTexture::canSaveAs() const
 {
 	// <os>
 	//return mIsCopyable && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
-	return /*mIsCopyable &&*/ !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
+	return !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
 	// </os>
 }
 

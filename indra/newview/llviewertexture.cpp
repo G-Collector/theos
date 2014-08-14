@@ -1279,8 +1279,36 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 // 						mRawImage->getWidth(), mRawImage->getHeight(),mRawImage->getDataSize())
 // 			<< mID.getString() << llendl;
 
-	// <os>
-	mDecodedComment = mRawImage->decodedComment;
+	// <os> texture comment metadata reader
+	if (!mRawImage->mComment.empty())
+	{
+		std::string comment = mRawImage->mComment;
+		mComment["comment"] = comment;
+		std::size_t position = 0;
+		std::size_t length = comment.length();
+		while (position < length)
+		{
+			std::size_t equals_position = comment.find("=", position);
+			if (equals_position != std::string::npos)
+			{
+				std::string type = comment.substr(position, equals_position - position);
+				position = comment.find("&", position);
+				if (position != std::string::npos)
+				{
+					mComment[type] = comment.substr(equals_position + 1, position - (equals_position + 1));
+					position++;
+				}
+				else
+				{
+					mComment[type] = comment.substr(equals_position + 1, length - (equals_position + 1));
+				}
+			}
+			else
+			{
+				position = equals_position;
+			}
+		}
+	}
 	// </os>
 
 	BOOL res = TRUE;

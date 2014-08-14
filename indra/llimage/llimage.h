@@ -244,9 +244,6 @@ public:
 
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
 	void compositeUnscaled4onto3( LLImageRaw* src );
-	//<os>
-	std::map<std::string,std::string> decodedComment;
-	//</os>
 
 protected:
 	// Create an image from a local file (generally used in tools)
@@ -263,7 +260,10 @@ public:
 	static AIThreadSafeSimpleDC<S32> sGlobalRawMemory;
 	
 	static S32 sRawImageCount;
-
+	// <os> texture comment metadata reader
+	std::string mComment;
+	// </os>
+	
 	static S32 sRawImageCachedCount;
 	S32 mCacheEntries;
 	void setInCache(bool in_cache)
