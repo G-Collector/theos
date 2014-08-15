@@ -8961,6 +8961,31 @@ class LLAvatarTexInspect : public view_listener_t
 	 return true;
 	}
 };
+
+//<edit>  - Delete all owned objects in the region
+class OSDeleteAllYours: public view_listener_t
+{
+    bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+    {
+		LLNotificationsUtil::add("OSDeleteAllYoursConfirm",
+								LLSD(),
+								LLSD(),
+								boost::bind(&OSDeleteAllYours::OSDeleteAllYoursConfirm, this, _1, _2));
+		return true;
+	}
+	bool OSDeleteAllYoursConfirm(const LLSD& notification, const LLSD& response)
+	{
+		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+		if (0 == option)
+		{
+			// User clicked "Yes"
+			gObjectList.deleteAllOwnedObjects();
+			return true;
+		}
+		else
+			return false;
+	}
+};
 // </os>
 
 class SinguCloseAllDialogs : public view_listener_t
@@ -9522,6 +9547,9 @@ void initialize_menus()
 	addMenu(new LLWorldVisibleDestinations(), "World.VisibleDestinations");
 	(new LLWorldEnvSettings())->registerListener(gMenuHolder, "World.EnvSettings");
 	(new LLWorldEnableEnvSettings())->registerListener(gMenuHolder, "World.EnableEnvSettings");
+	// <os>
+	addMenu(new OSDeleteAllYours(), "OS.DeleteAllYours");
+	// </os>
 
 
 	// Tools menu

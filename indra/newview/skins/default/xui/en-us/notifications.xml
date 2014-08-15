@@ -10445,6 +10445,19 @@ Would you like to enable announcing keys to objects in the sim?
      notext="Inventory"
      yestext="Clipboard"/>
   </notification>
+  <notification
+    icon="alertmodal.tga"
+    name="OSDeleteAllYoursConfirm"
+    type="alertmodal">
+    WARNING: You are about to delete all owned objects in the current region.
+    Are you sure?
+    <tag>confirm</tag>
+    <tag>fail</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
 <!--/os-->   
 
   <notification

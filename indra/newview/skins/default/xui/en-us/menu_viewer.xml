@@ -1087,5 +1087,9 @@
     <menu_item_call label="OS Kill Viewer Effects" mouse_opaque="true" name="Clear Viewer Effects">
       <on_click function="OS.ClearEffects" />
     </menu_item_call>
+	<menu_item_call label="OS Delete All Owned Objects" mouse_opaque="true" name="OS DeleteAllYours" shortcut="control|del">
+      <on_click function="OS.DeleteAllYours" />
+    </menu_item_call>
+
 	</menu>
 </menu_bar>

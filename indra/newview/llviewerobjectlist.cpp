@@ -1311,6 +1311,26 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 	}
 }
 
+// <os>
+void LLViewerObjectList::deleteAllOwnedObjects()
+{
+	LLViewerObject *objectp;
+
+	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	{
+		objectp = *iter;
+
+		if(objectp->isRoot() && objectp->permYouOwner())
+		{
+			LLSelectMgr::getInstance()->deselectAll();
+			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
+			LLSelectMgr::getInstance()->selectionUpdateTemporary(1);
+			LLSelectMgr::getInstance()->selectForceDelete();
+		}
+	}
+}
+// </os>
+
 BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 {
 	// Don't ever kill gAgentAvatarp, just force it to the agent's region
