@@ -1081,6 +1081,9 @@
     <menu_item_call label="OS VFS Explorer" mouse_opaque="true" name="VFS Explorer">
       <on_click function="OS.VFSExplorer" />
     </menu_item_call>
+    <menu_item_call label="OS Undeform" mouse_opaque="true" name="Undeform">
+      <on_click function="OS.Undeform" />
+    </menu_item_call>
     <menu_item_call label="OS Resync Animations" mouse_opaque="true" name="Resync Animations">
       <on_click function="OS.ResyncAnims" />
     </menu_item_call>

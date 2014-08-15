@@ -8986,6 +8986,79 @@ class OSDeleteAllYours: public view_listener_t
 			return false;
 	}
 };
+
+class Undeformer : public LLEventTimer
+{
+public:
+	Undeformer(BOOL eyes);
+	BOOL tick();
+	BOOL mEyeFix;
+};
+Undeformer::Undeformer(BOOL eyes)
+:	LLEventTimer(10.0f),
+	mEyeFix(eyes)
+{
+	LLMessageSystem	*msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_AgentAnimation);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	if(mEyeFix)
+		msg->addUUIDFast(_PREHASH_AnimID, LLUUID("e5afcabe-1601-934b-7e89-b0c78cac373a"));
+	else
+		msg->addUUIDFast(_PREHASH_AnimID, LLUUID("f097842c-632f-b5c7-bbbd-a0626916437d"));
+	msg->addBOOLFast(_PREHASH_StartAnim, TRUE);
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID("d307c056-636e-dda6-4a3c-b3a43c431ca8"));
+	msg->addBOOLFast(_PREHASH_StartAnim, TRUE);
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID("319b4e7a-18fc-1f9e-6411-dd10326c0c7e"));
+	msg->addBOOLFast(_PREHASH_StartAnim, TRUE);
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID("f05d765d-0e01-5f9a-bfc2-fdc054757e55"));
+	msg->addBOOLFast(_PREHASH_StartAnim, TRUE);
+	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
+	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
+	msg->sendReliable(gAgent.getRegion()->getHost());
+}
+BOOL Undeformer::tick()
+{
+	LLMessageSystem	*msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_AgentAnimation);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	if(mEyeFix)
+		msg->addUUIDFast(_PREHASH_AnimID, LLUUID("e5afcabe-1601-934b-7e89-b0c78cac373a"));
+	else
+		msg->addUUIDFast(_PREHASH_AnimID, LLUUID("f097842c-632f-b5c7-bbbd-a0626916437d"));
+	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID("d307c056-636e-dda6-4a3c-b3a43c431ca8"));
+	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID("319b4e7a-18fc-1f9e-6411-dd10326c0c7e"));
+	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID("f05d765d-0e01-5f9a-bfc2-fdc054757e55"));
+	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
+	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
+	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
+	msg->sendReliable(gAgent.getRegion()->getHost());
+	if(mEyeFix) return TRUE;
+	else new Undeformer(TRUE);
+	return TRUE;
+}
+class OSUndeform : public view_listener_t
+{
+    bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		new Undeformer(FALSE);
+		return true;
+	}
+};
 // </os>
 
 class SinguCloseAllDialogs : public view_listener_t
@@ -9741,6 +9814,7 @@ void initialize_menus()
 	addMenu(new OSVFSExplorer(), "OS.VFSExplorer");
 	addMenu(new OSResyncAnimations(), "OS.ResyncAnims");
 	addMenu(new OSMarkAllDead(), "OS.ClearEffects");
+	addMenu(new OSUndeform(), "OS.Undeform");
 	// </os>
 
 // [RLVa:KB] - Checked: 2010-01-18 (RLVa-1.1.0m) | Added: RLVa-1.1.0m | OK
