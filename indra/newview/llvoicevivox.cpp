@@ -532,6 +532,9 @@ void LLVivoxVoiceClient::connectorCreate()
 	if(savedLogLevel != "0")
 	{
 		LL_DEBUGS("Voice") << "creating connector with logging enabled" << LL_ENDL;
+		// <os> - enables setting vivox debug level from debug settings.
+		loglevel = savedLogLevel;
+		// </os>
 	}
 
 	stream
