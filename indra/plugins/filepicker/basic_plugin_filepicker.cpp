@@ -136,6 +136,8 @@ static LLFilePicker::ESaveFilter str2savefilter(std::string const& filter)
 	return LLFilePicker::FFSAVE_PHYSICS;
   else if (filter == "image")
 	return LLFilePicker::FFSAVE_IMAGE;
+  else if (filter == "animation")
+	return LLFilePicker::FFSAVE_ANIMATION;
   else
 	return LLFilePicker::FFSAVE_ALL;
 }

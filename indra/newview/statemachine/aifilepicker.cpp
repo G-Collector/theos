@@ -341,6 +341,9 @@ void AIFilePicker::open(std::string const& filename, ESaveFilter filter, std::st
 		case FFSAVE_IMAGE:
 			mFilter = "image";
 			break;
+		case FFSAVE_ANIMATION:
+			mFilter = "animation";
+			break;
 	}
 }
 

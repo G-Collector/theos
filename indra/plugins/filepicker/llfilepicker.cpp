@@ -51,7 +51,7 @@ LLFilePicker LLFilePicker::sInstance;
 // </edit>
 //<os>
 //#define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
-#define ANIM_FILTER L"Animations (*.bvh; *.anim; *.animatn)\0*.bvh\0;*.anim\0;*.animatn\0"
+#define ANIM_FILTER L"Animations (*.bvh; *.anim; *.animatn; *.xaf)\0*.bvh\0;*.anim\0;*.animatn; *.xaf\0"
 //</os>
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #ifdef _CORY_TESTING
@@ -705,6 +705,15 @@ bool LLFilePickerBase::getSaveFile(ESaveFilter filter, std::string const& filena
 			L"JPEG Image (*.jpg *.jpeg)\0*.jpg;*.jpeg\0" \
 			L"Compressed Image (*.j2c)\0*.j2c\0" \
 			L"DXT Image (*.dxt *.mip)\0*.dxt;*.mip\0" \
+			L"\0";
+		break;
+	case FFSAVE_ANIMATION:
+		mOFN.lpstrDefExt = NULL;
+		mOFN.lpstrFilter =
+			L"Animation (*.anim *.animatn *.bvh)\0*.anim;*.animatn;*.bvh\0" \
+			L"Anim Animation (*.anim)\0*.anim\0" \
+			L"Animatn Animation (*.animatn)\0*.animatn\0" \
+			L"BVH Animation (*.bvh)\0*.bvh\0" \
 			L"\0";
 		break;
 	// </edit>
@@ -1538,6 +1547,10 @@ bool LLFilePickerBase::getSaveFile(ESaveFilter filter, std::string const& filena
 		case FFSAVE_IMAGE:
 			caption += add_imagesave_filter_to_gtkchooser(picker);
 			suggest_ext = ".png";
+			break;
+		case FFSAVE_ANIMATION:
+			caption += add_imagesave_filter_to_gtkchooser(picker);
+			suggest_ext = ".anim";
 			break;
 		default:;
 			break;

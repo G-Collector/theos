@@ -96,6 +96,7 @@ enum ESaveFilter
 	FFSAVE_BLACKLIST,
 	FFSAVE_PHYSICS,
 	FFSAVE_IMAGE,
+	FFSAVE_ANIMATION,
 };
 
 /*
@@ -206,7 +207,9 @@ private:
 
 public:
 	enum open_type { save, load, load_multiple };
-
+	// <os>
+	std::string getFilter() {  return mFilter; }
+	// </os>
 private:
 	LLPointer<LLViewerPluginManager> mPluginManager;				//!< Pointer to the plugin manager.
 	typedef std::map<std::string, std::string> context_map_type;	//!< Type of mContextMap.

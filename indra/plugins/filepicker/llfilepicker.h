@@ -114,6 +114,7 @@ public:
 		FFSAVE_BLACKLIST = 36,
 		FFSAVE_PHYSICS = 37,
 		FFSAVE_IMAGE = 38,
+		FFSAVE_ANIMATION = 39,
 		// </edit>
 	};
 

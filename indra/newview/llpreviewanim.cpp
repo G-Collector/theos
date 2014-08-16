@@ -48,6 +48,8 @@
 #include "llviewerwindow.h" // for alert
 #include "llappviewer.h" // gStaticVFS
 #include "llviewerstats.h" // </os> isNaughty
+#include "tsbvhexporter.h" // bvh export
+#include "lldatapacker.h" // unpack for bvh export
 // </edit>
 
 extern LLAgent gAgent;
@@ -403,8 +405,10 @@ void LLPreviewAnim::gotAssetForSave(LLVFS *vfs,
 
 	// Write it back out...
 
+	//filepicker->open(LLDir::getScrubbedFileName(self->getItem()->getName()) + ".animatn", FFSAVE_ANIMATN);
+	const LLViewerInventoryItem* item = self->getItem() ;
 	AIFilePicker* filepicker = AIFilePicker::create();
-	filepicker->open(LLDir::getScrubbedFileName(self->getItem()->getName()) + ".animatn", FFSAVE_ANIMATN);
+	filepicker->open(item ? LLDir::getScrubbedFileName(item->getName()) + ".animatn" : LLStringUtil::null, FFSAVE_ANIMATION, "", "animation");
 	filepicker->run(boost::bind(&LLPreviewAnim::gotAssetForSave_continued, buffer, size, filepicker));
 }
 
@@ -414,11 +418,31 @@ void LLPreviewAnim::gotAssetForSave_continued(char* buffer, S32 size, AIFilePick
 	if (filepicker->hasFilename())
 	{
 		std::string filename = filepicker->getFilename();
-		std::ofstream export_file(filename.c_str(), std::ofstream::binary);
-		export_file.write(buffer, size);
-		export_file.close();
+		std::string exten;
+		size_t dotidx = filename.rfind('.');
+		if (dotidx != std::string::npos)
+		{
+			exten = filename.substr(dotidx+1);
+		}
+		else
+		{
+			exten = filename;
+		}
+		if (exten == "bvh")
+		{
+			TSBVHExporter exporter;
+			LLDataPackerBinaryBuffer dp((U8*)buffer, size);
+			if(exporter.deserialize(dp)) exporter.exportBVHFile(filename.c_str());
+		}
+		else
+		{
+			std::ofstream export_file(filename.c_str(), std::ofstream::binary);
+			export_file.write(buffer, size);
+			export_file.close();
+		}
 	}
 	delete[] buffer;
+	buffer = NULL;
 }
 
 // virtual
