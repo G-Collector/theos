@@ -2655,20 +2655,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				if (message != "typing")
 				{
-					std::string pns_name;
-					if (!LLAvatarNameCache::getNSName(from_id, pns_name)) pns_name = name;
-					gIMMgr->addMessage(
-						session_id,
-						from_id,
-						name,
-						llformat("/me (IM_TYPING_STOP): %s", message.c_str()),
-						name,
-						dialog,
-						parent_estate_id,
-						region_id,
-						position,
-						true);
-					chat.mText = llformat("IM: %s (IM_TYPING_STOP): %s", pns_name.c_str(), message.c_str());
+					gIMMgr->addMessage(LLUUID::null, from_id, name, llformat("%s (IM_TYPING_STOP): %s", name.c_str(), message.c_str()));
+					chat.mText = llformat("IM: %s (IM_TYPING_STOP): %s", name.c_str(), message.c_str());
 					LLFloaterChat::addChat(chat, true, false);
 				}
 			}
