@@ -8995,7 +8995,7 @@ public:
 	BOOL mEyeFix;
 };
 Undeformer::Undeformer(BOOL eyes)
-:	LLEventTimer(10.0f),
+:	LLEventTimer(6.0f),
 	mEyeFix(eyes)
 {
 	LLMessageSystem	*msg = gMessageSystem;
