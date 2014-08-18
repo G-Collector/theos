@@ -66,6 +66,12 @@
 #include "llinventorytype.h"
 // </edit>
 
+// <os>		//wearable upload
+#include "os_assetconverter.h"
+#include "llwearablelist.h"
+#include "llvoavatarself.h"
+// </os>
+
 // linden libraries
 #include "llassetuploadresponders.h"
 #include "lleconomy.h"
@@ -90,6 +96,7 @@ using namespace LLOldEvents;
 
 typedef LLMemberListener<LLView> view_listener_t;
 
+extern void wearable_callback(LLViewerWearable* old_wearable, void*);// <os> wearable callback.
 
 class LLFileEnableSaveAs : public view_listener_t
 {
@@ -888,6 +895,11 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		else if (exten == "notecard") asset_type = LLAssetType::AT_NOTECARD;
 		filename = src_filename;
 	}
+	else if(exten == "wearable"|| exten == "bodypart"|| exten == "shape"|| exten == "skin"||exten == "hair"|| exten == "eyes"||exten == "shirt"|| exten == "pants"||exten == "shoes"|| exten == "socks"|| exten == "jacket"|| exten == "gloves"|| exten == "undershirt"||exten == "underpants"|| exten == "undershirt"|| exten == "skirt"|| exten == "physics"|| exten == "tattoo"|| exten == "alpha")
+	{
+		asset_type = LLAssetConverter::convert(filename, filename + ".tmp");
+		filename = src_filename;
+	}
 	// </edit>
 	else
 	{
@@ -950,6 +962,10 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 									NOT_WEARABLE,
 									PERM_ITEM_UNRESTRICTED,
 									new NewResourceItemCallback);
+		}
+		else if(exten == "wearable"|| exten == "bodypart"|| exten == "shape"|| exten == "skin"||exten == "hair"|| exten == "eyes"||exten == "shirt"|| exten == "pants"||exten == "shoes"|| exten == "socks"|| exten == "jacket"|| exten == "gloves"|| exten == "undershirt"||exten == "underpants"|| exten == "undershirt"|| exten == "skirt"|| exten == "physics"|| exten == "tattoo"|| exten == "alpha")
+		{
+			LLWearableList::getInstance()->getAsset(uuid, name, gAgentAvatarp, asset_type, wearable_callback, (void*)name.c_str());
 		}
 		else
 		// </edit>
