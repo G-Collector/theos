@@ -1716,7 +1716,7 @@ void LLViewerRegion::unpackRegionHandshake()
 	// <os>
 	if (needs_notify)
 	{
-		OSCircuits::getInstance()->notifyEnabled(this);
+		RecentRegionList::getInstance()->notifyEnabled(this);
 	}
 	// </os>
 }

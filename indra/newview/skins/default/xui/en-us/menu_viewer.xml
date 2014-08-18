@@ -1081,6 +1081,12 @@
     <menu_item_call label="OS VFS Explorer" mouse_opaque="true" name="VFS Explorer">
       <on_click function="OS.VFSExplorer" />
     </menu_item_call>
+	<menu_item_separator mouse_opaque="true" name="separators8" />
+	<menu_item_check label="OS Region Circuits" mouse_opaque="true" name="region circuits">
+			<on_click function="ShowFloater" userdata="region circuits"/>
+			<on_check function="FloaterVisible" userdata="region circuits"/>
+		</menu_item_check>
+	<menu_item_separator mouse_opaque="true" name="separators9" />	
     <menu_item_call label="OS Undeform" mouse_opaque="true" name="Undeform">
       <on_click function="OS.Undeform" />
     </menu_item_call>

@@ -394,9 +394,9 @@ public:
 
 	void showReleaseNotes();
 	void reInitPartitions();
-
-protected:
 	void disconnectAllNeighbors();
+protected:
+	//void disconnectAllNeighbors();
 	void initStats();
 	void initPartitions();
 

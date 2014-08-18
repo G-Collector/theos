@@ -316,7 +316,7 @@ void LLWorld::removeRegion(const LLHost &host)
 	}
 	
 	// <os> Notification of disable
-	OSCircuits::getInstance()->notifyDisabled(regionp);
+	RecentRegionList::getInstance()->notifyDisabled(regionp);
 	// </os>
 	if (regionp == gAgent.getRegion())
 	{

@@ -113,6 +113,7 @@
 #include "llviewerparcelmgr.h"
 //<os>
 #include "os_floaterinspecttexture.h"
+#include "os_circuits.h"
 // </os>
 // [RLVa:LF]
 #include "rlvfloaters.h"
@@ -206,6 +207,7 @@ struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
 		registerFloater("show inspect", boost::bind(LLFloaterInspect::showInstance, LLSD()));
 		//<os>
 		registerFloater("inspect textures", boost::bind(LLFloaterInspectTexture::showInstance, LLSD()));
+		registerFloater("region circuits", boost::bind(OSCircuits::showInstance, LLSD()));
 		//</os>
 		registerFloater("sit", boost::bind(toggle_sit));
 		registerFloater("snapshot", boost::bind(LLFloaterSnapshot::show, (void*)NULL));

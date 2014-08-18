@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater can_close="true" can_drag_on_left="false" can_minimize="true" can_resize="true"
+     min_height="325" min_width="690" name="region circuits"
+     rect_control="CircuitsFloaterRect" title="Region Circuits">
+  <scroll_list bottom="40" can_resize="false" column_padding="0" draw_heading="true"
+	     follows="top|right|left|bottom" left="10" multi_select="false"
+	     name="region_list" right="-10"
+	     tool_tip="Select a region from this list to perform various functions."
+	     top="-20">
+    <column dynamicwidth="true" label="Region" name="region_name" />
+	<column dynamicwidth="true" label="Handle" name="region_handle" />
+	<column dynamicwidth="true" label="RegionID" name="region_id" />
+  </scroll_list>
+
+  <button bottom_delta="-30" follows="left|bottom" font="SansSerif" halign="center" height="20"
+	     label="Disconnect Selected" label_selected="" left="10"
+	     mouse_opaque="true" name="disconnect_btn"
+	     width="150" />
+
+  <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center" height="20"
+	     label="Disconnect Neighbours" label_selected="" left_delta="155"
+	     mouse_opaque="true" name="disconnect_all_btn"
+	     width="150" />
+<!--	 
+  <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center" height="20"
+	     label="todo" label_selected="" left_delta="155"
+	     mouse_opaque="true" name="todo" width="150" />
+
+  <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center" height="20"
+	     label="todo" label_selected="" left_delta="155"
+	     mouse_opaque="true" name="todo"
+	     width="150" />
+-->
+</floater>
