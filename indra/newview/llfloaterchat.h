@@ -61,6 +61,10 @@ public:
 
 	static void setHistoryCursorAndScrollToEnd();
 	
+	// <os> 
+	static void LLFloaterChat::print(std::string message);
+	// </os>
+
 	// Add chat to console and history list.
 	// Color based on source, type, distance.
 	static void addChat(const LLChat& chat, BOOL from_im = FALSE, BOOL local_agent = FALSE);

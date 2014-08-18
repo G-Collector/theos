@@ -342,6 +342,14 @@ void LLFloaterChat::onClickToggleShowMute(bool show_mute, LLTextEditor* history_
 	(show_mute ? history_editor_with_mute : history_editor)->setCursorAndScrollToEnd();
 }
 
+// <os> add a std::string to chat console.
+void LLFloaterChat::print(std::string message)
+{
+	LLChat chat(message);
+	addChat(chat);
+}
+// </os>
+
 // Put a line of chat in all the right places
 void LLFloaterChat::addChat(const LLChat& chat, 
 			  BOOL from_instant_message, 
@@ -589,4 +597,5 @@ BOOL LLFloaterChat::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash )
 
 	return LLUICtrl::focusFirstItem(prefer_text_fields, focus_flash);
 }
+
 
