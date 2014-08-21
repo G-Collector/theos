@@ -22,137 +22,301 @@
 			<string>Rect</string>
 			<key>Value</key>
 			<array>
-				<integer>439</integer>
-				<integer>759</integer>
-				<integer>593</integer>
-				<integer>443</integer>
+			<integer>439</integer>
+			<integer>759</integer>
+			<integer>593</integer>
+			<integer>443</integer>
 			</array>
 		</map>
 		<key>CircuitsFloaterRect</key>
 		<map>
-		  <key>Comment</key>
-		  <string>Rectangle for Circuits Floater</string>
-		  <key>Persist</key>
-		  <integer>1</integer>
-		  <key>Type</key>
-		  <string>Rect</string>
-		  <key>Value</key>
-		  <array>
+		  	<key>Comment</key>
+		  	<string>Rectangle for Circuits Floater</string>
+		 	<key>Persist</key>
+		  	<integer>1</integer>
+		  	<key>Type</key>
+		  	<string>Rect</string>
+		  	<key>Value</key>
+		  	<array>
 			<integer>0</integer>
 			<integer>300</integer>
 			<integer>200</integer>
 			<integer>0</integer>
-		  </array>
-    </map>
-    <key>OSUIPlaySndInWorld</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable the playing of UI sounds in world, to everyone.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OSConnectToNeighbors</key>
-    <map>
-      <key>Comment</key>
-      <string>Allow the viewer to establish connections to neighboring regions.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>OSSpoofLanguage</key>
-    <map>
-      <key>Comment</key>
-      <string>Send a spoofed language to the server, disabled by default. Example: en-us</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OSSpoofedLanguage</key>
-    <map>
-      <key>Comment</key>
-      <string>The string to send to the server when PCSpoofLanguage is enabled. Example: en-us</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>en-us</string>
-    </map>
-    <key>OSVoiceLockPos</key>
-    <map>
-      <key>Comment</key>
-      <string>Disable the update for voice positioning, pop and lock it. Doesn't persist!</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OSVoiceLockPosToCam</key>
-    <map>
-      <key>Comment</key>
-      <string>Make the avatar position the same as the camera when sending voice updates. Doesn't persist!</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OSNotifyEnabledSimulator</key>
-    <map>
-      <key>Comment</key>
-      <string>Notify the user if a simulator has been enabled with information about the simulator.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OSNotifyDisabledSimulator</key>
-    <map>
-      <key>Comment</key>
-      <string>Notify the user if a simulator has been disabled with information about the simulator.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OSReSit</key>
-    <map>
-      <key>Comment</key>
-      <string>Resit Toggle</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OSReportAbnormalTypeStop</key>
-    <map>
-      <key>Comment</key>
-      <string>Report Sender and Message ofAbnormal TypeStops</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-  </map>
+		  	</array>
+		</map>
+		<key>OSUIPlaySndInWorld</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Enable the playing of UI sounds in world, to everyone.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>OSConnectToNeighbors</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Allow the viewer to establish connections to neighboring regions.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>1</integer>
+		</map>
+		<key>OSSpoofLanguage</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Send a spoofed language to the server, disabled by default. Example: en-us</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>OSSpoofedLanguage</key>
+		<map>
+      			<key>Comment</key>
+      			<string>The string to send to the server when PCSpoofLanguage is enabled. Example: en-us</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>String</string>
+      			<key>Value</key>
+      			<string>en-us</string>
+		</map>
+		<key>OSVoiceLockPos</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Disable the update for voice positioning, pop and lock it. Doesn't persist!</string>
+      			<key>Persist</key>
+      			<integer>0</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>OSVoiceLockPosToCam</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Make the avatar position the same as the camera when sending voice updates. Doesn't persist!</string>
+      			<key>Persist</key>
+      			<integer>0</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>OSNotifyEnabledSimulator</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Notify the user if a simulator has been enabled with information about the simulator.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>OSNotifyDisabledSimulator</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Notify the user if a simulator has been disabled with information about the simulator.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>OSReSit</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Resit Toggle</string>
+      			<key>Persist</key>
+      			<integer>0</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>OSReportAbnormalTypeStop</key>
+		<map>
+			<key>Comment</key>
+      			<string>Report Sender and Message ofAbnormal TypeStops</string>
+     		 	<key>Persist</key>
+      			<integer>0</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>OSBeamColorFile</key>
+		<map>
+			<key>Comment</key>
+			<string>Beam file for the color of your beam</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>String</string>
+			<key>Value</key>
+			<string>===OFF===</string>
+		</map>
+		<key>OSBeamShape</key>
+		<map>
+			<key>Comment</key>
+			<string>Beam file for the shape of your beam</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>String</string>
+			<key>Value</key>
+			<string>Phoenix</string>
+		</map>
+		<key>OSBeamShapeScale</key>
+		<map>
+			<key>Comment</key>
+			<string>How Big You Want to let the beam be</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>F32</string>
+			<key>Value</key>
+			<real>1.3</real>
+		</map>
+		<key>OSMaxBeamsPerSecond</key>
+		<map>
+			<key>Comment</key>
+			<string>How many selection beam updates to send in a second</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>F32</string>
+			<key>Value</key>
+			<real>40</real>
+		</map>
+		<key>EmeraldRainbowBeam</key>
+       	 	<map>
+	  		<key>Comment</key>
+	  		<string>Rainbow Colors</string>
+	  		<key>Persist</key>
+	  		<integer>1</integer>
+	  		<key>Type</key>
+	  		<string>Boolean</string>
+	  		<key>Value</key>
+	  		<integer>0</integer>
+		</map>
+		<key>MBeamModeColorA</key>
+		<map>
+			<key>Comment</key>
+			<string>Beam Color</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>Color4</string>
+			<key>Value</key>
+			<array>
+				<real>1.0</real>
+				<real>1.0</real>
+				<real>1.0</real>
+				<real>1.0</real>
+			</array>
+		</map>
+		<key>MBeamModeColorB</key>
+		<map>
+			<key>Comment</key>
+			<string>Beam Color</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>Color4</string>
+			<key>Value</key>
+			<array>
+				<real>0.0</real>
+				<real>0.0</real>
+				<real>0.0</real>
+				<real>0.0</real>
+			</array>
+		</map>
+		<key>MBeamModeUseTool</key>
+		<map>
+			<key>Comment</key>
+			<string>Use tool?</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>Boolean</string>
+			<key>Value</key>
+			<integer>0</integer>
+		</map>
+		<key>MBeamModeSuper</key>
+		<map>
+			<key>Comment</key>
+			<string>Super beam mode</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>U32</string>
+			<key>Value</key>
+			<real>0</real>
+		</map>
+		<key>MBeamMode</key>
+		<map>
+			<key>Comment</key>
+			<string>Beam mode</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>S32</string>
+			<key>Value</key>
+			<real>0</real>
+		</map>
+		<key>MBeamModeSpd</key>
+		<map>
+			<key>Comment</key>
+			<string>Beam update speed</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>F32</string>
+			<key>Value</key>
+			<real>1.0</real>
+		</map>
+		<key>MBeamModeUUID</key>
+		<map>
+			<key>Comment</key>
+			<string>Beam source</string>
+			<key>Persist</key>
+			<integer>0</integer>
+			<key>Type</key>
+			<string>String</string>
+			<key>Value</key>
+			<string>00000000-0000-0000-0000-000000000000</string>
+		</map>
+    		<key>OSParticleChat</key>
+    		<map>
+      			<key>Comment</key>
+      			<string>Speak Particle Info on channel 9000</string>
+     			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+    		</map>
+    		<key>TextureBeamsImage</key>
+    		<map>
+      			<key>Comment</key>
+      			<string>Saves the TextureID for Beam</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>String</string>
+      			<key>Value</key>
+      			<string>9390892e-ccbe-52c0-5bc6-2f722f995420</string>
+    		</map>
+  	</map>
 </llsd>

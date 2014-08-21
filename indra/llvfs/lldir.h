@@ -77,6 +77,13 @@ class LLDir
 // pure virtual functions
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask) = 0;
 
+	// <os> Used by Selection beams, do not remove
+	virtual BOOL getNextFileInDir(const std::string& dirname, ///< directory path - must end in trailing slash!
+                                  const std::string& mask,    ///< file pattern string (use "*" for all)
+                                  std::string& fname          ///< output: found file name
+                                  ) = 0;
+	// </os>
+	
 	virtual std::string getCurPath() = 0;
 	virtual BOOL fileExists(const std::string &filename) const = 0;
 

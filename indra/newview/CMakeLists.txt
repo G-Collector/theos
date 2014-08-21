@@ -82,7 +82,7 @@ set(viewer_SOURCE_FILES
     os_assetconverter.cpp
     os_circuits.cpp
     os_floaterhex.cpp
-	os_floaterinspecttexture.cpp
+    os_floaterinspecttexture.cpp
     os_floaterkeytool.cpp
     os_floatertexteditor.cpp
     os_floatervfs.cpp
@@ -92,6 +92,10 @@ set(viewer_SOURCE_FILES
     os_invtools.cpp
     os_keytool.cpp
     os_panelpreferences.cpp
+    os_beamscolors.cpp
+    os_beammaps.cpp
+    os_beammapfloater.cpp
+    os_beamcolormapfloater.cpp
     NACLantispam.cpp
     aihttpview.cpp
     aixmllindengenepool.cpp
@@ -623,7 +627,7 @@ set(viewer_HEADER_FILES
     os_assetconverter.h
     os_circuits.h
     os_floaterhex.h
-	os_floaterinspecttexture.h
+    os_floaterinspecttexture.h
     os_floaterkeytool.h
     os_floatertexteditor.h
     os_floatervfs.h
@@ -633,6 +637,10 @@ set(viewer_HEADER_FILES
     os_invtools.h
     os_keytool.h
     os_panelpreferences.h
+    os_beamscolors.h
+    os_beammaps.h
+    os_beammapfloater.h
+    os_beamcolormapfloater.h
     NACLantispam.h
     aihttpview.h
     aixmllindengenepool.h

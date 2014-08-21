@@ -68,6 +68,9 @@
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 // [/RLVa:KB]
+// <os> Selection beams
+#include "os_beammaps.h"
+//</os>
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -154,7 +157,15 @@ struct LocalTextureData
 S32 LLVOAvatarSelf::sScratchTexBytes = 0;
 LLMap< LLGLenum, LLGLuint*> LLVOAvatarSelf::sScratchTexNames;
 LLMap< LLGLenum, F32*> LLVOAvatarSelf::sScratchTexLastBindTime;
-
+//<os> Selection beams
+LLVector3d LLVOAvatarSelf::sBeamLastAt;
+BOOL LLVOAvatarSelf::sUseTool = false;
+LLUUID LLVOAvatarSelf::sTarg = LLUUID::null;
+U32 LLVOAvatarSelf::sMBeamSuper = 0;
+F32 LLVOAvatarSelf::sMBeamModeSPD = 0.0f;
+S32 LLVOAvatarSelf::sMBeamMode = 0;
+int LLVOAvatarSelf::sPartsNow;
+//</os>
 
 /*********************************************************************************
  **                                                                             **
@@ -258,15 +269,62 @@ void LLVOAvatarSelf::initInstance()
 		llerrs << "Unable to load user's avatar" << llendl;
 		return;
 	}
+	// <os> Selection beams
+	sUseTool = gSavedSettings.getBOOL("MBeamModeUseTool");
+	sTarg.set(gSavedSettings.getString("MBeamModeUUID"));
+	sMBeamSuper = gSavedSettings.getU32("MBeamModeSuper");
+	sMBeamModeSPD = gSavedSettings.getF32("MBeamModeSpd");
+	sMBeamMode = gSavedSettings.getS32("MBeamMode");
 
+	gSavedSettings.getControl("MBeamModeUseTool")->getSignal()->connect(boost::bind(&updateUseTool,_2));
+	gSavedSettings.getControl("MBeamModeUUID")->getSignal()->connect(boost::bind(&updateTarg,_2));
+	gSavedSettings.getControl("MBeamModeSuper")->getSignal()->connect(boost::bind(&updateMBeamSuper,_2));
+	gSavedSettings.getControl("MBeamModeSpd")->getSignal()->connect(boost::bind(&updateMBeamModeSPD,_2));
+	gSavedSettings.getControl("MBeamMode")->getSignal()->connect(boost::bind(&updateMBeamMode,_2));
+	// </os>
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
 	doPeriodically(check_for_unsupported_baked_appearance, 120.0);
 }
 
+// <os> Selection beams
+// static
+void LLVOAvatarSelf::updateUseTool(const LLSD &data)
+{
+	sUseTool = data.asInteger();
+}
+
+// static
+void LLVOAvatarSelf::updateTarg(const LLSD &data)
+{
+	sTarg = data.asUUID();
+}
+
+// static
+void LLVOAvatarSelf::updateMBeamSuper(const LLSD &data)
+{
+	sMBeamSuper = (U32)data.asInteger();
+}
+
+// static
+void LLVOAvatarSelf::updateMBeamModeSPD(const LLSD &data)
+{
+	sMBeamModeSPD = (F32)data.asReal();
+}
+
+// static
+void LLVOAvatarSelf::updateMBeamMode(const LLSD &data)
+{
+	sMBeamMode = data.asInteger();
+}
+// </os>
 // virtual
 void LLVOAvatarSelf::markDead()
 {
+// <os> Selection beams
+	int a;
+	for(a=0;a<32;a+=1)mBeama[a] = NULL;
+// </os>
 	mBeam = NULL;
 	LLVOAvatar::markDead();
 }
@@ -868,78 +926,481 @@ void LLVOAvatarSelf::idleUpdateTractorBeam()
 	}
 	// </edit>
 
-	const LLPickInfo& pick = gViewerWindow->getLastPick();
-
-	// No beam for media textures
-	// TODO: this will change for Media on a Prim
-	if(pick.getObject() && pick.mObjectFace >= 0)
+// <os> Selection beams
+	//--------------------------------------------------------------------
+	// draw tractor beam when editing objects
+	//--------------------------------------------------------------------
+	if(sMBeamSuper > 1)
 	{
-		const LLTextureEntry* tep = pick.getObject()->getTE(pick.mObjectFace);
-		if (tep && LLViewerMedia::textureHasMedia(tep->getID()))
+		static U32 mbeamnum = 0;
+		const static LLVector3d sbbox[26] = 
+								{
+									LLVector3d(-1.00000,-1.00000,-1.00000),
+									LLVector3d(-1.00000,-1.00000, 0.00000),
+									LLVector3d(-1.00000,-1.00000, 1.00000),
+									LLVector3d(-1.00000, 1.00000,-1.00000),
+									LLVector3d(-1.00000, 1.00000, 0.00000),
+									LLVector3d(-1.00000, 1.00000, 1.00000),
+									LLVector3d(-1.00000, 0.00000,-1.00000),
+									LLVector3d(-1.00000, 0.00000, 0.00000),
+									LLVector3d(-1.00000, 0.00000, 1.00000),
+									LLVector3d( 1.00000,-1.00000,-1.00000),
+									LLVector3d(1.00000,-1.00000, 0.00000),
+									LLVector3d(1.00000,-1.00000, 1.00000),
+									LLVector3d(1.00000, 0.00000,-1.00000),
+									LLVector3d(1.00000, 0.00000, 0.00000),
+									LLVector3d(1.00000, 0.00000, 1.00000),
+									LLVector3d(1.00000, 1.00000,-1.00000),
+									LLVector3d(1.00000, 1.00000, 0.00000),
+									LLVector3d(1.00000, 1.00000, 1.00000),
+									LLVector3d(0.00000,-1.00000,-1.00000),
+									LLVector3d(0.00000,-1.00000, 0.00000),
+									LLVector3d(0.00000,-1.00000, 1.00000),
+									LLVector3d(0.00000, 0.00000,-1.00000),
+									LLVector3d(0.00000, 0.00000, 1.00000),
+									LLVector3d(0.00000, 1.00000,-1.00000),
+									LLVector3d(0.00000, 1.00000, 0.00000),
+									LLVector3d(0.00000, 1.00000, 1.00000)
+								};
+		if (!isSelf())
 		{
 			return;
 		}
-	}
-
-	// This is only done for yourself (maybe it should be in the agent?)
-	if (!needsRenderBeam() || !isBuilt())
-	{
-		mBeam = NULL;
-	}
-	else if (!mBeam || mBeam->isDead())
-	{
-		// VEFFECT: Tractor Beam
-		mBeam = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM);
-		mBeam->setColor(LLColor4U(gAgent.getEffectColor()));
-		mBeam->setSourceObject(this);
-		mBeamTimer.reset();
-	}
-
-	if (!mBeam.isNull())
-	{
-		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-
-		if (gAgentCamera.mPointAt.notNull())
+		bool normal=1;
+	
+	    U32 usebbox=0;
+	
+	    U32 update = (mBeamTimer.getElapsedTimeF32() > sMBeamModeSPD);
+	
+	    LLViewerObject* objectp;
+	
+	    LLVector3d beampos = LLVector3d(0.0f,0.0f,0.0f);
+	
+	    bool alwaysupdate=0;
+	
+	    if((sMBeamSuper>0)&&(sMBeamSuper<3)) alwaysupdate=1;
+	 
+		if(alwaysupdate==1)
 		{
-			// get point from pointat effect
-			mBeam->setPositionGlobal(gAgentCamera.mPointAt->getPointAtPosGlobal());
-			mBeam->triggerLocal();
-		}
-		else if (selection->getFirstRootObject() && 
-				selection->getSelectType() != SELECT_TYPE_HUD)
+	        mbeamnum=(mbeamnum+1)%32;
+	    }
+		else if(sMBeamSuper==100)
 		{
-			LLViewerObject* objectp = selection->getFirstRootObject();
-			mBeam->setTargetObject(objectp);
-		}
-		else
+	        usebbox=1;
+	    }
+	
+	
+		
+		LLColor4U rgb = LLColor4U(gAgent.getEffectColor());
+		
+		LLViewerObject *mbobjp = this;
+	
+	    if(!sTarg.isNull())
 		{
-			mBeam->setTargetObject(NULL);
-			LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
-			if (tool->isEditing())
+	        mbobjp = gObjectList.findObject(sTarg);
+	    }
+		
+		// This is only done for yourself (maybe it should be in the agent?)
+		if (!needsRenderBeam() || !isBuilt)
+		{
+			int a;
+			for(a=0;a<32;a+=1)
+			mBeama[a] = NULL;
+			if(gSavedSettings.getBOOL("OSParticleChat"))
 			{
-				if (tool->getEditingObject())
+				if(sPartsNow != FALSE)
 				{
-					mBeam->setTargetObject(tool->getEditingObject());
+					sPartsNow = FALSE;
+					LLMessageSystem* msg = gMessageSystem;
+					msg->newMessageFast(_PREHASH_ChatFromViewer);
+					msg->nextBlockFast(_PREHASH_AgentData);
+					msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+					msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+					msg->nextBlockFast(_PREHASH_ChatData);
+					msg->addStringFast(_PREHASH_Message, "stop");
+					msg->addU8Fast(_PREHASH_Type, CHAT_TYPE_WHISPER);
+					msg->addS32("Channel", 9000);
+					
+					gAgent.sendReliableMessage();
+					sBeamLastAt  =  LLVector3d::zero;
+					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CHAT_COUNT);
+				}
+			}
+		}
+		else if (!mBeama[mbeamnum] || mBeama[mbeamnum]->isDead())
+		{
+			// VEFFECT: Tractor Beam
+			mBeama[mbeamnum] = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM,0);
+	
+	
+			mBeamTimer.reset();
+			mBeama[mbeamnum]->setSourceObject(mbobjp);
+	
+		}
+	
+		if (!mBeama[mbeamnum].isNull())
+		{
+			LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+			LLViewerObject* obj_sel = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	
+			if(normal)
+			{  //standard beam thingielol
+	            if (!sUseTool&&gAgentCamera.mPointAt.notNull())
+				{
+					// get point from pointat effect
+					beampos = gAgentCamera.mPointAt->getPointAtPosGlobal();
+	
+					if(gSavedSettings.getBOOL("OSParticleChat"))
+					{
+						if(sPartsNow != TRUE)
+						{
+							//Set Texture
+							std::string texture_id = gSavedSettings.getString("TextureBeamsImage");
+							std::string txt_msg = "textu"+texture_id;
+
+							LLMessageSystem* msg = gMessageSystem;
+							msg->newMessageFast(_PREHASH_ChatFromViewer);
+							msg->nextBlockFast(_PREHASH_AgentData);
+							msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+							msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+							msg->nextBlockFast(_PREHASH_ChatData);
+							msg->addStringFast(_PREHASH_Message, txt_msg);
+							msg->addU8Fast(_PREHASH_Type, CHAT_TYPE_WHISPER);
+							msg->addS32("Channel", 9000);
+								
+							gAgent.sendReliableMessage();
+
+							sPartsNow = TRUE;
+							if(obj_sel){
+								LLMessageSystem* msg = gMessageSystem;
+								msg->newMessageFast(_PREHASH_ChatFromViewer);
+								msg->nextBlockFast(_PREHASH_AgentData);
+								msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+								msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+								msg->nextBlockFast(_PREHASH_ChatData);
+								msg->addStringFast(_PREHASH_Message, "start"+obj_sel->getID().asString());
+								msg->addU8Fast(_PREHASH_Type, CHAT_TYPE_WHISPER);
+								msg->addS32("Channel", 9000);
+						
+								gAgent.sendReliableMessage();
+							}
+	
+							LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CHAT_COUNT);
+						}
+						//LLVector3d a = sBeamLastAt-gAgent.mPointAt->getPointAtPosGlobal();
+						//if(a.length > 2)
+						if( (sBeamLastAt-gAgentCamera.mPointAt->getPointAtPosGlobal()).length() > .2)
+						//if(sBeamLastAt!=gAgent.mPointAt->getPointAtPosGlobal())
+						{
+							sBeamLastAt = gAgentCamera.mPointAt->getPointAtPosGlobal(); 
+	
+							if(obj_sel){
+								LLMessageSystem* msg = gMessageSystem;
+								msg->newMessageFast(_PREHASH_ChatFromViewer);
+								msg->nextBlockFast(_PREHASH_AgentData);
+								msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+								msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+								msg->nextBlockFast(_PREHASH_ChatData);
+								msg->addStringFast(_PREHASH_Message, "start"+obj_sel->getID().asString());
+								msg->addU8Fast(_PREHASH_Type, CHAT_TYPE_WHISPER);
+								msg->addS32("Channel", 9000);
+						
+								gAgent.sendReliableMessage();
+							}
+						}
+	
+					}
+					
+				}
+			
+	
+				else if ((!sUseTool&&selection->getFirstRootObject(1) && 
+							selection->getSelectType() != SELECT_TYPE_HUD))
+				{
+	
+					//llinfos << "2" <<llendl;
+						objectp = selection->getFirstRootObject(1);
+						if(objectp)beampos=objectp->getPositionGlobal();
 				}
 				else
 				{
-					mBeam->setPositionGlobal(tool->getEditingPointGlobal());
+					
+					//llinfos << "3" <<llendl;
+					mBeama[mbeamnum]->setTargetObject(NULL);
+					LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
+					if (tool->isEditing())
+					{
+						if (tool->getEditingObject())
+						{
+							//llinfos << "4" <<llendl;
+							mBeama[mbeamnum]->setTargetObject(tool->getEditingObject());
+							beampos=mBeama[mbeamnum]->getPositionGlobal();
+						}
+						else
+						{
+							//llinfos << "5" <<llendl;
+							beampos=tool->getEditingPointGlobal();
+						}
+					}
+					else
+					{
+						const LLPickInfo& pick = gViewerWindow->getLastPick();
+						// No beam for media textures
+						// TODO: this will change for Media on a Prim
+						if(pick.getObject() && pick.mObjectFace >= 0)
+						{
+							const LLTextureEntry* tep = pick.getObject()->getTE(pick.mObjectFace);
+							if (tep && LLViewerMedia::textureHasMedia(tep->getID()))
+							{
+								return;
+							}
+						}
+						beampos=pick.mPosGlobal;
+					}
 				}
 			}
 			else
 			{
-				
-				mBeam->setPositionGlobal(pick.mPosGlobal);
+	            //not normal, so it's just an effect rather than selection beam
+	            usebbox=0;
+	            //llinfos << "part2debug" << llendl;
+	        }
+	        if(sMBeamSuper==2)
+			{
+	            F32 time=gRenderStartTime.getElapsedTimeF32();
+	            beampos+=LLVector3d(sin(time),cos(time),.25*sin(time*4));
+			}
+	        if(!usebbox)
+				mBeama[mbeamnum]->setPositionGlobal(beampos);
+				mBeama[mbeamnum]->setColor(rgb); //phox uncommented?
+	
+	        LLColor4 color = gAgent.getEffectColor();
+			if(sMBeamMode)
+			{
+	            F32 cee = gRenderStartTime.getElapsedTimeF32() * 2.181625;//0.3125f;//200.0f;
+	            F32 dee = .5+.5*sin(cee);
+	            color=gSavedSettings.getColor("MBeamModeColorA")*dee+(1-dee)*gSavedSettings.getColor("MBeamModeColorB");
+	
+	            mBeama[mbeamnum]->setDuration(1.5f);
+	            //llinfos << "lolcolor: " << rainbow << llendl;
+	 		}
+			else if(usebbox==1)
+			{
+	            //llinfos << "usebbox = " << usebbox << llendl;
+	            int a;
+	            LLViewerObject* objectp = selection->getFirstRootObject(1);
+	            LLVector3d opos;
+	            LLBBox bbox;
+	            LLVector3 mn;
+	            LLVector3 mx;
+	            BOOL hasobj=0;
+	            if(objectp)
+				{
+	                hasobj=1;
+	                opos=objectp->getPositionGlobal();
+	                bbox=objectp->getBoundingBoxAgent();
+	                mn=bbox.getMinLocal();
+	                mx=bbox.getMaxLocal();
+	            }
+				else
+				{
+	                opos[0]=beampos[0];
+	                opos[1]=beampos[1];
+	                opos[2]=beampos[2];
+	                mn[0]=-.25;
+	                mn[1]=-.25;
+	                mn[2]=-.25;
+	                mx[0]=.25;
+	                mx[1]=.25;
+	                mx[2]=.25;
+	            }
+	            // Add a global, that only gets inited once to save time/whatever
+	            
+	
+	            LLVector3d tpos=LLVector3d(1.0f,1.0f,1.0f);
+	            for(a=0;a<26;a+=1)
+				{
+	                if(!mBeama[a] || mBeama[a]->isDead())
+					{
+	                    //llinfos << "mBeam[" << a << "] is dead, making a new one..." << llendl;
+	                    mBeama[a] = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM,0);
+	                    mBeama[a]->setSourceObject(mbobjp);
+	                }
+	
+	                tpos=LLVector3d(sbbox[a][0]*mn[0],sbbox[a][1]*mn[1],sbbox[a][2]*mn[2]);
+	                    
+	                beampos=opos+(tpos*bbox.getRotation());
+	                mBeama[a]->setColor(color);
+	                mBeama[a]->setPositionGlobal(beampos);
+	                mBeama[a]->triggerLocal();
+	                if(update)
+					{
+	                    
+	                    mBeama[a]->setNeedsSendToSim(TRUE);
+	                }
+	            }
+	        }
+			if (alwaysupdate==1||update||!normal)
+			{ 
+	            //if(!normal)llinfos << "part3debug" << llendl;
+	            if(!usebbox)
+				{
+	                mBeama[mbeamnum]->triggerLocal();
+	                mBeama[mbeamnum]->setNeedsSendToSim(TRUE);
+	            }
+	 			mBeamTimer.reset();
+	
+	
+	 		}		
+		}
+	}
+	else
+	{
+		if (!isSelf())
+		{
+			return;
+		}
+		int a;
+		for(a=0;a<32;a+=1)mBeama[a] = NULL;
+
+		LLColor4U rgb = gLggBeamMaps.getCurrentColor(LLColor4U(gAgent.getEffectColor()));
+	// This is only done for yourself (maybe it should be in the agent?)
+	if (!needsRenderBeam() || !isBuilt())
+	{
+			mBeam = NULL;
+			if(gSavedSettings.getBOOL("OSParticleChat"))
+			{
+				if(sPartsNow != FALSE)
+				{
+					sPartsNow = FALSE;
+					LLMessageSystem* msg = gMessageSystem;
+					msg->newMessageFast(_PREHASH_ChatFromViewer);
+					msg->nextBlockFast(_PREHASH_AgentData);
+					msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+					msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+					msg->nextBlockFast(_PREHASH_ChatData);
+					msg->addStringFast(_PREHASH_Message, "stop");
+					msg->addU8Fast(_PREHASH_Type, CHAT_TYPE_WHISPER);
+					msg->addS32("Channel", 9000);
+	
+					gAgent.sendReliableMessage();
+					sBeamLastAt  =  LLVector3d::zero;
+					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CHAT_COUNT);
+				}
 			}
 		}
-		if (mBeamTimer.getElapsedTimeF32() > 0.25f)
+		else if (!mBeam || mBeam->isDead())
 		{
-			mBeam->setColor(LLColor4U(gAgent.getEffectColor()));
-			mBeam->setNeedsSendToSim(TRUE);
+			// VEFFECT: Tractor Beam
+			mBeam = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM);
+			mBeam->setColor( rgb );
+			mBeam->setSourceObject(this);
 			mBeamTimer.reset();
+	
+	
+		}
+	
+		if (!mBeam.isNull())
+		{
+			LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+			LLViewerObject* obj_sel = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	
+			if (gAgentCamera.mPointAt.notNull())
+			{
+				// get point from pointat effect
+				mBeam->setPositionGlobal(gAgentCamera.mPointAt->getPointAtPosGlobal());
+	
+				//lgg crap
+				if(gSavedSettings.getBOOL("OSParticleChat"))
+				{
+					if(sPartsNow != TRUE)
+					{
+						//Set Texture
+						std::string texture_id = gSavedSettings.getString("TextureBeamsImage");
+						std::string txt_msg = "textu"+texture_id;
+
+						LLMessageSystem* msg = gMessageSystem;
+						msg->newMessageFast(_PREHASH_ChatFromViewer);
+						msg->nextBlockFast(_PREHASH_AgentData);
+						msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+						msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+						msg->nextBlockFast(_PREHASH_ChatData);
+						msg->addStringFast(_PREHASH_Message, txt_msg);
+						msg->addU8Fast(_PREHASH_Type, CHAT_TYPE_WHISPER);
+						msg->addS32("Channel", 9000);
+								
+						gAgent.sendReliableMessage();
+
+						sPartsNow = TRUE;
+	
+						LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CHAT_COUNT);
+					}
+					if( (sBeamLastAt-gAgentCamera.mPointAt->getPointAtPosGlobal()).length() > .2)
+					{
+						sBeamLastAt = gAgentCamera.mPointAt->getPointAtPosGlobal();
+	
+						if(obj_sel){
+							LLMessageSystem* msg = gMessageSystem;
+							msg->newMessageFast(_PREHASH_ChatFromViewer);
+							msg->nextBlockFast(_PREHASH_AgentData);
+							msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+							msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+							msg->nextBlockFast(_PREHASH_ChatData);
+							msg->addStringFast(_PREHASH_Message, "start"+obj_sel->getID().asString());
+							msg->addU8Fast(_PREHASH_Type, CHAT_TYPE_WHISPER);
+							msg->addS32("Channel", 9000);
+						
+							gAgent.sendReliableMessage();
+						}
+					}
+	
+				}
+	
+				mBeam->triggerLocal();
+	
+			}
+			else if (selection->getFirstRootObject() &&
+					selection->getSelectType() != SELECT_TYPE_HUD)
+			{
+				LLViewerObject* objectp = selection->getFirstRootObject();
+				mBeam->setTargetObject(objectp);
+			}
+			else
+			{
+	
+				mBeam->setTargetObject(NULL);
+				LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
+				if (tool->isEditing())
+				{
+					if (tool->getEditingObject())
+					{
+						mBeam->setTargetObject(tool->getEditingObject());
+					}
+					else
+					{
+						mBeam->setPositionGlobal(tool->getEditingPointGlobal());
+					}
+				}
+				else
+				{
+					const LLPickInfo& pick = gViewerWindow->getLastPick();
+					mBeam->setPositionGlobal(pick.mPosGlobal);
+				}
+	
+			}
+			if (mBeamTimer.getElapsedTimeF32() > gLggBeamMaps.setUpAndGetDuration())
+			{
+	
+				mBeam->setColor(rgb );
+				mBeam->setNeedsSendToSim(TRUE);
+				mBeamTimer.reset();
+	
+				gLggBeamMaps.fireCurrentBeams(mBeam,rgb );
+			}
 		}
 	}
 }
+// </os>
 
 //-----------------------------------------------------------------------------
 // restoreMeshData()

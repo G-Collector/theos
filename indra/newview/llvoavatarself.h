@@ -170,7 +170,10 @@ protected:
 	BOOL 		needsRenderBeam();
 private:
 	LLPointer<LLHUDEffectSpiral> mBeam;
+	LLPointer<LLHUDEffectSpiral> mBeama[32];// <os> Selection beams
 	LLFrameTimer mBeamTimer;
+	static LLVector3d sBeamLastAt;// <os> Selection beams
+	static BOOL		sPartsNow;// <os> Selection beams
 
 	//--------------------------------------------------------------------
 	// LLVOAvatar Constants
@@ -179,6 +182,19 @@ public:
 	/*virtual*/ LLViewerTexture::EBoostLevel 	getAvatarBoostLevel() const { return LLGLTexture::BOOST_AVATAR_SELF; }
 	/*virtual*/ LLViewerTexture::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLGLTexture::BOOST_AVATAR_BAKED_SELF; }
 	/*virtual*/ S32 						getTexImageSize() const { return LLVOAvatar::getTexImageSize()*4; }
+// <os> Selection beams
+	static BOOL		sUseTool;
+	static LLUUID	sTarg;
+	static U32		sMBeamSuper;
+	static F32		sMBeamModeSPD;
+	static S32		sMBeamMode;
+
+	static void updateUseTool(const LLSD &data);
+	static void updateTarg(const LLSD &data);
+	static void updateMBeamSuper(const LLSD &data);
+	static void updateMBeamModeSPD(const LLSD &data);
+	static void updateMBeamMode(const LLSD &data);
+// </os>
 
 /**                    Rendering
  **                                                                            **

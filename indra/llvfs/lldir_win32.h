@@ -51,11 +51,12 @@ public:
 	/*virtual*/ std::string getCurPath();
 	/*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask);
 	/*virtual*/ BOOL fileExists(const std::string &filename) const;
-
+	/*virtual*/ BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname); // <os> for Selection beams
 	/*virtual*/ std::string getLLPluginLauncher();
 	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
 private:
+    BOOL getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname); // <os> for Selection beams
 	void* mDirSearch_h;
 	llutf16string mCurrentDir;
 };
