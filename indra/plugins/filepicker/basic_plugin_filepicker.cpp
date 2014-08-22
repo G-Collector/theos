@@ -175,6 +175,8 @@ static LLFilePicker::ELoadFilter str2loadfilter(std::string const& filter)
 	return LLFilePicker::FFLOAD_AO;
   else if (filter == "blacklist")
 	return LLFilePicker::FFLOAD_BLACKLIST;
+  else if (filter == "notecard")
+	return LLFilePicker::FFLOAD_NOTECARD;
   else
 	return LLFilePicker::FFLOAD_ALL;
 }

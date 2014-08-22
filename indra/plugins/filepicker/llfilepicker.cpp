@@ -52,6 +52,7 @@ LLFilePicker LLFilePicker::sInstance;
 //<os>
 //#define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
 #define ANIM_FILTER L"Animations (*.bvh; *.anim; *.animatn; *.xaf)\0*.bvh\0;*.anim\0;*.animatn; *.xaf\0"
+#define NOTECARD_FILTER L"Notecards (*.notecard)\0*.notecard\0"
 //</os>
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #ifdef _CORY_TESTING
@@ -61,7 +62,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
 #define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
-#define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
+#define SCRIPT_FILTER L"Script files (*.lsl;*.lsltext)\0*.lsl;*.lsltext\0"
 #define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
 #endif
 
@@ -216,6 +217,10 @@ bool LLFilePickerBase::setupFilter(ELoadFilter filter)
 		break;
 	case FFLOAD_BLACKLIST:
 		mOFN.lpstrFilter = BLACKLIST_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_NOTECARD:
+		mOFN.lpstrFilter = NOTECARD_FILTER \
 			L"\0";
 		break;
 	// </edit>

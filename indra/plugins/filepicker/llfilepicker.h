@@ -67,7 +67,8 @@ public:
 		// <edit>
 		FFLOAD_INVGZ = 13,
 		FFLOAD_AO = 14,
-		FFLOAD_BLACKLIST = 15
+		FFLOAD_BLACKLIST = 15,
+		FFLOAD_NOTECARD = 16
 		// </edit>
 	};
 

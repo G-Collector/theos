@@ -109,7 +109,10 @@ protected:
 							   void* user_data, S32 status, LLExtStat ext_status);
 
 	static void onClickSave(void* data);
-	// <edit>
+	// <os>
+	static void	onLoadFromDisc(void*);
+	void        onLoadFromDisc_continued(AIFilePicker* filepicker);
+	// </os>
 	static void onClickGetItems(void* data);
 
 	static void onSaveComplete(const LLUUID& asset_uuid,

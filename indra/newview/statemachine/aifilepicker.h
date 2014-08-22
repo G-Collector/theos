@@ -45,6 +45,7 @@ enum ELoadFilter
 	FFLOAD_ANIM,
 	//<os>
 	FFLOAD_ANIMATN,
+	FFLOAD_NOTECARD,
 	//</os>
 	FFLOAD_XML,
 	FFLOAD_SLOBJECT,

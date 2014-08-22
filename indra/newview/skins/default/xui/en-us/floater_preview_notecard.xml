@@ -24,7 +24,12 @@
 	<menu_bar bottom="-56" drop_shadow="false" enabled="true" follows="left|top|right"
 	     height="18" left="8" mouse_opaque="false" name="motecard_menu" opaque="false"
 	     tear_off="false" width="220">
+    <menu label="File" name="File" tear_off="false">
+      <menu_item_separator/>
+      <menu_item_call label="Import Notecard..." name="Import Notecard..."/>
+    </menu>
 		<menu label="Edit" name="Edit" tear_off="false">
+      <menu_item_separator/>
 			<menu_item_call label="Undo" name="Undo" shortcut="control|Z"/>
 			<menu_item_call label="Redo" name="Redo" shortcut="control|Y"/>
 			<menu_item_separator/>
