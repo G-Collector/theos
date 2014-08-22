@@ -1082,6 +1082,14 @@
       <on_click function="OS.VFSExplorer" />
     </menu_item_call>
 	<menu_item_separator mouse_opaque="true" name="separators8" />
+      <menu_item_check label="OS Message Packet Logger" mouse_opaque="true" name="message logger">
+        <on_click function="ShowFloater" userdata="messagelog"/>
+        <on_check function="FloaterVisible" userdata="messagelog"/>
+      </menu_item_check>
+      <menu_item_check label="OS Message Packet Builder" mouse_opaque="true" name="message builder">
+        <on_click function="ShowFloater" userdata="messagebuilder"/>
+        <on_check function="FloaterVisible" userdata="messagebuilder"/>
+      </menu_item_check>
 	<menu_item_check label="OS Region Circuits" mouse_opaque="true" name="region circuits">
 			<on_click function="ShowFloater" userdata="region circuits"/>
 			<on_check function="FloaterVisible" userdata="region circuits"/>

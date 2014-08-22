@@ -81,6 +81,8 @@
 #include "lltransfertargetvfile.h"
 #include "llpacketring.h"
 // <os>
+#include "llrand.h"// <os> - Message Log / Builder
+#include "llmessagelog.h"// <os> - Message Log / Builder
 #include <boost/array.hpp>
 // < /os>
 class AIHTTPTimeoutPolicy;
@@ -529,7 +531,10 @@ LLCircuitData* LLMessageSystem::findCircuit(const LLHost& host,
 }
 
 // Returns TRUE if a valid, on-circuit message has been received.
-BOOL LLMessageSystem::checkMessages( S64 frame_count )
+// <os> - Message Log / Builder
+//BOOL LLMessageSystem::checkMessages( S64 frame_count )
+BOOL LLMessageSystem::checkMessages( S64 frame_count, bool faked_message, U8 fake_buffer[MAX_BUFFER_SIZE], LLHost fake_host, S32 fake_size )
+//< /os>
 {
 	// Pump 
 	BOOL	valid_packet = FALSE;
@@ -559,6 +564,10 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 
 		U8* buffer = mTrueReceiveBuffer;
 
+// <os> - Message Log / Builder
+		if(!faked_message)
+		{
+//< /ediost>
 		mTrueReceiveSize = mPacketRing->receivePacket(mSocket, (char *)mTrueReceiveBuffer);
 		// If you want to dump all received packets into SecondLife.log, uncomment this
 		//dumpPacketToLog();
@@ -566,6 +575,20 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 		receive_size = mTrueReceiveSize;
 		mLastSender = mPacketRing->getLastSender();
 		mLastReceivingIF = mPacketRing->getLastReceivingInterface();
+// <os> - Message Log / Builder
+		} else {
+			buffer = fake_buffer;
+			mTrueReceiveSize = fake_size;
+			receive_size = mTrueReceiveSize;
+			mLastSender = fake_host;
+			mLastReceivingIF = mPacketRing->getLastReceivingInterface(); //don't really give two tits about the interface, just leave it
+		}
+
+ 		if(mTrueReceiveSize && receive_size > (S32) LL_MINIMUM_VALID_PACKET_SIZE && !faked_message)
+ 		{
+			LLMessageLog::log(mLastSender, LLHost(16777343, mPort), buffer, mTrueReceiveSize);
+ 		}
+ 		// < /os>
 		
 		if (receive_size < (S32) LL_MINIMUM_VALID_PACKET_SIZE)
 		{
@@ -585,7 +608,10 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			LLCircuitData* cdp;
 			
 			// note if packet acks are appended.
-			if(buffer[0] & LL_ACK_FLAG)
+			// <os> - Message Log / Builder
+			//if(buffer[0] & LL_ACK_FLAG)
+			if(buffer[0] & LL_ACK_FLAG && !faked_message)
+			//< /os>
 			{
 				acks += buffer[--receive_size];
 				true_rcv_size = receive_size;
@@ -616,8 +642,11 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			// At this point, cdp is now a pointer to the circuit that
 			// this message came in on if it's valid, and NULL if the
 			// circuit was bogus.
-
-			if(cdp && (acks > 0) && ((S32)(acks * sizeof(TPACKETID)) < (true_rcv_size)))
+			
+			// <os> - Message Log / Builder
+			//if(cdp && (acks > 0) && ((S32)(acks * sizeof(TPACKETID)) < (true_rcv_size)))
+			if(cdp && (acks > 0) && ((S32)(acks * sizeof(TPACKETID)) < (true_rcv_size)) && !faked_message)
+			//< /os>
 			{
 				TPACKETID packet_id;
 				U32 mem_id=0;
@@ -1559,6 +1588,13 @@ void LLMessageSystem::getCircuitInfo(LLSD& info) const
 	mCircuitInfo.getInfo(info);
 }
 
+// <os> - Message Log / Builder
+LLCircuit* LLMessageSystem::getCircuit()
+{
+	return &mCircuitInfo;
+}
+// < /os>
+
 // returns whether the given host is on a trusted circuit
 BOOL    LLMessageSystem::getCircuitTrust(const LLHost &host)
 {
@@ -1842,7 +1878,10 @@ void	open_circuit(LLMessageSystem *msgsystem, void** /*user_data*/)
 	msgsystem->getIPPortFast(_PREHASH_CircuitInfo, _PREHASH_Port, port);
 
 	// By default, OpenCircuit's are untrusted
-	msgsystem->enableCircuit(LLHost(ip, port), FALSE);
+	// <os> - Message Log / Builder
+	llwarns << "OpenCircuit " << LLHost(ip, port) << llendl;
+	//msgsystem->enableCircuit(LLHost(ip, port), FALSE);
+	//< /os>
 #endif
 }
 
@@ -4083,4 +4122,9 @@ const LLHost& LLMessageSystem::getSender() const
 
 LLHTTPRegistration<LLHTTPNodeAdapter<LLTrustedMessageService> >
 	gHTTPRegistrationTrustedMessageWildcard("/trusted-message/<message-name>");
-
+// <os> - Message Log / Builder
+BOOL LLMessageSystem::decodeTemplate( const U8* buffer, S32 buffer_size, LLMessageTemplate** msg_template )
+{
+	return(TRUE);
+}
+// < /os>

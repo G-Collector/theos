@@ -5,8 +5,10 @@
 #include "llfloater.h"
 #include "llmessagelog.h"
 #include "lltemplatemessagereader.h"
+#include "os_floatermessagebuilder.h"
 #include "lleventtimer.h"
-
+// <os> already in os_floatermessagebuilder.h
+/*
 class LLNetListItem
 {
 public:
@@ -17,7 +19,8 @@ public:
 	std::string mPreviousRegionName;
 	LLCircuitData* mCircuitData;
 };
-
+*/
+// </os>
 class LLFloaterMessageLogItem : public LLMessageLogEntry
 {
 public:
@@ -95,6 +98,7 @@ public:
 	ENetInfoMode mNetInfoMode;
 	static void onClickFilterChoice(void* user_data);
 	static void onClickFilterMenu(void* user_data);
+	static void onClickSendToMessageBuilder(void* user_data);
 };
 // </edit>
 

@@ -96,6 +96,8 @@ set(viewer_SOURCE_FILES
     os_beammaps.cpp
     os_beammapfloater.cpp
     os_beamcolormapfloater.cpp
+    os_easymessagesender.cpp
+    os_floatermessagebuilder.cpp
     NACLantispam.cpp
     aihttpview.cpp
     aixmllindengenepool.cpp
@@ -641,6 +643,8 @@ set(viewer_HEADER_FILES
     os_beammaps.h
     os_beammapfloater.h
     os_beamcolormapfloater.h
+    os_easymessagesender.h
+    os_floatermessagebuilder.h
     NACLantispam.h
     aihttpview.h
     aixmllindengenepool.h
