@@ -410,7 +410,43 @@ void LLScriptEdCore::initMenu()
 	menuItem = getChild<LLMenuItemCallGL>("LSL Wiki Help...");
 	menuItem->setMenuCallback(onBtnDynamicHelp, this);
 	menuItem->setEnabledCallback(NULL);
+	// <os>
+	menuItem = getChild<LLMenuItemCallGL>("Launch Autoscript...");
+	menuItem->setMenuCallback(onBtnAutoscript, this);
+	menuItem->setEnabledCallback(NULL);
+
+	menuItem = getChild<LLMenuItemCallGL>("Import Script...");
+	menuItem->setMenuCallback(onBtnLoadFromDisc, this);
+	menuItem->setEnabledCallback(NULL);
+
 }
+
+void LLScriptEdCore::onBtnLoadFromDisc( void* data )
+{
+	LLScriptEdCore* self = (LLScriptEdCore*) data;
+	
+	AIFilePicker* file_picker = AIFilePicker::create();
+	file_picker->open(FFLOAD_SCRIPT);
+	file_picker->run(boost::bind(&LLScriptEdCore::onBtnLoadFromDisc_continued, self, file_picker));
+}
+
+void LLScriptEdCore::onBtnLoadFromDisc_continued(AIFilePicker* file_picker)
+{
+	if (!file_picker->hasFilename())
+	{
+		return;
+	}
+	const std::string filename = file_picker->getFilename();
+	loadScriptText(filename);
+}
+
+// static 
+void LLScriptEdCore::onBtnAutoscript(void* userdata)
+{
+	LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
+	LLWeb::loadURL(corep->getString("autoscript_url"));
+}
+// </os>
 
 void LLScriptEdCore::setScriptText(const std::string& text, BOOL is_valid)
 {

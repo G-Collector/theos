@@ -129,6 +129,11 @@ public:
 	static BOOL		enableDeselectMenu(void* userdata);
 
 	virtual bool	hasAccelerators() const { return true; }
+    // <os>
+	static void		onBtnLoadFromDisc(void*);
+	static void		onBtnAutoscript(void* userdata);
+	void            onBtnLoadFromDisc_continued(AIFilePicker* filepicker);
+    // </os>
 
 private:
 	static bool		onHelpWebDialog(const LLSD& notification, const LLSD& response);
