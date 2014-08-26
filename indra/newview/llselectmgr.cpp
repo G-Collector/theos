@@ -97,6 +97,9 @@
 #include "rlvactions.h"
 #include "rlvhandler.h"
 // [/RLVa:KB]
+// <os>
+#include "os_floaterexport.h"
+// </os>
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -5269,6 +5272,9 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 			node->mSitName.assign(sit_name);
 			node->mTouchName.assign(touch_name);
 		}
+		// <os>
+		LLFloaterExport::receiveObjectProperties(id, name, desc);
+		// </os>
 	}
 
 	dialog_refresh_all();

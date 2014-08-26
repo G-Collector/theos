@@ -50,6 +50,9 @@
 #include "llgesturemgr.h"
 #include <typeinfo>
 #include "statemachine/aievent.h"
+// <os>
+#include "os_importobject.h"
+// </os>
 
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
 #include "rlvhandler.h"
@@ -1647,6 +1650,10 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 		}
 
 		mItemMap[item->getUUID()] = item;
+		// <os>
+		if(LLXmlImport::sImportInProgress)
+			LLXmlImport::onNewItem(item);
+		// </os>
 	}
 }
 

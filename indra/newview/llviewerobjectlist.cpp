@@ -84,8 +84,9 @@
 
 #include "llappviewer.h"
 #include "llfloaterblacklist.h"
-
-#include "llviewerobjectbackup.h"
+// <os>
+#include "os_importobject.h"
+// </os>
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -272,7 +273,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	}
 	else
 	{
-		LLObjectBackup::primUpdate(objectp);
+		LLXmlImport::onUpdatePrim(objectp);
 	}
 	
 
@@ -283,6 +284,22 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// (from gPipeline.addObject)
 	// so that the drawable parent is set properly
 	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
+	
+	// <os>
+	if (just_created
+		&& update_type != OUT_TERSE_IMPROVED
+		&& LLXmlImport::sImportInProgress)
+	{
+		LLViewerObject* parent = (LLViewerObject*)objectp->getParent();
+		if(parent)
+		{
+			if(parent->getID() == gAgent.getID())
+			{
+				LLXmlImport::onNewAttachment(objectp);
+			}
+		}
+	}
+	//</os>
 	
 	if(just_created && objectp &&
 	(gImportTracker.getState() == ImportTracker::WAND /*||
@@ -310,7 +327,9 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 		gViewerWindow->getWindow()->decBusyCount();
 		gViewerWindow->getWindow()->setCursor( UI_CURSOR_ARROW );
 		
-		LLObjectBackup::newPrim(objectp);
+		// <os>
+		LLXmlImport::onNewPrim(objectp);
+		// </os>	
 	}
 }
 

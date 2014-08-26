@@ -29,13 +29,11 @@
         mouse_opaque="true" enabled="true" >
         <on_click function="File.UploadBulk" userdata="" />
     </menu_item_call>
-	<menu_item_call enabled="false" hidden="false" label="Import Object XML" mouse_opaque="true" name="Import">
-		<on_click function="Object.Import" />
-		<on_enable function="Object.EnableImport" />
-	</menu_item_call>
-	<menu_item_call enabled="false" hidden="false" label="Import with Textures" mouse_opaque="true" name="Import2">
-		<on_click function="Object.ImportUpload" />
-		<on_enable function="Object.EnableImport" />
+	<menu_item_call bottom="-86" enabled="true" height="19"
+				label="Import XML..." left="0" mouse_opaque="true"
+				name="Import XML" width="243">
+		<on_click function="File.ImportXML" userdata="" />
+		<on_enable function ="File.EnableImportXML" userdata="" />
 	</menu_item_call>
 	<menu_item_call label="Change Local Textures" mouse_opaque="true" name="Change Local Textures">
 		<on_click function="ShowFloater" userdata="local assets"/>

@@ -135,7 +135,6 @@
 // </edit>
 
 #include "scriptcounter.h"
-#include "llviewerobjectbackup.h"
 #include "llagentui.h"
 #include "llpathfindingmanager.h"
 #include <boost/lexical_cast.hpp>
@@ -154,6 +153,8 @@
 #include "os_floatervfsexplorer.h"
 #include "os_invtools.h"
 #include "os_floaterinspecttexture.h"
+#include "os_floaterimport.h"
+#include "os_floaterexport.h"
 // </os>
 using namespace LLOldEvents;
 using namespace LLAvatarAppearanceDefines;
@@ -2884,41 +2885,26 @@ class LLAvatarReportAbuse : public view_listener_t
 };
 
 //---------------------------------------------------------------------------
-// Object backup
+// Object import / export
 //---------------------------------------------------------------------------
 
-class LLObjectEnableExport : public view_listener_t
+class LLObjectEnableSaveAs : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		ExportPolicy export_policy = LFSimFeatureHandler::instance().exportPolicy();
-		bool can_export_any = false;
-		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-		for (LLObjectSelection::iterator node = selection->begin(); node != selection->end(); ++node)
-		{
-			//<os>
-			if (isNaughty())
-			{
-				can_export_any = true;
-				break;
-			}
-			//</os>
-			if ((*node)->mPermissions->allowExportBy(gAgent.getID(), export_policy))
-			{
-				can_export_any = true;
-				break;
-			}
-		}
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(can_export_any);
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		bool new_value = (object != NULL);
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
 };
 
-class LLObjectExport : public view_listener_t
+class LLObjectSaveAs : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLObjectBackup::getInstance()->exportObject();
+		LLFloaterExport* floater = new LLFloaterExport();
+		floater->center();
 		return true;
 	}
 };
@@ -2927,7 +2913,22 @@ class LLObjectEnableImport : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(TRUE);
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		bool new_value = (object != NULL);
+		if(object)
+		{
+			if(!object->permCopy())
+				new_value = false;
+			else if(!object->permModify())
+				new_value = false;
+			else if(!object->permMove())
+				new_value = false;
+			else if(object->numChildren() != 0)
+				new_value = false;
+			else if(object->getParent())
+				new_value = false;
+		}
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
 };
@@ -2936,17 +2937,38 @@ class LLObjectImport : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLObjectBackup::getInstance()->importObject(FALSE);
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		bool new_value = (object != NULL);
+		if(object)
+		{
+			if(!object->permCopy())
+				new_value = false;
+			else if(!object->permModify())
+				new_value = false;
+			else if(!object->permMove())
+				new_value = false;
+			else if(object->numChildren() != 0)
+				new_value = false;
+			else if(object->getParent())
+				new_value = false;
+		}
+		if(new_value == false) return true;
+		
+		AIFilePicker* filepicker = AIFilePicker::create();
+		filepicker->open(FFLOAD_XML, "", "openfile");
+		filepicker->run(boost::bind(&LLObjectImport::callback, filepicker, object));
 		return true;
 	}
-};
-
-class LLObjectImportUpload : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+private:
+	static void callback(AIFilePicker* filepicker, LLViewerObject* object)
 	{
-		LLObjectBackup::getInstance()->importObject(TRUE);
-		return true;
+		if(filepicker->hasFilename() && !LLXmlImport::sImportInProgress) //stop multiple imports
+		{
+			std::string file_name = filepicker->getFilename();
+			LLXmlImportOptions* options = new LLXmlImportOptions(file_name);
+			options->mSupplier = object;
+			new LLFloaterXmlImportOptions(options);
+		}
 	}
 };
 
@@ -9701,7 +9723,6 @@ void initialize_menus()
 	addMenu(new LLAvatarCopyUUID(), "Avatar.CopyUUID");
 	addMenu(new LLAvatarClientUUID(), "Avatar.ClientID");
 	//<os>
-	addMenu(new LLObjectExport(), "Avatar.Export");
 	addMenu(new LLAvatarAnims(),"Avatar.Anims");
 	addMenu(new LLAvatarTexInspect(),"Avatar.TextureInspect");
 	//</os>
@@ -9734,9 +9755,10 @@ void initialize_menus()
 	addMenu(new LLObjectDerender(), "Object.DERENDER");
 	addMenu(new LLAvatarReloadTextures(), "Avatar.ReloadTextures");
 	addMenu(new LLObjectReloadTextures(), "Object.ReloadTextures");
-	addMenu(new LLObjectExport(), "Object.Export");
+	// <os>
+	addMenu(new LLObjectSaveAs(), "Object.SaveAs");
 	addMenu(new LLObjectImport(), "Object.Import");
-	addMenu(new LLObjectImportUpload(), "Object.ImportUpload");
+	// </edit>
 
 
 	addMenu(new LLObjectEnableOpen(), "Object.EnableOpen");
@@ -9748,8 +9770,10 @@ void initialize_menus()
 	addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
 	addMenu(new LLObjectEnableMute(), "Object.EnableMute");
 	addMenu(new LLObjectEnableBuy(), "Object.EnableBuy");
-	addMenu(new LLObjectEnableExport(), "Object.EnableExport");
+	// <os>
+	addMenu(new LLObjectEnableSaveAs(), "Object.EnableSaveAs");
 	addMenu(new LLObjectEnableImport(), "Object.EnableImport");
+	// </os>
 
 	/*addMenu(new LLObjectVisibleTouch(), "Object.VisibleTouch");
 	addMenu(new LLObjectVisibleCustomTouch(), "Object.VisibleCustomTouch");
@@ -9763,9 +9787,6 @@ void initialize_menus()
 
 	addMenu(new LLAttachmentEnableDrop(), "Attachment.EnableDrop");
 	addMenu(new LLAttachmentEnableDetach(), "Attachment.EnableDetach");
-	//<os>
-	addMenu(new LLObjectEnableExport(), "Attachment.EnableExport");
-	//</os>
 
 	// Land pie menu
 	addMenu(new LLLandBuild(), "Land.Build");
