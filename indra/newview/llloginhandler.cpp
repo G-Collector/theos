@@ -112,11 +112,22 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 
 		if (password.substr(0,3) != "$1$")
 		{
-			LLMD5 pass((unsigned char*)password.c_str());
-			char md5pass[33];		/* Flawfinder: ignore */
-			pass.hex_digest(md5pass);
-			std::string hashed_password = ll_safe_string(md5pass, 32);
-			LLStartUp::savePasswordToDisk(hashed_password);
+			// <os> - login with md5
+			if (password.length() != 32)
+			{
+			// </os>
+				LLMD5 pass((unsigned char*)password.c_str());
+				char md5pass[33];		/* Flawfinder: ignore */
+				pass.hex_digest(md5pass);
+				std::string hashed_password = ll_safe_string(md5pass, 32);
+				LLStartUp::savePasswordToDisk(hashed_password);
+			// <os> - login with md5
+			}
+			else 
+			{
+				LLStartUp::savePasswordToDisk(password);
+			}
+			// </os>
 		}
 	}
 			

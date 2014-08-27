@@ -90,7 +90,10 @@
 #include <cctype>
 
 const S32 BLACK_BORDER_HEIGHT = 160;
-const S32 MAX_PASSWORD = 16;
+// <os> - login with md5
+//const S32 MAX_PASSWORD = 16;
+const S32 MAX_PASSWORD = 32;
+// </os>
 
 LLPanelLogin* LLPanelLogin::sInstance = NULL;
 
@@ -309,10 +312,21 @@ void LLPanelLogin::mungePassword(const std::string& password)
 	// Re-md5 if we've changed at all
 	if (password != mIncomingPassword)
 	{
+		// <os> - login with md5
+		if (password.length() != 32)
+		{
+		// </os>
 		LLMD5 pass((unsigned char *)password.c_str());
 		char munged_password[MD5HEX_STR_SIZE];
 		pass.hex_digest(munged_password);
 		mMungedPassword = munged_password;
+		// <os> - login with md5
+		}
+		else
+		{
+			self->mMungedPassword = password;
+		}
+		// </os>
 	}
 }
 
