@@ -94,6 +94,35 @@
 	     hover="true" hover_color="50 115 185">
 		Forgot your name or password?
 	</text>
+
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+ bottom="55" drop_shadow_visible="true" follows="left|bottom"
+ font="SansSerif" h_pad="0" halign="left" height="16"
+ left="750" mouse_opaque="true" name="start_location_text" v_pad="0" width="220">
+    Spoof MAC address and Volume ID:
+  </text>
+	<check_box bottom="31" follows="left|bottom" font="SansSerifSmall" height="16"
+	     initial_value="false" label="MAC:" control_name="OSSpecifyMAC"
+	     left="750" mouse_opaque="true" name="mac_check" width="138" font_size="Small" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center"
+	     height="20" label="r" left_delta="60" mouse_opaque="true" name="mac_random_btn" scale_image="TRUE"
+	     width="20" />	
+  <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+	     follows="left|bottom" font="SansSerif" handle_edit_keys_directly="true"
+	     height="20" left_delta="24" max_length="32" mouse_opaque="true"
+	     name="mac_edit" select_all_on_focus_received="true" width="195" enabled="false" font_size="Small" />
+	
+	<check_box bottom="8" follows="left|bottom" font="SansSerifSmall" height="16"
+	     initial_value="false" label="ID0:" control_name="OSSpecifyID0"
+	     left="750" mouse_opaque="true" name="id0_check" width="138" font_size="Small" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center"
+	     height="20" label="r" left_delta="60" mouse_opaque="true" name="id0_random_btn" scale_image="TRUE"
+	     width="20" />
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+	     follows="left|bottom" font="SansSerif" handle_edit_keys_directly="true"
+	     height="20" left_delta="24" max_length="32" mouse_opaque="true"
+	     name="id0_edit" select_all_on_focus_received="true" width="195" enabled="false" font_size="Small" />
+
 	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom="5" drop_shadow_visible="true" follows="right|bottom"
 	     font="SansSerifSmall" h_pad="0" halign="right" height="16"

@@ -133,10 +133,18 @@ void LLUserAuth::authenticate(
 	XMLRPC_VectorAppendString(params, "version", gCurrentVersion.c_str(), 0); // Includes channel name
 	XMLRPC_VectorAppendString(params, "channel", gVersionChannel, 0);
 	XMLRPC_VectorAppendString(params, "platform", PLATFORM_STRING, 0);
-
+	// <os>
+	if(gSavedSettings.getBOOL("OSSpecifyMAC"))
+		XMLRPC_VectorAppendString(params, "mac", gSavedSettings.getString("OSSpecifiedMAC").c_str(), 0);
+	else
+	// </os>
 	XMLRPC_VectorAppendString(params, "mac", hashed_mac.c_str(), 0);
 	// A bit of security through obscurity: id0 is volume_serial
-
+	// <os>
+	if(gSavedSettings.getBOOL("OSSpecifyID0"))
+		XMLRPC_VectorAppendString(params, "id0", gSavedSettings.getString("OSSpecifiedID0").c_str(), 0);
+	else
+	// </os>
 	XMLRPC_VectorAppendString(params, "id0", hashed_volume_serial.c_str(), 0);
 	if (skip_optional)
 	{
@@ -232,12 +240,18 @@ void LLUserAuth::authenticate(
 #endif
 	XMLRPC_VectorAppendString(params, "channel", chan.c_str(), 0);
 	XMLRPC_VectorAppendString(params, "platform", PLATFORM_STRING, 0);
-
+	// <os>
+	if(gSavedSettings.getBOOL("OSSpecifyMAC"))
+		XMLRPC_VectorAppendString(params, "mac", gSavedSettings.getString("OSSpecifiedMAC").c_str(), 0);
+	else
+	// </os>
 	XMLRPC_VectorAppendString(params, "mac", hashed_mac.c_str(), 0);
 	// A bit of security through obscurity: id0 is volume_serial
-	// ^^^^^^^^^^^^^^^^^^^^
-	// you fucking idiot - charbl
-
+	// <os>
+	if(gSavedSettings.getBOOL("SpecifyID0"))
+		XMLRPC_VectorAppendString(params, "id0", gSavedSettings.getString("OSSpecifiedID0").c_str(), 0);
+	else
+	// </os>
 	XMLRPC_VectorAppendString(params, "id0", hashed_volume_serial.c_str(), 0);
 	if (skip_optional)
 	{

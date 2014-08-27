@@ -118,6 +118,14 @@ private:
 	void onNameCheckChanged(const LLSD& value);
 	void confirmDelete();
 	void removeLogin(bool knot);
+	// <os>
+	void fillMAC();
+	void fillID0();
+	static void onCheckMAC(LLUICtrl* ctrl, void* userData);
+	static void onCheckID0(LLUICtrl* ctrl, void* userData);
+	static void onClickMACRandom(void* userData);
+	static void onClickID0Random(void* userData);
+	// </os>
 
 public:
 
