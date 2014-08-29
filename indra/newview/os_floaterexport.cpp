@@ -26,6 +26,9 @@
 #include "llimagej2c.h"
 std::vector<LLFloaterExport*> LLFloaterExport::instances;
 
+LLVOAvatar* find_avatar_from_object( LLViewerObject* object );
+LLVOAvatar* find_avatar_from_object( const LLUUID& object_id );
+
 using namespace LLAvatarAppearanceDefines;
 
 class CacheReadResponder : public LLTextureCache::ReadResponder
@@ -266,8 +269,6 @@ LLSD LLExportable::asLLSD()
 	return LLSD();
 }
 
-
-
 LLFloaterExport::LLFloaterExport()
 :	LLFloater()
 {
@@ -289,8 +290,15 @@ LLFloaterExport::~LLFloaterExport()
 BOOL LLFloaterExport::postBuild(void)
 {
 	if(!mSelection) return TRUE;
+	
+	std::map<LLViewerObject*, bool> avatars;
+	LLViewerObject* foo = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+ 	LLVOAvatar* avatar = find_avatar_from_object(foo);
+	if(avatar)
+	{
+		if(!avatars[foo]) avatars[foo] = true;
+	}
 	if(mSelection->getRootObjectCount() < 1) return TRUE;
-
 	// New stuff: Populate prim name map
 
 	for (LLObjectSelection::valid_iterator iter = mSelection->valid_begin();
@@ -307,7 +315,7 @@ BOOL LLFloaterExport::postBuild(void)
 
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("export_list");
 
-	std::map<LLViewerObject*, bool> avatars;
+	//std::map<LLViewerObject*, bool> avatars;
 
 	for (LLObjectSelection::valid_root_iterator iter = mSelection->valid_root_begin();
 		 iter != mSelection->valid_root_end(); iter++)
