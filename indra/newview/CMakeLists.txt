@@ -82,6 +82,7 @@ set(viewer_SOURCE_FILES
     os_assetconverter.cpp
     os_circuits.cpp
     os_floaterhex.cpp
+    os_floaterinspecthuds.cpp
     os_floaterinspecttexture.cpp
     os_floaterkeytool.cpp
     os_floatertexteditor.cpp
@@ -631,6 +632,7 @@ set(viewer_HEADER_FILES
     os_assetconverter.h
     os_circuits.h
     os_floaterhex.h
+    os_floaterinspecthuds.h
     os_floaterinspecttexture.h
     os_floaterkeytool.h
     os_floatertexteditor.h

@@ -413,7 +413,6 @@ namespace
 			if (const LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()))
 			{
 				//<os>
-				//if (!avatar->isSelf())
 				if (!isNaughty() && !avatar->isSelf())
 				//</os>
 				{

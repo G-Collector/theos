@@ -126,6 +126,10 @@ protected:
 	std::map<U16, ExtraParameter*> mExtraParameterList;
 
 public:
+//< os>
+	bool mPropertiesRecieved;
+	bool mInventoryRecieved;
+// </os>
 	typedef std::list<LLPointer<LLViewerObject> > child_list_t;
 	typedef std::list<LLPointer<LLViewerObject> > vobj_list_t;
 

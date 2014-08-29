@@ -98,6 +98,9 @@
 #include "llvowlsky.h"
 #include "llmanip.h"
 #include "llmediaentry.h"
+//<os>
+#include "os_floaterinspecthuds.h"
+//< /os>
 
 // [RLVa:KB]
 #include "rlvhandler.h"
@@ -250,6 +253,10 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mState(0),
 	mMedia(NULL),
 	mClickAction(0),
+	// <os> - hud inventory
+	mPropertiesRecieved(false),
+	mInventoryRecieved(false),
+	// </os>
 	mObjectCost(0),
 	mLinksetCost(0),
 	mPhysicsCost(0),
@@ -2654,14 +2661,21 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	LLUUID task_id;
 	msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
 	LLViewerObject* object = gObjectList.findObject(task_id);
-	if(!object)
+//<os> hud inventory
+	//if(!object)
+	llinfos << LLFloaterAttachments::sInventoryRequests.size() << " : " << LLFloaterAttachments::sInventoryRequests.count(task_id) << llendl;
+	if(!object &&
+	   (LLFloaterAttachments::sInventoryRequests.size() == 0 || LLFloaterAttachments::sInventoryRequests.count(task_id) == 0))
+//< /os>
 	{
 		llwarns << "LLViewerObject::processTaskInv object "
 			<< task_id << " does not exist." << llendl;
 		return;
 	}
-
-	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
+//<os>
+	//msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
+	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object ? object->mInventorySerialNum : LLFloaterAttachments::sInventoryRequests[task_id]);
+//< /os>
 	LLFilenameAndTask* ft = new LLFilenameAndTask;
 	ft->mTaskID = task_id;
 
@@ -2670,6 +2684,10 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	ft->mFilename = LLDir::getScrubbedFileName(unclean_filename);
 	
 	if(ft->mFilename.empty())
+//<os>
+	{
+		if(object)
+//< /os>
 	{
 		lldebugs << "Task has no inventory" << llendl;
 		// mock up some inventory to make a drop target.
@@ -2687,12 +2705,18 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 									"Contents");
 		object->mInventory->push_front(obj);
 		object->doInventoryCallback();
+//<os>
+		}
+//< /os>
 		delete ft;
 		return;
 	}
 	gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename), 
 								ft->mFilename, LL_PATH_CACHE,
-								object->mRegionp->getHost(),
+								//<os>
+								//object->mRegionp->getHost(),
+								object ? object->mRegionp->getHost() : gAgent.getRegionHost(),
+								//< /os>
 								TRUE,
 								&LLViewerObject::processTaskInvFile,
 								(void**)ft,
@@ -2703,6 +2727,14 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 {
 	LLFilenameAndTask* ft = (LLFilenameAndTask*)user_data;
 	LLViewerObject* object = NULL;
+	//<os>
+	if(ft && (0 == error_code) &&
+		(LLFloaterAttachments::sInventoryRequests.size() != 0 || LLFloaterAttachments::sInventoryRequests.count(ft->mTaskID) != 0))
+		{
+			LLFloaterAttachments::sInventoryRequests.erase(ft->mTaskID);
+			LLFloaterAttachments::dumpTaskInvFile(ft->mTaskID.asString(), ft->mFilename);
+		}
+	//</ os>
 	if(ft && (0 == error_code) &&
 	   (object = gObjectList.findObject(ft->mTaskID)))
 	{

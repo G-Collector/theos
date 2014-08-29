@@ -86,33 +86,22 @@
 		</menu_item_call>
 	</pie_menu>
   <pie_menu label="Tools" name="Tools">
-      <menu_item_call enabled="true" label="Reload" mouse_opaque="true" name="Reload Textures">
-          <on_click function="Avatar.ReloadTextures" />
-      </menu_item_call>
-	  <menu_item_call enabled="true" hidden="false" label="Anims..." mouse_opaque="true"
-						   name="Anims...">
-		<on_click function="ShowFloater" userdata="anims_explorer" />
-	  </menu_item_call>
-	  <menu_item_call enabled="false" hidden="false" label="S. Count" mouse_opaque="true" name="ScriptCount">
-		  <on_click function="Object.ScriptCount" />
-		  <on_visible function="Object.VisibleScriptCount" />
-	  </menu_item_call>
-	  <menu_item_call label="Script Info" mouse_opaque="true" name="Script Info">
-		  <on_click function="ShowFloater" userdata="script info" />
-		  <on_visible function="Self.VisibleScriptInfo" />
-	  </menu_item_call>
-	  <menu_item_call label="Save OBJ..." mouse_opaque="true" name="Save OBJ...">
-      <on_click function="Avatar.SaveAsOBJ" />
-    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_separator />
     <menu_item_call enabled="true" label="Copy UUID" mouse_opaque="true" name="CopyUUID">
       <on_click function="Avatar.CopyUUID" />
     </menu_item_call>
-	<menu_item_call enabled="true" label="OS Textures" mouse_opaque="true" name="Inspect Textures">
-        <on_click function="Avatar.TextureInspect" />
-		</menu_item_call>
-	<menu_item_call enabled="true" label="Debug..." mouse_opaque="true" name="Debug Layers">
+      <menu_item_call enabled="true" label="Reload" mouse_opaque="true" name="Reload Textures">
+          <on_click function="Avatar.ReloadTextures" />
+      </menu_item_call>
+    <menu_item_call enabled="true" label="Debug..." mouse_opaque="true" name="Debug Layers">
       <on_click function="Avatar.Debug" />
     </menu_item_call>
+    <menu_item_call label="Save OBJ..." mouse_opaque="true" name="Save OBJ...">
+      <on_click function="Avatar.SaveAsOBJ" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_separator />
   </pie_menu>
 	<menu_item_call enabled="true" label="Stand Up" name="Stand Up Self">
 		<on_click function="Self.SitOrStand"/>
@@ -125,4 +114,24 @@
 		<on_click function="ShowFloater" userdata="appearance" />
 		<on_enable function="Edit.EnableCustomizeAvatar" />
 	</menu_item_call>
+  <pie_menu label="Inspect" name="Inspect Menu">
+    <menu_item_call enable="true" hidden="false" label="Anims..." mouse_opaque="true" name="Anims...">
+      <on_click function="Avatar.Anims" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_separator />
+    <menu_item_separator />
+    <menu_item_call label="Script Info" mouse_opaque="true" name="Script Info">
+      <on_click function="ShowFloater" userdata="script info" />
+      <on_visible function="Self.VisibleScriptInfo" />
+    </menu_item_call>
+    <menu_item_call enabled="false" hidden="false" label="Script Count" mouse_opaque="true" name="ScriptCount">
+      <on_click function="Object.ScriptCount" />
+      <on_visible function="Object.VisibleScriptCount" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_call enabled="true" label="Textures" mouse_opaque="true" name="Inspect Textures">
+      <on_click function="Avatar.TextureInspect" />
+    </menu_item_call>
+  </pie_menu>
 </pie_menu>

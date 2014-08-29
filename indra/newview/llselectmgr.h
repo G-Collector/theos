@@ -798,7 +798,7 @@ private:
 
 	std::vector<LLAnimPauseRequest> mPauseRequests;	// Selected avatar and all synchronized avatars.
 
-	friend class LLObjectBackup;
+	friend class LLFloaterExport;//export hook simms
 };
 
 // *DEPRECATED: For callbacks or observers, use

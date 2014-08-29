@@ -152,6 +152,7 @@
 #include "os_floatervfs.h"
 #include "os_floatervfsexplorer.h"
 #include "os_invtools.h"
+#include "os_floaterinspecthuds.h"
 #include "os_floaterinspecttexture.h"
 #include "os_floaterimport.h"
 #include "os_floaterexport.h"
@@ -9081,6 +9082,27 @@ class OSUndeform : public view_listener_t
 		return true;
 	}
 };
+
+class LLAvatarEnableHudList : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		bool new_value = (object != NULL);
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
+		return true;
+	}
+};
+class LLAvatarHudList : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLFloaterAttachments* floater = new LLFloaterAttachments();
+		floater->center();
+		return true;
+	}
+};
+
 // </os>
 
 class SinguCloseAllDialogs : public view_listener_t
@@ -9725,6 +9747,8 @@ void initialize_menus()
 	//<os>
 	addMenu(new LLAvatarAnims(),"Avatar.Anims");
 	addMenu(new LLAvatarTexInspect(),"Avatar.TextureInspect");
+	addMenu(new LLAvatarHudList(), "Avatar.HudList");
+	addMenu(new LLAvatarEnableHudList(), "Avatar.EnableHudList");
 	//</os>
 
 	// Object pie menu

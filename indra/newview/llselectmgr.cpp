@@ -99,6 +99,7 @@
 // [/RLVa:KB]
 // <os>
 #include "os_floaterexport.h"
+#include "os_floaterinspecthuds.h"
 // </os>
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
@@ -5186,6 +5187,9 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 			}
 		}
 
+		// <os> Send to export floaters
+		LLFloaterExport::receiveObjectProperties(id, name, desc);
+		// </os>
 
 		// Iterate through nodes at end, since it can be on both the regular AND hover list
 		struct f : public LLSelectedNodeFunctor
@@ -5201,7 +5205,10 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 
 		if (!node)
 		{
-			llwarns << "Couldn't find object " << id << " selected." << llendl;
+		//<os>
+		//	llwarns << "Couldn't find object " << id << " selected." << llendl;
+		LLFloaterAttachments::dispatchHUDObjectProperties(new LLHUDAttachment(name, desc, owner_id, id, from_task_id, texture_ids, 0, inv_serial));
+		//< /os>
 		}
 		else
 		{
@@ -5272,9 +5279,6 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 			node->mSitName.assign(sit_name);
 			node->mTouchName.assign(touch_name);
 		}
-		// <os>
-		LLFloaterExport::receiveObjectProperties(id, name, desc);
-		// </os>
 	}
 
 	dialog_refresh_all();
