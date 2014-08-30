@@ -8986,7 +8986,7 @@ class LLAvatarTexInspect : public view_listener_t
 	}
 };
 
-//<edit>  - Delete all owned objects in the region
+//Delete all owned objects in the region
 class OSDeleteAllYours: public view_listener_t
 {
     bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9008,6 +9008,26 @@ class OSDeleteAllYours: public view_listener_t
 		}
 		else
 			return false;
+	}
+};
+
+// Tp to Safety and rez platform if allowed.
+class OSSafety : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+	LLAvatarActions::goToPanic();
+	return true;
+	}
+};
+
+// Tp to Ground Level
+class OSGround : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLAvatarActions::goToGround();
+		return true;
 	}
 };
 
@@ -9677,6 +9697,8 @@ void initialize_menus()
 	(new LLWorldEnableEnvSettings())->registerListener(gMenuHolder, "World.EnableEnvSettings");
 	// <os>
 	addMenu(new OSDeleteAllYours(), "OS.DeleteAllYours");
+	addMenu(new OSSafety(), "Avatar.TpSafety");
+	addMenu(new OSGround(), "Avatar.TpGround");
 	// </os>
 
 

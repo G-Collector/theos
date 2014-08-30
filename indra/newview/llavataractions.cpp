@@ -66,6 +66,14 @@
 
 #include "llviewerwindow.h"
 #include "llwindow.h"
+// <os>
+#include "llparcel.h"
+#include "llviewerparcelmgr.h"
+#include "llworld.h" //land height
+#include "llagentcamera.h"//for rezplat
+#include "llvolumemessage.h"//for rezplat
+#include "llregionhandle.h"//for rezplat
+// </os>
 
 extern const S32 TRANS_GIFT;
 void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group = FALSE, S32 trx_type = TRANS_GIFT, const std::string& desc = LLStringUtil::null);
@@ -1297,3 +1305,75 @@ void LLAvatarActions::copyUUIDs(const uuid_vec_t& ids)
 	if (!ids_string.empty())
 		gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(ids_string));
 }
+// <os>
+
+void LLAvatarActions::goToGround()
+{
+	LLVector3 agentPos = gAgent.getPositionAgent();
+	U64 agentRegion = gAgent.getRegion()->getHandle();
+	LLVector3 targetPos(agentPos.mV[0],agentPos.mV[1],LLWorld::getInstance()->resolveLandHeightAgent(agentPos));
+	LLVector3d pos_global = from_region_handle(agentRegion);
+	pos_global += LLVector3d((F64)targetPos.mV[0],(F64)targetPos.mV[1],(F64)targetPos.mV[2]);
+	gAgent.teleportViaLocation(pos_global);
+	gAgentCamera.resetCamera();
+}
+
+void LLAvatarActions::goToPanic()
+{
+	BOOL can_build = FALSE;
+	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (agent_parcel)
+	{
+		can_build = agent_parcel->getAllowModify();
+	}
+	gAgent.setFlying(!can_build);
+	LLVector3 agentPos = gAgent.getPositionAgent();
+	U64 agentRegion = gAgent.getRegion()->getHandle();
+	LLVector3 targetPos(agentPos.mV[0],agentPos.mV[1],3975.0f);
+	LLVector3 rezPos(targetPos.mV[0],targetPos.mV[1],3970.0f);
+	LLVector3d pos_global = from_region_handle(agentRegion);
+	pos_global += LLVector3d((F64)targetPos.mV[0],(F64)targetPos.mV[1],(F64)targetPos.mV[2]);
+	gAgent.teleportViaLocation(pos_global);
+
+	//Platform
+	if(can_build)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_ObjectAdd);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
+		msg->nextBlockFast(_PREHASH_ObjectData);
+		msg->addU8Fast(_PREHASH_PCode, LL_PCODE_VOLUME);
+		msg->addU8Fast(_PREHASH_Material, LL_MCODE_METAL);
+		if(agentPos.mV[2] > 4096.0)msg->addU32Fast(_PREHASH_AddFlags, FLAGS_CREATE_SELECTED);
+		else msg->addU32Fast(_PREHASH_AddFlags, 0);
+		LLVolumeParams    volume_params;
+		volume_params.setType( LL_PCODE_PROFILE_CIRCLE, 0x21 ); //TODO: make this use LL_PCODE_PATH_CIRCLE_33 again instead of the hardcoded value
+		volume_params.setRatio( 2, 2 );
+		volume_params.setShear( 0, 0 );
+		volume_params.setTaper(2.0f,2.0f);
+		volume_params.setTaperX(0.f);
+		volume_params.setTaperY(0.f);
+		LLVolumeMessage::packVolumeParams(&volume_params, msg);
+		LLQuaternion rotation;
+		rotation.setQuat(90.f * DEG_TO_RAD, LLVector3::y_axis);
+		static LLCachedControl<F32> sFSCmdLinePlatformSize(gSavedSettings,  "AscentPlatformSize");
+		F32 realsize = sFSCmdLinePlatformSize / 3.0f;
+		if (realsize < 0.01f) realsize = 0.01f;
+		else if (realsize > 10.0f) realsize = 10.0f;
+		msg->addVector3Fast(_PREHASH_Scale, LLVector3(0.01f,realsize,realsize) );
+		msg->addQuatFast(_PREHASH_Rotation, rotation );
+		msg->addVector3Fast(_PREHASH_RayStart, rezPos );
+		msg->addVector3Fast(_PREHASH_RayEnd, rezPos );
+		msg->addU8Fast(_PREHASH_BypassRaycast, (U8)1 );
+		msg->addU8Fast(_PREHASH_RayEndIsIntersection, (U8)FALSE );
+		msg->addU8Fast(_PREHASH_State, 0);
+		msg->addUUIDFast(_PREHASH_RayTargetID, LLUUID::null );
+		msg->sendReliable(gAgent.getRegionHost());
+		gAgent.teleportViaLocation(pos_global);
+	}
+	gAgentCamera.resetCamera();
+}
+// </os>

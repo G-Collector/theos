@@ -1017,6 +1017,13 @@
 		<menu_item_call label="Close All Dialogs" mouse_opaque="true" name="Close All Dialogs" shortcut="control|alt|shift|D">
 			<on_click function="CloseAllDialogs"/>
 		</menu_item_call>
+		<menu_item_separator mouse_opaque="true" name="separators0"/>
+		<menu_item_call label="Teleport to a safe level" mouse_opaque="true" name="Teleport to safe level" shortcut="control|pgup">
+			<on_click function="Avatar.TpSafety"/>
+		</menu_item_call>
+		<menu_item_call label="Teleport to ground level" mouse_opaque="true" name="Teleport to ground level" shortcut="control|pgdn">
+			<on_click function="Avatar.TpGround"/>
+		</menu_item_call>
 		<menu_item_separator mouse_opaque="true" name="separators1"/>
 		<menu_item_call label="Fake Away Status" mouse_opaque="true" name="Fake Away Status">
 			<on_click function="World.FakeAway"/>

@@ -238,6 +238,10 @@ public:
 	 * Copy the selected avatar's UUID to clipboard
 	 */
 	static void copyUUIDs(const uuid_vec_t& id);
+// <os>
+	static void goToGround();
+	static void goToPanic();
+// </os>
 
 private:
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
