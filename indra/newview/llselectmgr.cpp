@@ -5187,10 +5187,6 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 			}
 		}
 
-		// <os> Send to export floaters
-		LLFloaterExport::receiveObjectProperties(id, name, desc);
-		// </os>
-
 		// Iterate through nodes at end, since it can be on both the regular AND hover list
 		struct f : public LLSelectedNodeFunctor
 		{
@@ -5279,6 +5275,11 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 			node->mSitName.assign(sit_name);
 			node->mTouchName.assign(touch_name);
 		}
+
+		// <os>
+		LLFloaterExport::receiveObjectProperties(id, name, desc);
+		// </os>
+
 	}
 
 	dialog_refresh_all();
@@ -5333,12 +5334,15 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 	// the reporter widget askes the server for info about picked objects
 	if (request_flags & COMPLAINT_REPORT_REQUEST)
 	{
-		LLFloaterReporter *reporterp = LLFloaterReporter::getInstance();
-		if (reporterp)
+		if(floater_visible("complaint reporter"))
 		{
-			std::string fullname;
-			gCacheName->getFullName(owner_id, fullname);
-			reporterp->setPickedObjectProperties(name, fullname, owner_id);
+			LLFloaterReporter *reporterp = LLFloaterReporter::getInstance();
+			if (reporterp)
+			{
+				std::string fullname;
+				gCacheName->getFullName(owner_id, fullname);
+				reporterp->setPickedObjectProperties(name, fullname, owner_id);
+			}
 		}
 	}
 	else if (request_flags & OBJECT_PAY_REQUEST)
