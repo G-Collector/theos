@@ -277,7 +277,10 @@ static LLNotificationFunctorRegistration friendship_offer_callback_reg_nm("Offer
 void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group,
 				S32 trx_type, const std::string& desc)
 {
-	if(0 == amount || !region) return;
+	// <edit> Pay 0L$
+	//if(0 == amount || !region) return; 
+	if(!region) return;
+	// </edit>
 	amount = abs(amount);
 	LL_INFOS("Messaging") << "give_money(" << uuid << "," << amount << ")"<< LL_ENDL;
 	if(can_afford_transaction(amount))

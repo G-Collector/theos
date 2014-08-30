@@ -230,6 +230,7 @@
 #include "scriptcounter.h"
 #include "shfloatermediaticker.h"
 #include "llpacketring.h"
+#include "os_floaterexploreparticles.h"// </os>
 // </edit>
 
 #include "llpathfindingmanager.h"
@@ -2974,8 +2975,6 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
-
-
 void use_circuit_callback(void**, S32 result)
 {
 	// bail if we're quitting.
@@ -2997,14 +2996,23 @@ void use_circuit_callback(void**, S32 result)
 	}
 }
 
+// Send the result to the corresponding requesters.
 
+//ObjectPropertiesFamily...
 void pass_processObjectPropertiesFamily(LLMessageSystem *msg, void**)
 {
-	// Send the result to the corresponding requesters.
 	LLSelectMgr::processObjectPropertiesFamily(msg, NULL);
 	JCFloaterAreaSearch::processObjectPropertiesFamily(msg, NULL);
 }
 
+//ObjectProperties...
+void pass_processObjectProperties(LLMessageSystem *msg, void**)
+{
+	LLSelectMgr::processObjectProperties(msg, NULL);
+	OSParticleExplorer::processObjectProperties(msg, NULL);
+}
+
+//ScriptRunningReply...
 void process_script_running_reply(LLMessageSystem* msg, void** v)
 {
 	LLLiveLSLEditor::processScriptRunningReply(msg, v);
@@ -3063,7 +3071,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFuncFast(_PREHASH_ImprovedInstantMessage,	process_improved_im);
 	msg->setHandlerFuncFast(_PREHASH_ScriptQuestion,			process_script_question);
-	msg->setHandlerFuncFast(_PREHASH_ObjectProperties,			LLSelectMgr::processObjectProperties, NULL);
+	msg->setHandlerFuncFast(_PREHASH_ObjectProperties,			pass_processObjectProperties, NULL);
 	msg->setHandlerFuncFast(_PREHASH_ObjectPropertiesFamily,	pass_processObjectPropertiesFamily, NULL);
 	msg->setHandlerFunc("ForceObjectSelect", LLSelectMgr::processForceObjectSelect);
 

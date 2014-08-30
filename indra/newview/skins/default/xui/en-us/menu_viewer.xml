@@ -1079,7 +1079,11 @@
     <menu_item_call label="OS VFS Explorer" mouse_opaque="true" name="VFS Explorer">
       <on_click function="OS.VFSExplorer" />
     </menu_item_call>
-	<menu_item_separator mouse_opaque="true" name="separators8" />
+    <menu_item_separator mouse_opaque="true" name="separators8" />
+    <menu_item_call label="OS Particle Explorer" mouse_opaque="true" name="particle explorer">
+      <on_click function="OS.ParticleExplorer" userdata=""/>
+    </menu_item_call>
+	<menu_item_separator mouse_opaque="true" name="separators9" />
       <menu_item_check label="OS Message Packet Logger" mouse_opaque="true" name="message logger">
         <on_click function="ShowFloater" userdata="messagelog"/>
         <on_check function="FloaterVisible" userdata="messagelog"/>
@@ -1092,7 +1096,7 @@
 			<on_click function="ShowFloater" userdata="region circuits"/>
 			<on_check function="FloaterVisible" userdata="region circuits"/>
 		</menu_item_check>
-	<menu_item_separator mouse_opaque="true" name="separators9" />	
+	<menu_item_separator mouse_opaque="true" name="separators10" />	
     <menu_item_call label="OS Undeform" mouse_opaque="true" name="Undeform">
       <on_click function="OS.Undeform" />
     </menu_item_call>

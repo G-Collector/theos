@@ -156,6 +156,7 @@
 #include "os_floaterinspecttexture.h"
 #include "os_floaterimport.h"
 #include "os_floaterexport.h"
+#include "os_floaterexploreparticles.h"
 // </os>
 using namespace LLOldEvents;
 using namespace LLAvatarAppearanceDefines;
@@ -9103,6 +9104,16 @@ class LLAvatarHudList : public view_listener_t
 	}
 };
 
+class OSExploreParticles: public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		OSParticleExplorer::toggle();
+		return true;
+	}
+
+};
+
 // </os>
 
 class SinguCloseAllDialogs : public view_listener_t
@@ -9860,6 +9871,7 @@ void initialize_menus()
 	addMenu(new OSResyncAnimations(), "OS.ResyncAnims");
 	addMenu(new OSMarkAllDead(), "OS.ClearEffects");
 	addMenu(new OSUndeform(), "OS.Undeform");
+	addMenu(new OSExploreParticles(), "OS.ParticleExplorer");
 	// </os>
 
 // [RLVa:KB] - Checked: 2010-01-18 (RLVa-1.1.0m) | Added: RLVa-1.1.0m | OK

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater can_close="true" can_drag_on_left="false" can_minimize="true" can_resize="true"
+     min_height="325" min_width="650" name="particle explorer"
+     rect_control="FloaterExploreParticlesRect" title="Particle Explorer">
+  <texture_picker follows="left|top" bottom_delta="-276" height="256" width="256" right="266" name="imagette"
+	     />
+  <scroll_list bottom="20" can_resize="false" column_padding="0" draw_heading="true"
+	     follows="top|right|left|bottom" left="270" multi_select="false"
+	     name="object_list" right="-10"
+	     tool_tip="Select an object from this list to highlight it in-world"
+	     top="-20">
+    <column dynamicwidth="true" label="Owner" name="particle_owner" />
+	<column dynamicwidth="true" label="Particle Source" name="particle_source" />
+	<column dynamicwidth="true" hide="true" label="Particle Texture" name="particle_texture" />
+  </scroll_list>
+
+  <button bottom="30" follows="left|bottom" font="SansSerif" halign="center" height="20"
+	     label="Reload List" label_selected="" left="10"
+	     mouse_opaque="true" name="reload"
+	     width="120" />
+
+  <button bottom_delta="-20" follows="left|bottom" font="SansSerif" halign="center" height="20"
+	     label="Return Object" label_selected="" left="10"
+	     mouse_opaque="true" name="return"
+	     width="120" />
+		 
+  <button bottom="30" follows="left|bottom" font="SansSerif" halign="center" height="20"
+	     label="Show Beacon" label_selected="" left="135"
+	     mouse_opaque="true" name="beacon" width="120" />
+
+  <button bottom_delta="-20" follows="left|bottom" font="SansSerif" halign="center" height="20"
+	     label="Copy Script" label_selected="" left="135"
+	     mouse_opaque="true" name="copy"
+	     width="120" />
+</floater>
