@@ -23,19 +23,19 @@
 #include "lltoolcomp.h" // used by openKey
 #include "llavataractions.h"
 #include "llgroupactions.h"
-
 #include "os_invtools.h"
-
 #include "llnotificationsutil.h"
-
 #include "llselectmgr.h"
 #include "llfloatertools.h"
 #include "lltoolmgr.h"
 #include "lltoolcomp.h"
-
 #include "lldatapacker.h"
-
 #include "llinventorymodel.h"
+
+#include "llwearablelist.h" // wearable
+#include "llvoavatarself.h" //gAgentAvatarp
+
+extern void wearable_callback(LLViewerWearable* old_wearable, void*);
 
 std::list<LLKeyTool*> LLKeyTool::mKeyTools;
 boost::signals2::connection LLKeyTool::mObjectPropertiesFamilyConnection;
@@ -156,9 +156,18 @@ static void region_track_callback(const U64& region_handle)
 //static
 void LLKeyTool::openKey(LLUUID id, LLKeyType key_type, LLAssetType::EType asset_type)
 {
+	std::string name = id.asString();
 	if (key_type == LLKeyTool::KT_ASSET)
 	{
-		OSInvTools::addItem(id.asString(), int(asset_type), id, TRUE);
+		if(asset_type == LLAssetType::AT_BODYPART || asset_type == LLAssetType::AT_CLOTHING)
+		{
+			gSavedSettings.setBOOL("UseInternalWearableName", TRUE);
+			LLWearableList::getInstance()->getAsset(id, name, gAgentAvatarp, asset_type, wearable_callback, (void*)name.c_str());
+		}
+		else
+		{
+			OSInvTools::addItem(id.asString(), int(asset_type), id, TRUE);
+		}
 	}
 	//let me just fill this in for you real quick
 	else if (key_type == LLKeyTool::KT_AGENT)

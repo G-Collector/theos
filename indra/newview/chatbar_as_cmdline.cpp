@@ -66,25 +66,57 @@
 #include "llchat.h"
 
 #include "llfloaterchat.h"
-
-
+// <os>
+#include "lluuid.h"
+#include "statemachine/aifilepicker.h"
+#include "llassetstorage.h"
+// </os>
 void cmdline_printchat(std::string message);
 void cmdline_rezplat(bool use_saved_value = true, F32 visual_radius = 30.0);
 void cmdline_tp2name(std::string target);
 
 LLUUID cmdline_partial_name2key(std::string name);
 
-
-
-LLViewerInventoryItem::item_array_t findInventoryInFolder(const std::string& ifolder)
+// <os>
+static void cmd_line_assetCallback_continued(char* buffer, S32 size, AIFilePicker* filepicker);
+void cmd_line_assetCallback(LLVFS *vfs, const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status)
 {
-	LLUUID folder = gInventory.findCategoryByName(ifolder);
-	LLViewerInventoryCategory::cat_array_t cats;
-	LLViewerInventoryItem::item_array_t items;
-	//ObjectContentNameMatches objectnamematches(ifolder);
-	gInventory.collectDescendents(folder,cats,items,FALSE);//,objectnamematches);
+	if(status == LL_ERR_NOERR)
+	{
+		// Todo: this doesn't work for static vfs shit
+		LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+		LLFloaterChat::print(llformat("assetid was found as type %d",type));
+		S32 size = file.getSize();
 
-	return items;
+		char* buffer = new char[size];		// Deleted in assetCallback_continued.
+		if (buffer == NULL)
+		{
+			llerrs << "Memory Allocation Failed" << llendl;
+			return;
+		}
+
+		file.read((U8*)buffer, size);
+
+		// Write it back out...
+
+		AIFilePicker* filepicker = AIFilePicker::create();
+		filepicker->open(LLDir::getScrubbedFileName("untitled.whateva"), FFSAVE_ALL);
+		filepicker->run(boost::bind(&cmd_line_assetCallback_continued, buffer, size, filepicker));
+	}
+
+}
+
+// static
+void cmd_line_assetCallback_continued(char* buffer, S32 size, AIFilePicker* filepicker)
+{
+	if (filepicker->hasFilename())
+	{
+		std::string filename = filepicker->getFilename();
+		std::ofstream export_file(filename.c_str(), std::ofstream::binary);
+		export_file.write(buffer, size);
+		export_file.close();
+	}
+	delete [] buffer;
 }
 
 class JCZface : public LLEventTimer
@@ -463,6 +495,26 @@ bool cmd_line_chat(std::string revised_text, EChatType type)
 				}
 				return false;
 			}
+			// <os>
+			else if(command == "/download")
+			{
+				std::string uuid;
+				if(i >> uuid)
+				{
+					LLFloaterChat::print("cycling asset types 0 thru 21");
+					U8 num = 0;
+					while(num < 22)
+					{
+						gAssetStorage->getAssetData((LLUUID)uuid, (LLAssetType::EType)num, cmd_line_assetCallback, (void*)0,1);
+						num += 1;
+					}
+					
+				return false;
+				
+				}
+				
+			}
+			// </os>
 			else if(command == "typingstop")
 			{
 				std::string text;

@@ -285,12 +285,21 @@ void wearable_callback(LLViewerWearable* old_wearable, void* userdata)
 	wearable->saveNewAsset();
 	//gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 
+	//Wearable Name
+	std::string name = std::string((const char*)userdata);
+	BOOL use_internal_name = gSavedSettings.getBOOL("UseInternalWearableName");
+	if (use_internal_name) 
+	{
+		name = old_wearable->getName();
+		gSavedSettings.setBOOL("UseInternalWearableName", FALSE);
+	}
+
 	// Add a new inventory item (shouldn't ever happen here)
 	create_inventory_item(gAgent.getID(),
 						  gAgent.getSessionID(),
 						  gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(wearable->getAssetType())),
 						  wearable->getTransactionID(),
-						  old_wearable->getName(),//std::string((const char*)userdata),
+						  name,
 						  wearable->getDescription(),
 						  wearable->getAssetType(),
 						  LLInventoryType::IT_WEARABLE,
