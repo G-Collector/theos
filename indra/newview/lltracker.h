@@ -110,6 +110,7 @@ public:
 	
 	static const std::string& getLabel() { return instance()->mLabel; }
 	static const std::string& getToolTip() { return instance()->mToolTip; }
+	void drawMarker(const LLVector3d& pos_global, const LLColor4& color, BOOL type = FALSE); //Mouselook distance
 protected:
 	LLTracker();
 	~LLTracker();
@@ -124,7 +125,7 @@ protected:
 	void stopTrackingLocation(BOOL clear_ui = FALSE);
 	void stopTrackingLandmark(BOOL clear_ui = FALSE);
 
-	void drawMarker(const LLVector3d& pos_global, const LLColor4& color);
+	//void drawMarker(const LLVector3d& pos_global, const LLColor4& color);//Mouselook distance
 	void setLandmarkVisited();
 	void cacheLandmarkPosition();
 	void purgeBeaconText();

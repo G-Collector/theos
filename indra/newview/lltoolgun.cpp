@@ -141,7 +141,8 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 
 	return TRUE;
 }
-
+// <os>
+/* //Mouselook
 void LLToolGun::draw()
 {
 	static const LLCachedControl<bool> show("ShowCrosshairs");
@@ -155,3 +156,5 @@ void LLToolGun::draw()
 			color);
 	}
 }
+*/
+// </os>

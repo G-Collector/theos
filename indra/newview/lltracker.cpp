@@ -687,7 +687,8 @@ void LLTracker::clearFocus()
 	instance()->mTrackingStatus = TRACKING_NOTHING;
 }
 
-void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
+//Mouselook distance
+void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color, BOOL type)
 {
 	// get position
 	LLVector3 pos_local = gAgent.getPosAgentFromGlobal(pos_global);
@@ -698,8 +699,9 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
 	S32 y = 0;
 	const BOOL CLAMP = TRUE;
 
-	if (LLViewerCamera::getInstance()->projectPosAgentToScreen(pos_local, screen, CLAMP)
-		|| LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(pos_local, screen) )
+	bool on_screen = LLViewerCamera::getInstance()->projectPosAgentToScreen(pos_local, screen, CLAMP); //Mouselook distance
+	if ( on_screen && type ) return; // <mouselook/>
+	if ( on_screen || LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(pos_local, screen) ) //Mouselook distance
 	{
 		gHUDView->screenPointToLocal(screen.mX, screen.mY, &x, &y);
 
@@ -717,6 +719,7 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
 		S32 y_center = lltrunc(0.5f * (F32)rect.getHeight());
 		x = x - x_center;	// x and y relative to center
 		y = y - y_center;
+		if (type) y += 100;//Mouselook distance
 		F32 dist = sqrt((F32)(x*x + y*y));
 		S32 half_arrow_size = lltrunc(0.5f * HUD_ARROW_SIZE);
 		if (dist > 0.f)
@@ -766,6 +769,10 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
 									 mHUDArrowCenterY - half_arrow_size, 
 									 HUD_ARROW_SIZE, HUD_ARROW_SIZE, 
 									 RAD_TO_DEG * angle, 
+									 //Mouselook distance
+									 type ?
+									 LLWorldMapView::sIFFArrowImage->getImage() :
+									 //Mouselook distance
 									 LLWorldMapView::sTrackArrowImage->getImage(), 
 									 color);
 	}

@@ -81,6 +81,29 @@
 	     name="texture_beam_pick" width="125" control_name="TextureBeamsImage" />
 	
     </panel>
+    
+    <panel border="true" left="1" bottom="-190" height="180" width="500" label="MouseLook" name="MouseLook">
+     
+      <!--Mouselook-->
+      <text bottom_delta="-30" left_delta="5" follows="top" height="10" name="Mouselook">Mouselook Settings.</text>
+      <check_box bottom_delta="-25" left_delta="-5" control_name="MouselookIFF" follows="top" height="16" initial_value="false" label="Render Mouselook Target Search Pointers." tool_tip="" name="renderIFF"/>
+      <check_box bottom_delta="-20" control_name="MouselookFriendlyIFF" follows="top" height="16" initial_value="false" label="Render Mouselook Target Search Pointers For Avatars On Your Friendlist" tool_tip="" name="renderFriendlyIFF"/>
+      <check_box bottom_delta="-20" control_name="MouselookHostileIFF" follows="top" height="16" initial_value="false" label="Render Mouselook Target Search Pointers For Normal Hostile Avatars" tool_tip="" name="renderHostileIFF"/>
+      <text bottom_delta="-30" left_delta="5" follows="top" height="10" name="Mouselook">Set Base Mouselook Crosshair Texture ID:</text>
+      <combo_box control_name="MouselookCrosshair" follows="left|top|right" layout="topleft" left="15" height="23" top_delta="-16" width="232" max_chars="128" name="combo_box">
+        <combo_item name="Square" value="996e6dc9-9842-5e48-aa2c-90bfaac43a54">Square</combo_item>
+        <combo_item name="Plus (Small)" value="826b1f79-9af0-9bd0-95fd-aa457566dff7">Plus (Small)</combo_item>
+        <combo_item name="Plus (Faded)" value="1b115f01-e8c4-7833-7fa1-928413e00fca">Plus (Faded)</combo_item>
+        <combo_item name="Plus (Faded w/Gap)" value="9701a233-a7d5-3fb0-3d0a-22cb2318f6cc">Plus (Faded w/Gap)</combo_item>
+        <combo_item name="Cross (Small)" value="206ee51b-1873-3525-3917-afb276d684cc">Cross (Small)</combo_item>
+        <combo_item name="Cross (Faded)" value="5a587091-06ae-401e-e939-9136587f992a">Cross (Faded)</combo_item>
+        <combo_item name="Cross (Faded w/Gap)" value="450755dc-db23-6f19-cedd-38f16598b6d8">Cross (Faded w/Gap)</combo_item>
+        <combo_item name="Circle" value="c61e17ab-6e35-8cf4-f472-f60e1b8ead25">Circle</combo_item>
+        <combo_item name="Dot" value="613a3b8c-e2bf-2c76-5607-201f46254b37">Dot</combo_item>
+      </combo_box>
+      <text bottom_delta="28" left_delta="240" follows="top" height="10" name="Mouselook">Set Custom Mouselook Crosshair Texture ID:</text>
+      <line_editor border_style="line" border_thickness="1" follows="left|top" font="SansSerifSmall" height="24" layout="topleft" top_delta="-21" left_delta="0" max_length_bytes="36" width="215" name="crosshair_id" control_name="MouselookCrosshair" tool_tip="For setting a custom texture key for the crosshair texture." />
+    </panel>
    
   </tab_container>
 </panel>

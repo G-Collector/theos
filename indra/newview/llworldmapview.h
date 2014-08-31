@@ -124,7 +124,10 @@ public:
 								F32 y_pixels, 
 								const LLColor4& color,
 								F32 relative_z = 0.f,
-								F32 dot_radius = 3.f);
+	//Mouselook distance
+								F32 dot_radius = 3.f,
+								bool heightUnknown = false); // Ansariel: For drawing unknown height indicator
+	//Mouselook distance
 	static void		drawIconName(F32 x_pixels, 
 									F32 y_pixels, 
 									const LLColor4& color,
@@ -150,6 +153,8 @@ public:
 	static LLUIImagePtr	sAvatarLevelImage;
 	static LLUIImagePtr	sAvatarAboveImage;
 	static LLUIImagePtr	sAvatarBelowImage;
+	static LLUIImagePtr	sAvatarHeightUnknownImage; //Mouselook distance
+	static LLUIImagePtr	sIFFArrowImage; //Mouselook distance
 	static LLUIImagePtr	sTelehubImage;
 	static LLUIImagePtr	sInfohubImage;
 	static LLUIImagePtr	sHomeImage;

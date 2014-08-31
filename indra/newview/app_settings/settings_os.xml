@@ -378,5 +378,116 @@
       			<key>Value</key>
       			<string>9390892e-ccbe-52c0-5bc6-2f722f995420</string>
     		</map>
+    		<!--Mouselook-->
+    		<key>MouselookCrosshair</key>
+    		<map>
+      			<key>Comment</key>
+      			<string>Image to use for crosshair display (UUID texture reference)</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>String</string>
+      			<key>Value</key>
+      			<string>1b115f01-e8c4-7833-7fa1-928413e00fca</string>
+    		</map>
+    		<key>ThirdPersonIFF</key>
+    		<map>
+      			<key>Comment</key>
+      			<string>Render the IFF in third person</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+    		</map>
+    		<key>MouselookIFFRange</key>
+    		<map>
+      			<key>Comment</key>
+      			<string>Range which affects both the mouselook IFF and rangefinder.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>F32</string>
+      			<key>Value</key>
+      			<real>380.0</real>
+		</map>
+		<key>MouselookIFF</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Rendering of the Identification Friend or Foe mouselook system.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>1</integer>
+		</map>
+		<key>MouselookFriendlyIFF</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Rendering of the Identification Friend or Foe mouselook system.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+    		</map>
+		<key>MouselookHostileIFF</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Rendering of the Identification Friend or Foe mouselook system.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>0</integer>
+		</map>
+		<key>MouselookTextOffsetX</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Sets the offset of the text displayed in mouselook, in pixels.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>F32</string>
+      			<key>Value</key>
+      			<real>0.0</real>
+		</map>
+		<key>MouselookTextOffsetY</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Sets the offset of the text displayed in mouselook, in pixels.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>F32</string>
+      			<key>Value</key>
+      			<real>-150.0</real>
+		</map>
+		<key>MouselookTextHAlign</key>
+		<map>
+      			<key>Comment</key>
+      			<string>Sets the text horizontal alignment that is displayed in mouselook.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>U32</string>
+      			<key>Value</key>
+      			<integer>2</integer>
+    		</map>
+    		<key>MouselookPosition</key>
+    		<map>
+      			<key>Comment</key>
+      			<string>Show position information (X, Y, Z) in mouselook.</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>Boolean</string>
+      			<key>Value</key>
+      			<integer>1</integer>
+    		</map>
   	</map>
 </llsd>

@@ -53,6 +53,7 @@
 #include "llmousehandler.h"
 #include "llhandle.h"
 #include "llnotifications.h"
+#include "lluiimage.h" // </os> - Mouselook distance
 
 class LLView;
 class LLViewerObject;
@@ -188,6 +189,8 @@ public:
 	/*virtual*/ std::string translateString(const char* tag);
 	/*virtual*/ std::string translateString(const char* tag,
 					const std::map<std::string, std::string>& args);
+	void				updateCrosshairTexture(); // </os> - Mouselook distance
+	LLUIImagePtr		crosshairImage; // </os> - Mouselook distance
 
 
 	//

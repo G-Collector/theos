@@ -94,7 +94,8 @@ LLUIImagePtr LLWorldMapView::sAvatarYouLargeImage = NULL;
 LLUIImagePtr LLWorldMapView::sAvatarLevelImage = NULL;
 LLUIImagePtr LLWorldMapView::sAvatarAboveImage = NULL;
 LLUIImagePtr LLWorldMapView::sAvatarBelowImage = NULL;
-
+LLUIImagePtr LLWorldMapView::sAvatarHeightUnknownImage = NULL; //Mouselook distance
+LLUIImagePtr LLWorldMapView::sIFFArrowImage = NULL; //Mouselook distance
 LLUIImagePtr LLWorldMapView::sTelehubImage = NULL;
 LLUIImagePtr LLWorldMapView::sInfohubImage = NULL;
 LLUIImagePtr LLWorldMapView::sHomeImage = NULL;
@@ -145,7 +146,8 @@ void LLWorldMapView::initClass()
 	sAvatarLevelImage = 	LLUI::getUIImage("map_avatar_32.tga");
 	sAvatarAboveImage = 	LLUI::getUIImage("map_avatar_above_32.tga");
 	sAvatarBelowImage = 	LLUI::getUIImage("map_avatar_below_32.tga");
-
+	sAvatarHeightUnknownImage =	LLUI::getUIImage("map_avatar_unknown.tga"); //Mouselook distance
+	sIFFArrowImage =		LLUI::getUIImage("target_arrow.tga"); //Mouselook distance
 	sHomeImage =			LLUI::getUIImage("map_home.tga");
 	sTelehubImage = 		LLUI::getUIImage("map_telehub.tga");
 	sInfohubImage = 		LLUI::getUIImage("map_infohub.tga");
@@ -174,7 +176,8 @@ void LLWorldMapView::cleanupClass()
 	sAvatarLevelImage = NULL;
 	sAvatarAboveImage = NULL;
 	sAvatarBelowImage = NULL;
-
+	sAvatarHeightUnknownImage = NULL; //Mouselook distance
+	sIFFArrowImage = NULL; //Mouselook distance
 	sTelehubImage = NULL;
 	sInfohubImage = NULL;
 	sHomeImage = NULL;
@@ -1520,11 +1523,19 @@ void LLWorldMapView::drawAvatar(F32 x_pixels,
 								F32 y_pixels,
 								const LLColor4& color,
 								F32 relative_z,
-								F32 dot_radius)
+								//Mouselook distance
+								F32 dot_radius,
+								bool heightUnknown) //For drawing unknown height indicator
+								//Mouselook distance
 {
 	const F32 HEIGHT_THRESHOLD = 7.f;
 	LLUIImagePtr dot_image = sAvatarLevelImage;
-	
+//Mouselook distance
+	if (heightUnknown)
+	{
+		dot_image = sAvatarHeightUnknownImage;
+	}
+//Mouselook distance	
 	if (relative_z == 16000.f) // Unknown altitude (0m or > 1020m)
 	{
 		//F32 mag = color.length();

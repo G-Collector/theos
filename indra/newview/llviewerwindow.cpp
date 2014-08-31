@@ -188,6 +188,12 @@
 
 #include "llpanelnearbymedia.h"
 
+// <os> - Mouselook distance
+#include "llagentui.h"
+#include "llnetmap.h"
+#include "llavatarnamecache.h"
+// </os>
+
 // [RLVa:KB]
 #include "rlvhandler.h"
 // [/RLVa:KB]
@@ -1801,7 +1807,17 @@ LLViewerWindow::LLViewerWindow(
 
 	mDebugText = new LLDebugText(this);
 
+	// <os> - Mouselook distance
+	gSavedSettings.getControl("MouselookCrosshair")->getSignal()->connect(boost::bind(&LLViewerWindow::updateCrosshairTexture, this));
+	updateCrosshairTexture();
+	// </os>
 }
+// <os> - Mouselook distance
+void LLViewerWindow::updateCrosshairTexture()
+{
+	crosshairImage = LLUI::getUIImageByID(LLUUID(gSavedSettings.getString("MouselookCrosshair")));
+}
+// </os>
 
 void LLViewerWindow::initGLDefaults()
 {
@@ -2601,7 +2617,96 @@ void LLViewerWindow::draw()
 		// Draw tool specific overlay on world
 		LLToolMgr::getInstance()->getCurrentTool()->draw();
 
-		if( gAgentCamera.cameraMouselook() )
+		// </os> - Mouselook distance
+		bool inMouselook = gAgentCamera.cameraMouselook();
+
+		if (inMouselook)
+		{
+			S32 windowWidth = gViewerWindow->getWorldViewRectScaled().getWidth();
+			S32 windowHeight = gViewerWindow->getWorldViewRectScaled().getHeight();
+
+			static LLCachedControl<bool> renderIFF(gSavedSettings, "MouselookIFF", true);
+			static LLCachedControl<F32> renderIFFRange(gSavedSettings, "MouselookIFFRange", 380.f);
+			static LLCachedControl<bool> renderFriendlyIFF(gSavedSettings, "MouselookFriendlyIFF", true);
+			static LLCachedControl<bool> renderHostileIFF(gSavedSettings, "MouselookHostileIFF", true);
+			
+			static LLCachedControl<F32> userPresetX("MouselookTextOffsetX", 0.f);
+			static LLCachedControl<F32> userPresetY("MouselookTextOffsetY", -150.f);
+			static LLCachedControl<U32> userPresetHAlign("MouselookTextHAlign", 2);
+
+			LLVector3d myPosition = gAgentCamera.getCameraPositionGlobal();
+			LLQuaternion myRotation = LLViewerCamera::getInstance()->getQuaternion();
+
+			myRotation.set(-myRotation.mQ[VX], -myRotation.mQ[VY], -myRotation.mQ[VZ], myRotation.mQ[VW]);
+
+			uuid_vec_t avatars;
+			std::vector<LLVector3d> positions;
+			LLWorld::getInstance()->getAvatars(&avatars, &positions, gAgent.getPositionGlobal(), renderIFFRange);
+	
+			LLColor4 crosshairColor = LLColor4::red;
+			bool crosshairRendered = false;
+
+			int length = avatars.size();
+			if(length)
+			{
+				for(int i = 0; i < length; i++)
+				{
+					LLUUID& targetKey = avatars[i];
+					if(targetKey == gAgent.getID()) continue;
+
+					LLVector3d targetPosition = positions[i];
+					if(targetPosition.isNull()) continue;
+
+					LLColor4 targetColor = (LLAvatarTracker::instance().getBuddyInfo(targetKey) != NULL) ? LLColor4::yellow : LLColor4::green;
+
+					if(renderIFF)
+					{
+						if(renderHostileIFF && renderFriendlyIFF ||
+							((renderFriendlyIFF && targetColor == LLColor4::yellow) ||
+							 (renderHostileIFF  && targetColor != LLColor4::yellow)))
+						{
+							LLTracker::instance()->drawMarker(targetPosition, targetColor, TRUE);
+						}
+					}
+
+					if(inMouselook && !crosshairRendered)
+					{
+						LLVector3d magicVector = (targetPosition - myPosition) * myRotation;
+						magicVector.setVec(-magicVector.mdV[VY], magicVector.mdV[VZ], magicVector.mdV[VX]);
+
+						if(magicVector.mdV[VX] > -0.75 && magicVector.mdV[VX] < 0.75 && magicVector.mdV[VZ] > 0.0 && magicVector.mdV[VY] > -1.5 && magicVector.mdV[VY] < 1.5) // Do not fuck with these, cheater. :(
+						{
+							LLAvatarName avatarName;
+							std::string targetName = "Unknown Agent";
+							if(LLAvatarNameCache::get(targetKey, &avatarName)) targetName = avatarName.getCompleteName();
+
+							LLFontGL::getFontSansSerifBold()->renderUTF8(
+								llformat("%s, %.2fm", targetName.c_str(), (targetPosition - myPosition).magVec()),
+								0, (windowWidth / 2.f) + userPresetX, (windowHeight / 2.f) + userPresetY, targetColor,
+								(LLFontGL::HAlign)((int)userPresetHAlign), LLFontGL::TOP, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT
+							);
+
+							crosshairRendered = true;
+							crosshairColor = targetColor;
+						}
+					}
+
+					if(!renderIFF && (inMouselook && crosshairRendered)) break;
+				}
+			}
+
+			if (inMouselook && crosshairImage)
+			{
+				crosshairImage->draw(
+					(windowWidth - crosshairImage->getWidth()) / 2,
+					(windowHeight - crosshairImage->getHeight()) / 2,
+					crosshairColor);
+			}
+		}
+		//Mouselook distance Removing mouselook instructions.
+		static LLCachedControl<bool> position_in_mouselook(gSavedSettings, "MouselookPosition", true);
+		if ((gAgentCamera.cameraMouselook()/* || LLFloaterCamera::inFreeCameraMode()*/)
+			&& position_in_mouselook)
 		{
 			drawMouselookInstructions();
 			stop_glerror();

@@ -42,7 +42,7 @@ class LLToolGun : public LLTool
 public:
 	LLToolGun( LLToolComposite* composite=NULL );
 
-	virtual void	draw();
+	//virtual void	draw(); // </os> - Mouselook
 
 	virtual void	handleSelect();
 	virtual void	handleDeselect();
