@@ -66,7 +66,8 @@
 #include "llinventorytype.h"
 // </edit>
 
-// <os>		//wearable upload
+// <os>
+#include "os_invtools.h"
 #include "os_assetconverter.h"
 #include "os_floaterimport.h"
 #include "llwearablelist.h"
@@ -114,8 +115,11 @@ class LLFileEnableUpload : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() &&
-						 gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+// <os>
+//		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() &&
+//						 gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		bool new_value = true;
+// </os>
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -420,11 +424,11 @@ class LLFileUploadBulk : public view_listener_t
 			return false;
 
 		AIFilePicker* filepicker = AIFilePicker::create();
-		filepicker->open(FFLOAD_ALL, "", "openfile", true);
+		filepicker->open(FFLOAD_IMAGE, "", "image", true);
 		filepicker->run(boost::bind(&LLFileUploadBulk::onConfirmBulkUploadTemp_continued, enabled, filepicker));
 		return true;
 	}
-
+public:
 	static void onConfirmBulkUploadTemp_continued(bool enabled, AIFilePicker* filepicker)
 	{
 		if (filepicker->hasFilename())
@@ -473,12 +477,72 @@ class LLFileUploadBulk : public view_listener_t
 };
 
 // <os>
+class LLFileUploadWearables : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		if( gAgentCamera.cameraMouselook() )
+		{
+			gAgentCamera.changeCameraToDefault();
+		}
+		AIFilePicker* filepicker = AIFilePicker::create();
+		filepicker->open(FFLOAD_WEARABLE, "", "wearable", true);
+		filepicker->run(boost::bind(&LLFileUploadBulk::onConfirmBulkUploadTemp_continued, false, filepicker));
+		return true;
+	}
+};
+
+class LLFileUploadAssets : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		if( gAgentCamera.cameraMouselook() )
+		{
+			gAgentCamera.changeCameraToDefault();
+		}
+		AIFilePicker* filepicker = AIFilePicker::create();
+		filepicker->open(FFLOAD_ASSET, "", "asset", true);
+		filepicker->run(boost::bind(&LLFileUploadBulk::onConfirmBulkUploadTemp_continued, false, filepicker));
+		return true;
+	}
+};
+
+class LLFileUploadAnimations : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		if( gAgentCamera.cameraMouselook() )
+		{
+			gAgentCamera.changeCameraToDefault();
+		}
+		AIFilePicker* filepicker = AIFilePicker::create();
+		filepicker->open(FFLOAD_ANIM, "", "anim", true);
+		filepicker->run(boost::bind(&LLFileUploadBulk::onConfirmBulkUploadTemp_continued, false, filepicker));
+		return true;
+	}
+};
+
+class LLFileUploadSounds : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		if( gAgentCamera.cameraMouselook() )
+		{
+			gAgentCamera.changeCameraToDefault();
+		}
+		AIFilePicker* filepicker = AIFilePicker::create();
+		filepicker->open(FFLOAD_WAV, "", "wav", true);
+		filepicker->run(boost::bind(&LLFileUploadBulk::onConfirmBulkUploadTemp_continued, false, filepicker));
+		return true;
+	}
+};
+
 class LLFileImportXML : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		AIFilePicker* filepicker = AIFilePicker::create();
-		filepicker->open(FFLOAD_XML, "", "openfile");
+		filepicker->open(FFLOAD_XML, "", "xml");
 		filepicker->run(boost::bind(&LLFileImportXML::callback, filepicker));		
 		return true;
 	}
@@ -923,9 +987,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		asset_type = LLAssetType::AT_ANIMATION;
 		filename = src_filename;
 	}
-	else if(exten == "lsl" || exten == "gesture" || exten == "notecard")
+	else if(exten == "lsl" || exten == "lsltext" || exten == "gesture" || exten == "notecard")
 	{
-		if (exten == "lsl") asset_type = LLAssetType::AT_LSL_TEXT;
+		if (exten == "lsl" || exten == "lsltext") asset_type = LLAssetType::AT_LSL_TEXT;
 		else if (exten == "gesture") asset_type = LLAssetType::AT_GESTURE;
 		else if (exten == "notecard") asset_type = LLAssetType::AT_NOTECARD;
 		filename = src_filename;
@@ -980,10 +1044,10 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 			t_disp_name = src_filename;
 		}
 		// <edit> hack to create scripts and gestures
-		if(exten == "lsl" || exten == "gesture" || exten == "notecard") // added notecard Oct 15 2009
+		if(exten == "lsl" || exten == "lsltext" || exten == "gesture" || exten == "notecard") // added notecard Oct 15 2009
 		{
 			LLInventoryType::EType inv_type = LLInventoryType::IT_GESTURE;
-			if (exten == "lsl") inv_type = LLInventoryType::IT_LSL;
+			if(exten == "lsl" || exten == "lsltext") inv_type = LLInventoryType::IT_LSL;
 			else if(exten == "gesture") inv_type = LLInventoryType::IT_GESTURE;
 			else if(exten == "notecard") inv_type = LLInventoryType::IT_NOTECARD;
 			create_inventory_item(	gAgent.getID(),
@@ -1052,7 +1116,6 @@ void temp_upload_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 				LLSaleInfo::DEFAULT,
 				0,
 				time_corrected());
-
 		item->updateServer(TRUE);
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
@@ -1407,8 +1470,12 @@ void init_menu_file()
 	(new LLFileUploadAnim())->registerListener(gMenuHolder, "File.UploadAnim");
 	//(new LLFileUploadScript())->registerListener(gMenuHolder, "File.UploadScript"); // Singu TODO?
 	(new LLFileUploadModel())->registerListener(gMenuHolder, "File.UploadModel");
-	(new LLFileUploadBulk())->registerListener(gMenuHolder, "File.UploadBulk");
+	(new LLFileUploadBulk())->registerListener(gMenuHolder, "File.UploadBulkImages");
 	// <os>
+	(new LLFileUploadWearables())->registerListener(gMenuHolder, "File.UploadBulkWearables");
+	(new LLFileUploadAssets())->registerListener(gMenuHolder, "File.UploadBulkAssets");
+	(new LLFileUploadAnimations())->registerListener(gMenuHolder, "File.UploadBulkAnimations");
+	(new LLFileUploadSounds())->registerListener(gMenuHolder, "File.UploadBulkSounds");
 	(new LLFileImportXML())->registerListener(gMenuHolder, "File.ImportXML");
 	(new LLFileEnableImportXML())->registerListener(gMenuHolder, "File.EnableImportXML");
 	// </os>

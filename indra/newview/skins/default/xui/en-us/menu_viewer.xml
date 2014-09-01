@@ -25,16 +25,42 @@
         <on_click function="File.UploadModel" userdata="" />
         <on_enable function="File.EnableUploadModel" />
     </menu_item_call>
-    <menu_item_call label="Bulk Upload ([UPLOADFEE] per file)..." name="Bulk Upload"
-        mouse_opaque="true" enabled="true" >
-        <on_click function="File.UploadBulk" userdata="" />
-    </menu_item_call>
+    <menu_item_separator enabled="true" label="-----------" left="0"
+		     mouse_opaque="true" name="separatora" width="243" />
+    <menu bottom="-554" create_jump_keys="true" drop_shadow="true" enabled="true"
+		     height="109" label="Bulk Upload" left="0" mouse_opaque="false"
+		     name="Bulk Upload" opaque="true" tear_off="true" width="118">
+      <menu_item_call bottom="-29" enabled="true" height="19" label="Images (L$10)..." left="0"
+			     mouse_opaque="true" name="Bulk Images" width="118">
+        <on_click function="File.UploadBulkImages" userdata="" />
+      </menu_item_call>
+      <menu_item_call bottom="-48" enabled="true" height="19" label="Animations (L$10)..." left="0"
+			     mouse_opaque="true" name="Bulk Animations" width="118">
+        <on_click function="File.UploadBulkAnimations" userdata="" />
+      </menu_item_call>
+      <menu_item_call bottom="-67" enabled="true" height="19" label="Sounds (L$10)..." left="0"
+			     mouse_opaque="true" name="Bulk Sounds" width="118">
+        <on_click function="File.UploadBulkSounds" userdata="" />
+      </menu_item_call>
+      <menu_item_call bottom="-86" enabled="true" height="19" label="Wearables (L$0)..." left="0"
+			     mouse_opaque="true" name="Bulk Wearables" width="118">
+        <on_click function="File.UploadBulkWearables" userdata="" />
+      </menu_item_call>
+      <menu_item_call bottom="-105" enabled="true" height="19" label="Assets (L$0)..." left="0"
+			     mouse_opaque="true" name="Bulk Assets" width="118">
+        <on_click function="File.UploadBulkAssets" userdata="" />
+      </menu_item_call>
+    </menu>
+    <menu_item_separator enabled="true" label="-----------" left="0"
+		     mouse_opaque="true" name="separatorb" width="243" />
 	<menu_item_call bottom="-86" enabled="true" height="19"
 				label="Import XML..." left="0" mouse_opaque="true"
 				name="Import XML" width="243">
 		<on_click function="File.ImportXML" userdata="" />
 		<on_enable function ="File.EnableImportXML" userdata="" />
 	</menu_item_call>
+    <menu_item_separator enabled="true" label="-----------" left="0"
+		     mouse_opaque="true" name="separatorc" width="243" />
 	<menu_item_call label="Change Local Textures" mouse_opaque="true" name="Change Local Textures">
 		<on_click function="ShowFloater" userdata="local assets"/>
 	</menu_item_call>

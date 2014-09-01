@@ -166,7 +166,13 @@ void AIFilePicker::open(ELoadFilter filter, std::string const& default_path, std
 	      break;
 	  case FFLOAD_NOTECARD:
 	  	  mFilter = "notecard";
+		  break;
+	  case FFLOAD_WEARABLE:
+	  	  mFilter = "wearable";
 		  break;	
+	  case FFLOAD_ASSET:
+	  	  mFilter = "asset";
+		  break;		
 	  //</os>
 #ifdef _CORY_TESTING
 	  case FFLOAD_GEOMETRY:

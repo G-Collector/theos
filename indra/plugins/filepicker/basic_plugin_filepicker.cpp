@@ -177,6 +177,10 @@ static LLFilePicker::ELoadFilter str2loadfilter(std::string const& filter)
 	return LLFilePicker::FFLOAD_BLACKLIST;
   else if (filter == "notecard")
 	return LLFilePicker::FFLOAD_NOTECARD;
+  else if (filter == "wearable")
+	return LLFilePicker::FFLOAD_WEARABLE;
+  else if (filter == "asset")
+	return LLFilePicker::FFLOAD_ASSET;
   else
 	return LLFilePicker::FFLOAD_ALL;
 }

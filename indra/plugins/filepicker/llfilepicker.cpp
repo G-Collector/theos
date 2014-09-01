@@ -51,8 +51,11 @@ LLFilePicker LLFilePicker::sInstance;
 // </edit>
 //<os>
 //#define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
-#define ANIM_FILTER L"Animations (*.bvh; *.anim; *.animatn; *.xaf)\0*.bvh\0;*.anim\0;*.animatn; *.xaf\0"
+#define ANIM_FILTER L"Animations (*.bvh; *.anim; *.animatn)\0*.bvh; *.anim; *.animatn\0"
 #define NOTECARD_FILTER L"Notecards (*.notecard)\0*.notecard\0"
+#define WEARABLE_FILTER L"Wearable (*.wearable; *.shape; *.skin; *.hair; *.eyes; *.shirt; *.pants; *.shoes; *.socks ; *.jacket; *.gloves; *.undershirt; *.underpants; *.skirt; *.tattoo; *.alpha)\0*.wearable;*.shape;*.skin;*.hair;*.eyes;*.shirt;*.pants;*.shoes;*.socks ;*.jacket;*.gloves;*.undershirt;*.underpants;*.skirt;*.tattoo;*.alpha)\0"
+#define ASSET_FILTER L"Asset (*.gesture; *.notecard; *; *.lsl; *; *.lsltext; *)\0*.gesture; *.notecard; *.lsl; *.lsltext\0"
+
 //</os>
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #ifdef _CORY_TESTING
@@ -221,6 +224,14 @@ bool LLFilePickerBase::setupFilter(ELoadFilter filter)
 		break;
 	case FFLOAD_NOTECARD:
 		mOFN.lpstrFilter = NOTECARD_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_WEARABLE:
+		mOFN.lpstrFilter = WEARABLE_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_ASSET:
+		mOFN.lpstrFilter = ASSET_FILTER \
 			L"\0";
 		break;
 	// </edit>
