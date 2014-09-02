@@ -122,6 +122,9 @@ public:
 									   LLAssetType::EType type,
 									   void* user_data,
 									   S32 status, LLExtStat ext_status);
+	// <os>
+	static void importBvh(const std::string& filename);
+	// </os>
 private:
 	void setAnimCallbacks() ;
 	

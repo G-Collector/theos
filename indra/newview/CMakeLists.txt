@@ -1403,6 +1403,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings_ascent_coa.xml
     app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
+    app_settings/settings_os.xml
     app_settings/settings_per_account.xml
     app_settings/settings_sh.xml
     app_settings/settings_rlv.xml

@@ -1299,6 +1299,123 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 }
 
 //-----------------------------------------------------------------------------
+// importBvh()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::importBvh(const std::string& filename)
+{
+	if (filename.empty()) return;
+	std::string name = gDirUtilp->getBaseFileName(filename, true);
+	LLSD args;
+	S32 file_size;
+	LLKeyframeMotion* motionp = NULL;
+	LLBVHLoader* loaderp = NULL;
+	LLAssetID MotionID;
+	LLTransactionID	TransactionID;
+		
+	LLAPRFile infile(filename, LL_APR_RB, &file_size);
+		
+	if (!infile.getFileHandle())
+	{
+		llwarns << "Can't open BVH file:" << filename << llendl;
+		return;
+	}
+	else
+	{
+		char* file_buffer = new char[file_size + 1];
+		
+		if (file_size == infile.read(file_buffer, file_size))
+		{
+			file_buffer[file_size] = '\0';
+			llinfos << "Loading BVH file " << filename << llendl;
+			ELoadStatus load_status = E_ST_OK;
+			S32 line_number = 0; 
+			loaderp = new LLBVHLoader(file_buffer, load_status, line_number);
+			std::string status = STATUS[load_status].c_str();
+			if(load_status == E_ST_NO_XLT_FILE)
+			{
+				llwarns << "NOTE: No translation table found." << llendl;
+			}
+			else
+			{
+				llwarns << "ERROR: [line: " << line_number << "] " << status << llendl;
+			}
+		}
+
+		infile.close() ;
+		delete[] file_buffer;
+
+		if(loaderp && loaderp->isInitialized() && loaderp->getDuration() <= MAX_ANIM_DURATION)
+		{
+			// generate unique id for this motion
+			TransactionID.generate();
+			MotionID = TransactionID.makeAssetID(gAgent.getSecureSessionID());
+			motionp = (LLKeyframeMotion*)gAgentAvatarp->createMotion(MotionID);
+
+			// create data buffer for keyframe initialization
+			S32 buffer_size = loaderp->getOutputSize();
+			U8* buffer = new U8[buffer_size];
+
+			LLDataPackerBinaryBuffer dp(buffer, buffer_size);
+
+			// pass animation data through memory buffer
+			loaderp->serialize(dp);
+			dp.reset();
+
+			if (motionp && motionp->deserialize(dp))
+			{
+				LLVFile file(gVFS, motionp->getID(), LLAssetType::AT_ANIMATION, LLVFile::APPEND);
+
+				S32 size = dp.getCurrentSize();
+				file.setMaxSize(size);
+				if (file.write((U8*)buffer, size))
+				{
+					LLAssetStorage::LLStoreAssetCallback callback = NULL;
+					S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+					void *userdata = NULL;
+																 
+					upload_new_resource(TransactionID,LLAssetType::AT_ANIMATION,name,"",0,
+					LLFolderType::FT_NONE,LLInventoryType::IT_ANIMATION,
+					LLFloaterPerms::getNextOwnerPerms("Uploads"), 
+					LLFloaterPerms::getGroupPerms("Uploads"), 
+					LLFloaterPerms::getEveryonePerms("Uploads"),	                 
+					name,callback, expected_upload_cost, userdata);
+				}
+			}else
+			{
+				llwarns << "Failure writing animation data." << llendl;
+				LLNotificationsUtil::add("WriteAnimationFail");
+			}
+			
+		}else
+		{
+			if (loaderp)
+			{
+				if (loaderp->getDuration() > MAX_ANIM_DURATION)
+				{
+					args["ERROR_MESSAGE"] = llformat("animation too long %s \n maximum length is %s", loaderp->getDuration(), MAX_ANIM_DURATION);
+					LLNotifications::instance().add("ErrorMessage", args);
+					return;
+				}
+				else
+				{
+					args["ERROR_MESSAGE"] = llformat("Couldn't read file %s\n", filename.c_str());
+					LLNotifications::instance().add("ErrorMessage", args);
+					return;
+				}
+			}
+            if (motionp)
+			{
+				gAgentAvatarp->removeMotion(MotionID);
+				gAgentAvatarp->deactivateAllMotions();
+			}
+
+			LLKeyframeDataCache::removeKeyframeData(MotionID);
+			MotionID.setNull();
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // LLPreviewAnimation
 //-----------------------------------------------------------------------------
 LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE)
@@ -1327,6 +1444,7 @@ LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLViewerDynamicT
 	mDummyAvatar->stopMotion( ANIM_AGENT_BODY_NOISE, TRUE );
 	mDummyAvatar->stopMotion( ANIM_AGENT_BREATHE_ROT, TRUE );
 }
+
 
 //-----------------------------------------------------------------------------
 // LLPreviewAnimation()

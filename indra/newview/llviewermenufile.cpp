@@ -977,8 +977,11 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	}
 	else if (exten == "bvh")
 	{
-		error_message = llformat("We do not currently support bulk upload of BVH animation files\n");
-		upload_error(error_message, "DoNotSupportBulkBVHAnimationUpload", filename, args);
+		// <os> Like Fuck We Don't.
+		//error_message = llformat("We do not currently support bulk upload of animation files\n");
+		//upload_error(error_message, "DoNotSupportBulkAnimationUpload", filename, args);
+		LLFloaterBvhPreview::importBvh(src_filename);
+		// </os>
 		return;
 	}
 	// <edit>
@@ -1116,6 +1119,7 @@ void temp_upload_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 				LLSaleInfo::DEFAULT,
 				0,
 				time_corrected());
+
 		item->updateServer(TRUE);
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
@@ -1470,8 +1474,9 @@ void init_menu_file()
 	(new LLFileUploadAnim())->registerListener(gMenuHolder, "File.UploadAnim");
 	//(new LLFileUploadScript())->registerListener(gMenuHolder, "File.UploadScript"); // Singu TODO?
 	(new LLFileUploadModel())->registerListener(gMenuHolder, "File.UploadModel");
-	(new LLFileUploadBulk())->registerListener(gMenuHolder, "File.UploadBulkImages");
 	// <os>
+	//(new LLFileUploadBulk())->registerListener(gMenuHolder, "File.UploadBulk");
+	(new LLFileUploadBulk())->registerListener(gMenuHolder, "File.UploadBulkImages");
 	(new LLFileUploadWearables())->registerListener(gMenuHolder, "File.UploadBulkWearables");
 	(new LLFileUploadAssets())->registerListener(gMenuHolder, "File.UploadBulkAssets");
 	(new LLFileUploadAnimations())->registerListener(gMenuHolder, "File.UploadBulkAnimations");
