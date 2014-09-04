@@ -1,368 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="radar" title="Radar"
-	can_resize="true" can_minimize="true" can_close="true" can_drag_on_left="false"
-	rect_control="FloaterRadarRect" min_width="300"	min_height="300">
+<floater
+	name="radar"
+	title="Radar"
+	can_resize="true"
+	can_minimize="true"
+	can_close="true"
+	can_drag_on_left="false"
+	rect_control="FloaterRadarRect"
+	min_width="532"
+	min_height="240"
+  	width="480" 
+	height="300" >
+	
 	<string name="Title">Radar</string>
 	<string name="TitleOneAvatar">Radar (1 Avatar)</string>
 	<string name="TitleWithCount">Radar ([COUNT] Avatars)</string>
-
-	<scroll_list name="avatar_list" menu_file="menu_radar.xml"
-		    left="10" right="-10" top="-20" bottom="140" can_resize="true"
-		    column_padding="0" follows="left|top|bottom|right"
-		    draw_heading="true" multi_select="true" search_column="1"
-		    tool_tip="Hold shift or control while clicking to select multiple avatars">
-		<column name="marked" label="Mark" width="12" tool_tip="Marked avatars"/>
-		<column name="avatar_name" label="Name" width="150" tool_tip="Hold shift or control while clicking to select multiple avatars"/>
-		<column name="distance" label="Dist." width="48" tool_tip="Distance from your avatar (red=within chat range, yellow=within shout range, green=within draw distance)"/>
-		<column name="position" label="Pos." width="60" tool_tip="Position (X, Y) within this sim, or general direction (cardinal point) for outside sims"/>
-		<column name="altitude" label="Alt." width="48" tool_tip="Altitude"/>
-    <column name="activity" label="Act." width="24" tool_tip="Activity"/>
-    <column name="voice" image_overlay="inv_item_sound.tga" width="24" tool_tip="Voice Status"/>
-		<column name="age" label="Age" width="45" tool_tip="Age"/>
-		<column name="time" label="Time" width="52" tool_tip="Time since arrival in the sim."/>
-    <column name="client" label="Client" width="80" dynamicwidth="true" tool_tip="Client the avatar is possibly using"/>
-	</scroll_list>
-
-	<tab_container border="false" bottom_delta="-130" height="120" left="6" mouse_opaque="false"
-		       name="actions_tab_container" tab_position="top" tab_min_width="0" follows="left|right|bottom">
-		<panel border="true" bottom_delta="-130" follows="left|top|right|bottom" height="255"
-		       label="Avatar" left="1" mouse_opaque="true"
-		     name="actions_tab" width="398">
-			<!-- upper row -->
-			<button
-			       name="profile_btn"
-			       label="Profile"
-			       tool_tip="Show picture, groups, and other information"
-			       left="10"
-			       bottom_delta="-180"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="track_btn"
-			       label="(Un)Track"
-			       tool_tip="Toggle tracking of this avatar's position"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="get_key_btn"
-			       label="Get Key"
-			       tool_tip="Copies avatar's key to the clipboard"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<!-- upper middle row -->
-			<button
-			       name="im_btn"
-			       label="IM"
-			       tool_tip="Open Instant Message session (Shift-Enter)"
-			       left="10"
-			       bottom_delta="-22"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="offer_btn"
-			       label="Offer TP"
-			       tool_tip="Offer Teleport"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="teleport_btn"
-			       label="TP to"
-			       tool_tip="Teleport to avatar's position (Ctrl-Enter)"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />			
-			<!-- lower middle row-->
-			<button
-			       name="mark_btn"
-			       label="(Un)Mark"
-			       tool_tip="(Un)Mark this avatar in the list"
-			       left="10"
-			       bottom_delta="-22"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="prev_marked_btn"
-			       label="Prev Marked"
-			       tool_tip="Focus camera on previous marked avatar"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="next_marked_btn"
-			       label="Next Marked"
-			       tool_tip="Focus camera on next marked avatar"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<!-- lower row-->
-			<button
-			       name="focus_btn"
-			       label="Focus"
-			       tool_tip="Focus camera on this avatar in the list (Enter)"
-			       left="10"
-			       bottom_delta="-22"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="prev_in_list_btn"
-			       label="Previous"
-			       tool_tip="Focus camera on previous avatar in list"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="next_in_list_btn"
-			       label="Next"
-			       tool_tip="Focus camera on next avatar in list"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-
-		</panel>
-
-		<panel border="true" bottom_delta="-150" follows="left|top|right|bottom" height="255"
-		       label="Alerts" left="1" mouse_opaque="true"
-		       name="alerts_tab" width="398">
-			<check_box height="16" label="Display alerts in chat"
-				   left="10" bottom_delta="-176" name="radar_alerts" 
-				   width="200" follows="bottom|left"
-				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
-				   initial_value="true" enabled="true" radio_style="false" 
-				   control_name="RadarChatAlerts"
-				   tool_tip="Announce alerts about incoming and outgoing avatars in chat" />
-
-			<check_box height="16" label="Avatars entering/exiting the sim"
-				   left="20" bottom_delta="-18" name="alerts_sim"
-				   width="200" follows="bottom|left"
-				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
-				   initial_value="true" enabled="true" radio_style="false"
-				   control_name="RadarAlertSim"
-				   tool_tip="Report avatars entering or exiting the sim" />
-
-			<check_box height="16" label="Avatars within/beyond the draw distance"
-				   left="20" bottom_delta="-18" name="alerts_draw"
-				   width="200" follows="bottom|left"
-				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
-				   initial_value="true" enabled="true" radio_style="false"
-				   control_name="RadarAlertDraw"
-				   tool_tip="Report avatars getting within or beyond the draw distance" />
-
-			<check_box height="16" label="Avatars within/beyond the shout range"
-				   left="20" bottom_delta="-18" name="alerts_chat"
-				   width="200" follows="bottom|left"
-				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
-				   initial_value="true" enabled="true" radio_style="false"
-				   control_name="RadarAlertShoutRange"
-				   tool_tip="Report avatars getting within or beyond the shout range" />
-
-			<check_box height="16" label="Avatars within/beyond the chat range"
-				   left="20" bottom_delta="-18" name="alerts_chat"
-				   width="200" follows="bottom|left"
-				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
-				   initial_value="true" enabled="true" radio_style="false"
-				   control_name="RadarAlertChatRange"
-				   tool_tip="Report avatars getting within or beyond the chat range" />
-		</panel>
-
-		<panel border="true" bottom_delta="-130" follows="left|top|right|bottom" height="255"
-		       label="Moderation" left="1" mouse_opaque="true"
-		       name="land_tab" width="398">
-			
-			<!-- Upper row -->
-			<button
-			       name="mute_btn"
-			       label="(Un)Mute"
-			       tool_tip="Mute or unmute this avatar (muted avatars' names are highlighted in red in the list)."
-			       left="10"
-			       bottom_delta="-200"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="freeze_btn"
-			       label="Freeze"
-			       tool_tip="Freeze the avatar, preventing it from moving"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<button
-			       name="ar_btn"
-			       label="AR"
-			       tool_tip="Report abuse on this avatar"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<!-- Lower row -->
-			<button
-			       name="eject_btn"
-			       label="Eject"
-			       tool_tip="Eject the avatar from the parcel"
-			       left="10"
-			       bottom_delta="-24"
-			       width="80"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			
-			<button
-			       name="estate_eject_btn"
-			       label="Eject from estate"
-			       tool_tip="Eject this avatar from the estate"
-			       left_delta="90"
-			       bottom_delta="0"
-			       width="170"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-			<!-- Lowest row -->
-			<button
-			       name="estate_ban_btn"
-			       label="Eject And Ban From Estate"
-			       tool_tip="Eject and Ban this avatar from the estate"
-			       left="10"
-			       bottom_delta="-24"
-			       width="260"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-		</panel>
-
-		<panel border="true" bottom_delta="-150" follows="left|top|right|bottom" height="255"
-		       label="Options" left="1" mouse_opaque="true"
-		       name="options_tab" width="398">
-			<check_box height="16" label="Update" control_name="RadarUpdateEnabled"
-				   left="10" bottom_delta="-180" name="update_enabled_cb" 
-				   width="200" follows="bottom|left"
-				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
-				   initial_value="true" enabled="true" radio_style="false" 
-				   tool_tip="Set whether the avatar list should update" />
-			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-				   bottom_delta="-24" drop_shadow_visible="true" enabled="true" font="SansSerifSmall" height="18" left="24"
-				   mouse_opaque="false" name="rate" width="30">
-					Rate:
-			</text>
-			<radio_group draw_border="true" bottom_delta="2" left_delta="44" follows="bottom|left" width="196" height="20"
-				   mouse_opaque="true" name="update_rate" control_name="RadarUpdateRate" enabled="true"
-				   tool_tip="Rate of the radar updates (eats up more FPS when higher)">
-				<radio_item type="string" length="1" bottom_delta="0" height="16" left_delta="4" mouse_opaque="true"
-		     		 	name="high" width="20" follows="bottom|left">
-					High
-				</radio_item>
-				<radio_item type="string" length="1" bottom_delta="0" height="16" left_delta="30" mouse_opaque="true"
-		     		 	name="medium" width="25" follows="bottom|left">
-					Medium
-				</radio_item>
-				<radio_item type="string" length="1" bottom_delta="0" height="16" left_delta="35" mouse_opaque="true"
-		     		 	name="low" width="20" follows="bottom|left">
-					Low
-				</radio_item>
-			</radio_group>
-			<check_box height="16" label="Announce even when closed"
-				   left="10" bottom_delta="-24" name="keep_open"
-				   width="200" follows="bottom|left"
-				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
-				   initial_value="true" enabled="true" radio_style="false"
-				   control_name="RadarKeepOpen"
-				   tool_tip="Hides floater instead of closing to still announce in chat" />
-			<check_box height="16" label="Announce keys to HUD"
-				   left="10" bottom_delta="-20" name="radar_chat_keys" 
-				   width="200" follows="bottom|left"
-				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
-				   initial_value="true" enabled="true" radio_style="false" 
-				   control_name="RadarChatKeys"
-				   tool_tip="Set whether to send keys of avatars to LSL scripts" />
-			<button
-			       name="send_keys_btn"
-			       label="Announce now"
-			       tool_tip="Send all keys to HUD now"
-			       left_delta="150"
-			       bottom_delta="-2"
-			       width="100"
-			       height="20"
-			       font="SansSerifSmall"
-			       follows="bottom|left"
-			       />
-		</panel>
-
-		<panel border="true" bottom_delta="-150" follows="left|top|right|bottom" height="255"
-		       label="Extras" left="1" mouse_opaque="true" name="extras_tab" width="398">
-			<check_box label="Avatar Age Alert" left_delta="5" bottom="80" name="agealert"
-				width="200" follows="bottom|left" control_name="RadarAlertAge" tool_tip="Enable Avatar Age Alert" />
-			<spinner bottom_delta="-1" decimal_digits="0" follows="bottom|left" height="16"
-				left_delta="120" increment="1" initial_val="3" min_val="0" max_val="9999"
-				name="AgeAlertDays" label="Age Threshold" label_width="80"
-				tool_tip="The minimum amount of days an avatar can have spent on the grid without triggering an alert" width="130" control_name="AvatarAgeAlertDays" />
-			<text follows="bottom|left" left="2" name="hide_columns">Hide columns:</text>
-				<check_box follows="bottom|left" bottom_delta="-25" left="5" control_name="RadarColumnMarkHidden" name="hide_mark" label="Mark"/>
-				<check_box follows="bottom|left" bottom_delta="0" left_delta="70" control_name="RadarColumnPositionHidden" name="hide_pos" label="Pos." tool_tip="Position"/>
-				<check_box follows="bottom|left" bottom_delta="0" left_delta="70" control_name="RadarColumnAltitudeHidden" name="hide_alt" label="Alt." tool_tip="Altitude"/>
-				<check_box follows="bottom|left" bottom_delta="0" left_delta="70" control_name="RadarColumnActivityHidden" name="hide_act" label="Act." tool_tip="Activity"/>
-				<check_box follows="bottom|left" bottom_delta="-20" left="5" control_name="RadarColumnVoiceHidden" name="hide_voice" label="Voice" tool_tip="Voice Status"/>
-				<check_box follows="bottom|left" bottom_delta="0" left_delta="70" control_name="RadarColumnAgeHidden" name="hide_age" label="Age"/>
-				<check_box follows="bottom|left" bottom_delta="0" left_delta="70" control_name="RadarColumnTimeHidden" name="hide_time" label="Time"/>
-				<check_box follows="bottom|left" bottom_delta="0" left_delta="70" control_name="RadarColumnClientHidden" name="hide_client" label="Client"/>
-		</panel>
-	</tab_container>
 	<string name="Out Of Range">Out Of Range</string>
 	<string name="Moving">Moving</string>
 	<string name="Playing a gesture">Playing a gesture</string>
@@ -381,4 +33,150 @@
 	<string name="draw_distance">draw distance</string>
 	<string name="shout_range">shout range</string>
 	<string name="chat_range">chat range</string>
+
+  <tab_container border="false" bottom_delta="-292" left="5" right="-1" height="268" mouse_opaque="false" name="actions_tab_container" tab_position="bottom" follows="top|left|right|bottom">
+    <panel border="false" bottom_delta="0" left="0" right="-1" follows="left|top|bottom|right" label="List" mouse_opaque="true" name="list_tab">
+      <scroll_list
+          border="false"
+          name="avatar_list"
+	  menu_file="menu_radar.xml"
+          top="10"
+          bottom="10"
+          left="0"
+          right="-6"
+          column_padding="2"
+          can_resize="true"
+          follows="left|top|right|bottom"
+          draw_heading="true"
+          multi_select="true"
+          search_column="0"
+          tool_tip="Hold shift or control while clicking to select multiple avatars">
+	<column name="marked" label="Mark" width="12" tool_tip="Marked avatars"/>
+	<column name="avatar_name" label="Name" width="150" tool_tip="Hold shift or control while clicking to select multiple avatars"/>
+	<column name="distance" label="Dist." width="70" tool_tip="Distance from your avatar (red=within chat range, yellow=within shout range, green=within draw distance)"/>
+	<column name="position" label="Pos." width="50" tool_tip="Position (X, Y) within this sim, or general direction (cardinal point) for outside sims"/>
+	<column name="altitude" label="Alt." width="38" tool_tip="Altitude"/>
+    	<column name="activity" label="Act." width="24" tool_tip="Activity"/>
+    	<column name="voice" image_overlay="inv_item_sound.tga" width="24" tool_tip="Voice Status"/>
+	<column name="age" label="Age" width="45" tool_tip="Age"/>
+	<column name="time" label="Time" width="52" tool_tip="Time since arrival in the sim."/>
+	<column name="client" label="Client" dynamicwidth="true" />
+      </scroll_list>
+    </panel>	
+		<panel border="false" bottom_delta="0" left="5" right="-1" follows="left|top|right|bottom" label="Options" mouse_opaque="true" name="options_tab">
+      <check_box height="16" label="Radar Alerts to Chat"
+				   left="5" bottom_delta="-20"
+				   width="300" follows="top|left"
+				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
+		       enabled="true" radio_style="false"
+           control_name="RadarChatAlerts"/>
+      <check_box bottom_delta="-20" enabled="true" follows="top|left" font="SansSerifSmall" height="16"
+					 label="Av entering / leaving region" left_delta="10"
+					 mouse_opaque="true" name="radar_chat_sim_toggle" radio_style="false" width="270"
+					 control_name="RadarAlertSim"/>
+      <check_box bottom_delta="-20" enabled="true" follows="top|left" font="SansSerifSmall" height="16"
+           label="Av entering / leaving draw distance"
+           left_delta="0" mouse_opaque="true" name="radar_chat_draw_toggle" radio_style="false"
+           width="270" control_name="RadarAlertDraw"/>
+      <check_box bottom_delta="-20" enabled="true" follows="top|left" font="SansSerifSmall" height="16"
+           label="Av entering / leaving chat range" left_delta="0"
+           mouse_opaque="true" name="radar_chat_chatrange_toggle" radio_style="false" width="270"
+           control_name="RadarAlertChatRange"/>
+      <check_box bottom_delta="-20" enabled="true" follows="top|left" font="SansSerifSmall" height="16"
+           label="Av entering / leaving shout range" left_delta="0"
+           mouse_opaque="true" name="radar_chat_chatrange_toggle" radio_style="false" width="270"
+           control_name="RadarAlertShoutRange"/>
+      <check_box height="16" label="Av Age Alert"
+				   left_delta="0" bottom_delta="-20" name="agealert"
+				   width="200" follows="top|left"
+				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
+				   initial_value="true" enabled="true" radio_style="false"
+           control_name="RadarAlertAge"
+  			   tool_tip="Enables Avatar Age Alert" />
+      <spinner bottom_delta="-1" decimal_digits="0" follows="top|left" height="16"
+           left_delta="90" increment="1" initial_val="3" max_val="999" min_val="0"
+           mouse_opaque="true" name="AgeAlertDays" label="Threshold" label_width="60"
+           tool_tip="Age Threshold" width="110" control_name="AvatarAgeAlertDays" />
+
+      <check_box height="16" label="Update" control_name="RadarUpdateEnabled"
+				   left="250" bottom="-20" name="update_enabled_cb" 
+				   width="80" follows="top|left"
+				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
+				   initial_value="true" enabled="true" radio_style="false" 
+				   tool_tip="Set whether the avatar list should update" />
+      			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+				   bottom_delta="-24" follows="top|left" drop_shadow_visible="true" enabled="true" font="SansSerifSmall" height="18" left="260"
+				   mouse_opaque="false" name="rate" width="30">
+					Rate:
+			</text>
+			<radio_group draw_border="true" bottom_delta="2" left_delta="44" follows="top|left" width="196" height="20"
+				   mouse_opaque="true" name="update_rate" control_name="RadarUpdateRate" enabled="true"
+				   tool_tip="Rate of the radar updates (eats up more FPS when higher)">
+				<radio_item type="string" length="1" bottom_delta="0" height="16" left_delta="4" mouse_opaque="true"
+		     		 	name="high" width="20" follows="top|left">
+					High
+				</radio_item>
+				<radio_item type="string" length="1" bottom_delta="0" height="16" left_delta="30" mouse_opaque="true"
+		     		 	name="medium" width="25" follows="top|left">
+					Medium
+				</radio_item>
+				<radio_item type="string" length="1" bottom_delta="0" height="16" left_delta="35" mouse_opaque="true"
+		     		 	name="low" width="20" ffollows="top|left">
+					Low
+				</radio_item>
+			</radio_group>
+      <check_box height="16" label="Update even when closed"
+				   left="255" bottom_delta="-21" name="keep_open"
+				   width="200" follows="top|left"
+				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
+				   initial_value="true" enabled="true" radio_style="false"
+           control_name="RadarKeepOpen"
+  			   tool_tip="Hides floater instead of closing to still announce in chat" />
+			<check_box height="16" label="Get avatar info"
+				   left="255" bottom_delta="-21" name="fetch_avdata_enabled_cb" 
+				   width="200" follows="top|left"
+				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
+				   initial_value="true" enabled="true" radio_style="false" 
+	  		   tool_tip="Set whether avatar information should be retrieved" />
+			<check_box height="16" label="Announce keys to HUD"
+				   left="255" bottom_delta="-21" name="radar_chat_keys" 
+				   width="200" follows="top|left"
+				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
+				   initial_value="true" enabled="true" radio_style="false" 
+           control_name="RadarChatKeys"
+  			   tool_tip="Set whether to chat keys of avatars to LSL scripts" />
+	   <button
+			       name="send_keys_btn"
+			       label="Announce now"
+			       tool_tip="Send all keys to HUD now"
+			       left="275"
+			       bottom_delta="-25"
+			       width="115"
+			       height="20"
+			       font="SansSerifSmall"
+			       follows="top|left"
+			       />
+	   <text follows="top|left" left="5" bottom_delta="-5" name="hide_columns">Hide columns:</text>
+	   	<check_box follows="top|left" bottom_delta="-25" left="5" control_name="RadarColumnMarkHidden" name="hide_mark" label="Mark"/>
+		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnPositionHidden" name="hide_pos" label="Pos." tool_tip="Position"/>
+		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnAltitudeHidden" name="hide_alt" label="Alt." tool_tip="Altitude"/>
+		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnActivityHidden" name="hide_act" label="Act." tool_tip="Activity"/>
+		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnVoiceHidden" name="hide_voice" label="Voice" tool_tip="Voice Status"/>
+		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnAgeHidden" name="hide_age" label="Age"/>		
+		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnTimeHidden" name="hide_time" label="Time"/>
+		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnClientHidden" name="hide_client" label="Client"/>
+
+
+    </panel>
+  </tab_container>
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Profile" left="140" mouse_opaque="true" name="profile_btn" width="52" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="IM" left_delta="55" mouse_opaque="true" name="im_btn" width="42" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="TP to" left_delta="45" mouse_opaque="true" name="tp_btn" width="42" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="TP offer" left_delta="44" mouse_opaque="true" name="offer_btn" width="54" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Track" left_delta="57" mouse_opaque="true" name="track_btn" width="42" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Uuid" left_delta="45" mouse_opaque="true" name="get_key_btn" width="42" />
+
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Mark" left_delta="45" mouse_opaque="true" name="mark_btn" width="42" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="&lt;" left_delta="45" mouse_opaque="true" name="prev_marked_btn" width="22" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="&gt;" left_delta="25" mouse_opaque="true" name="next_marked_btn" width="22" />
 </floater>
