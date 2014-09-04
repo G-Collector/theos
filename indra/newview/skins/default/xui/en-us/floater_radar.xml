@@ -121,7 +121,7 @@
 					Medium
 				</radio_item>
 				<radio_item type="string" length="1" bottom_delta="0" height="16" left_delta="35" mouse_opaque="true"
-		     		 	name="low" width="20" ffollows="top|left">
+		     		 	name="low" width="20" follows="top|left">
 					Low
 				</radio_item>
 			</radio_group>
