@@ -1322,6 +1322,15 @@ bool idle_startup()
 		hashed_mac.finalize();
 		hashed_mac.hex_digest(hashed_mac_string);
 
+		// <os>
+		std::string my_mac = std::string(hashed_mac_string);
+		if(gSavedSettings.getBOOL("OSSpecifyMAC"))
+			my_mac = gSavedSettings.getString("OSSpecifiedMAC").c_str();
+		std::string my_id0 = LLAppViewer::instance()->getSerialNumber();
+		if(gSavedSettings.getBOOL("OSSpecifyID0"))
+			my_id0 = gSavedSettings.getString("OSSpecifiedID0");
+		// </os>
+
 		LLViewerLogin* vl = LLViewerLogin::getInstance();
 		std::string grid_uri = vl->getCurrentGridURI();
 		if(!redirect_uri.empty())
@@ -1348,10 +1357,13 @@ bool idle_startup()
 			gAcceptCriticalMessage,
 			gLastExecEvent,
 			requested_options,
-			hashed_mac_string,
-			LLAppViewer::instance()->getSerialNumber());
-
-		gAuthString = hashed_mac_string;
+		// <os>
+		//	hashed_mac_string,
+		//	LLAppViewer::instance()->getSerialNumber());
+			my_mac,
+			my_id0);
+			gAuthString = my_mac;
+		// </os>
 
 		// reset globals
 		gAcceptTOS = FALSE;

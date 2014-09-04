@@ -145,6 +145,9 @@ protected:
 	BOOL isLinkedObjectInTrash() const; // Is this obj or its baseobj in the trash?
 	BOOL isLinkedObjectMissing() const; // Is this a linked obj whose baseobj is not in inventory?
 
+	// <os>
+	BOOL isLocalInventory() const; // false if lost or in the agent inventory or library
+	// </os>
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
 	BOOL isCOFFolder() const;       // true if COF or descendant of
 	BOOL isInboxFolder() const;     // true if COF or descendant of   marketplace inbox

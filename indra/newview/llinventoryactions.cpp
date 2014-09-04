@@ -101,6 +101,12 @@ bool LLInventoryAction::doToSelected(LLFolderView* folder, std::string action)
 	else if ("save_invcache" == action)
 	{
 		OSInvTools::saveInvCache(folder);
+		return true;
+	}
+	else if("reupload" == action)
+	{
+		LLInventoryBackup::reupload(folder);
+		return true;
 	}
 	// </os>
 
@@ -379,6 +385,14 @@ class LLDoCreateFloater : public inventory_listener_t
 		LLInventoryModel* model = mPtr->getPanel()->getModel();
 		if(!model) return false;
 		std::string type = userdata.asString();
+		// <os>
+		if(type == "pretend")
+		{
+			LLFloaterNewLocalInventory* floater = new LLFloaterNewLocalInventory();
+			floater->center();
+		}
+		else
+		// </os>
 		do_create(model, mPtr->getPanel(), type);
 		return true;
 	}
@@ -443,6 +457,29 @@ class LLSetSortBy : public inventory_listener_t
 		return true;
 	}
 };
+
+// <os>
+class LLLoadInvCacheFloater : public inventory_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLInventoryModel* model = mPtr->getPanel()->getModel();
+		if(!model) return false;
+		AIFilePicker* filepicker = AIFilePicker::create();
+		filepicker->open(FFLOAD_INVGZ, "", "invgz");
+		filepicker->run(boost::bind(&LLLoadInvCacheFloater::filepicker_callback, this, filepicker));
+		return true;
+	}
+
+	void filepicker_callback(AIFilePicker* filepicker)
+	{
+		if(filepicker->hasFilename())
+		{
+			OSInvTools::loadInvCache(filepicker->getFilename());
+		}
+	}
+};
+// </os>
 
 class LLRefreshInvModel : public inventory_listener_t
 {
@@ -655,6 +692,9 @@ void init_inventory_actions(LLInventoryView *floater)
 	(new LLCloseAllFoldersFloater())->registerListener(floater, "Inventory.CloseAllFolders");
 	(new LLEmptyTrashFloater())->registerListener(floater, "Inventory.EmptyTrash");
 	(new LLDoCreateFloater())->registerListener(floater, "Inventory.DoCreate");
+	// <os>
+	(new LLLoadInvCacheFloater())->registerListener(floater, "Inventory.LoadInvCache");
+	// </os>
 
 	(new LLNewWindow())->registerListener(floater, "Inventory.NewWindow");
 	(new LLShowFilters())->registerListener(floater, "Inventory.ShowFilters");

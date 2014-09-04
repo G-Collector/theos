@@ -98,6 +98,10 @@
 			     name="Empty Trash" width="128">
 				<on_click filter="" function="Inventory.EmptyTrash" userdata="" />
 			</menu_item_call>
+			<menu_item_call bottom_delta="-18" height="18" label="Load InvCache..." left="0" mouse_opaque="true"
+			     name="Load InvCache..." width="128">
+				<on_click filter="" function="Inventory.LoadInvCache" userdata="" />
+			</menu_item_call>
 			<menu_item_call bottom_delta="-18" height="18" label="Refresh Inventory" left="0" mouse_opaque="true"
 			     name="Refresh Inventory" width="128">
 				<on_click filter="" function="Inventory.RefreshInvModel" userdata="" />
@@ -198,6 +202,10 @@
 			<menu_item_call bottom_delta="-18" height="18" label="New Outfit" left="0"
 			     mouse_opaque="true" name="New Outfit" width="125">
 				<on_click filter="" function="Inventory.DoCreate" userdata="outfit" />
+			</menu_item_call>
+			<menu_item_call bottom_delta="-18" height="18" label="New Pretend Item" left="0" mouse_opaque="true"
+				name="New Pretend Item" width="118">
+				<on_click filter="" function="Inventory.DoCreate" userdata="pretend" />
 			</menu_item_call>
 		</menu>
 		<menu bottom_delta="64" drop_shadow="true" height="49"

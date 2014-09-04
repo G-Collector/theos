@@ -5,9 +5,10 @@
 #include "llinventory.h"
 #include "llviewerinventory.h"
 #include "llfloater.h"
+#include "llfolderview.h"
 #include "llinventorymodel.h"
-#include "statemachine/aifilepicker.h"
 
+class AIFilePicker;
 class OSInvTools
 {
 public:
@@ -16,9 +17,8 @@ public:
 	static void addItem(LLViewerInventoryItem* item);
 	static void open(LLUUID item_id);
 	static void loadInvCache(std::string filename);
-	static void saveInvCache(std::string filename, LLFolderView* folder);
-	static void saveInvCache(LLFolderView* folder);//build it inside here
-	static void saveInvCache_continued(AIFilePicker* fp, LLFolderView* folder);
+	static void saveInvCache(LLFolderView* folder);
+	static void saveInvCache_continued(LLFolderView* folder,AIFilePicker* filepicker);
 	static void climb(LLInventoryCategory* cat,
 		LLInventoryModel::cat_array_t& cats,
 		LLInventoryModel::item_array_t& items);

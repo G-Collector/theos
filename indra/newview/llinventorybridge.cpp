@@ -94,6 +94,7 @@
 #include "llappviewer.h"
 #include "os_floatertexteditor.h"
 #include "os_floaterhex.h"
+#include "os_invtools.h"
 // </os>
 
 // Marketplace outbox current disabled
@@ -381,9 +382,10 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 			move_ids.push_back(item->getUUID());
 			--update[item->getParentUUID()];
 			++update[trash_id];
-			//<os>
-			if (gInventory.isObjectDescendentOf(item->getUUID(), gLocalInventoryRoot)) continue;
-			//</os
+			// <os>
+			if(!gInventory.isObjectDescendentOf(item->getUUID(), gLocalInventoryRoot))
+			{
+			// </os>
 			if(start_new_message)
 			{
 				start_new_message = false;
@@ -404,6 +406,9 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 				gInventory.accountForUpdate(update);
 				update.clear();
 			}
+			// <os>
+			}
+			// </os>
 		}
 	}
 	if(!start_new_message)
@@ -425,6 +430,10 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 			move_ids.push_back(cat->getUUID());
 			--update[cat->getParentUUID()];
 			++update[trash_id];
+			// <os>
+			if(!gInventory.isObjectDescendentOf(cat->getUUID(), gLocalInventoryRoot))
+			{
+			// </os>
 			if(start_new_message)
 			{
 				start_new_message = false;
@@ -444,6 +453,9 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 				gInventory.accountForUpdate(update);
 				update.clear();
 			}
+			// <os>
+			}
+			// </os>
 		}
 	}
 	if(!start_new_message)
@@ -457,9 +469,8 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	uuid_vec_t::iterator end = move_ids.end();
 	for(; it != end; ++it)
 	{
-	//<os>
-		//gInventory.moveObject((*it), trash_id);
-		if (gInventory.isObjectDescendentOf(*it, gLocalInventoryRoot))
+		// <os> trash problem
+		if(gInventory.isObjectDescendentOf(*it, gLocalInventoryRoot))
 		{
 			//if it is a category, delete descendents
 			if (gInventory.getCategory(*it))
@@ -750,25 +761,37 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			
 			if (show_asset_id)
 			{
-				items.push_back(std::string("Copy Asset UUID"));
-				//<os>
-				/*
+			// <os>
 				bool is_asset_knowable = false;
-
 				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
 				if (inv_item)
 				{
 					is_asset_knowable = LLAssetType::lookupIsAssetIDKnowable(inv_item->getType());
 				}
-				if ( !is_asset_knowable // disable menu item for Inventory items with unknown asset. EXT-5308
-					 || (! ( isItemPermissive() || gAgent.isGodlike() ) )
-					 || (flags & FIRST_SELECTED_ITEM) == 0)
+				if ( is_asset_knowable )
 				{
-					disabled_items.push_back(std::string("Copy Asset UUID"));
+					items.push_back(std::string("Copy Asset UUID"));
+					items.push_back(std::string("Open With"));
+					items.push_back(std::string("Reupload"));
+					items.push_back(std::string("Save As"));
 				}
-				*/
-				//</os>
+				
 			}
+
+			if ( LLAssetType::AT_LSL_TEXT == obj->getType() )
+			{
+				items.push_back(std::string("Open With"));
+				items.push_back(std::string("Reupload"));
+				items.push_back(std::string("Save As"));
+				//items.push_back(std::string("Magic Get"));
+			}
+
+			if ( LLAssetType::AT_NOTECARD == obj->getType() )//its crashing on notecards can use text editor anyway.
+			{
+				disabled_items.push_back("Reupload");
+			// </os>
+			}
+
 			items.push_back(std::string("Copy Separator"));
 
 			items.push_back(std::string("Copy"));
@@ -793,11 +816,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 					disabled_items.push_back(std::string("Merchant Copy"));
 				}
 			}
-			//<os>
-			items.push_back(std::string("Open With..."));
-			items.push_back(std::string("Save As..."));
-			items.push_back(std::string("Save InvCache..."));
-			//</os>
 		}
 	}
 
@@ -1050,6 +1068,16 @@ BOOL LLInvFVBridge::isLinkedObjectMissing() const
 	}
 	return FALSE;
 }
+
+// <os>
+BOOL LLInvFVBridge::isLocalInventory() const
+{
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model) return FALSE;
+	if(gLocalInventoryRoot == mUUID) return TRUE;
+	return model->isObjectDescendentOf(mUUID, gLocalInventoryRoot);
+}
+// </os>
 
 BOOL LLInvFVBridge::isAgentInventory() const
 {
@@ -1553,7 +1581,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		if (!item) return;
 		HGFloaterTextEditor::show(mUUID);
 	}
-	else if ("rez" == action)
+	else if ("rez object" == action)// </os>
 	{
 		LLInventoryItem* item = model->getItem(mUUID);
 		if (!item) return;
@@ -1619,6 +1647,9 @@ void LLItemBridge::selectItem()
 	if(item && !item->isFinished())
 	{
 		//item->fetchFromServer();
+		// <os>
+		if(!(gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot)))
+		// </os>
 		LLInventoryModelBackgroundFetch::instance().start(item->getUUID(), false);
 	}
 }
@@ -1655,11 +1686,14 @@ void LLItemBridge::restoreToWorld()
 
 		//remove local inventory copy, sim will deal with permissions and removing the item
 		//from the actual inventory if its a no-copy etc
+		// <os>
+		/*
 		if(!itemp->getPermissions().allowCopyBy(gAgent.getID()))
 		{
 			remove_from_inventory = true;
 		}
-
+		*/
+		// </os>
 		// Check if it's in the trash. (again similar to the normal rez logic)
 		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 		if(gInventory.isObjectDescendentOf(itemp->getUUID(), trash_id))
@@ -1887,7 +1921,8 @@ BOOL LLItemBridge::removeItem()
 
 	// Already in trash
 	if (model->isObjectDescendentOf(mUUID, trash_id)) return FALSE;
-	// <os> The Trash Problem
+
+	// <edit> trash problem - local inventory
 	else
 	{
 		if (gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot))
@@ -2092,7 +2127,10 @@ BOOL LLFolderBridge::isUpToDate() const
 		return FALSE;
 	}
 
-	return category->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN;
+	// <os> trying to make it stop trying to fetch Local Inventory
+	//return category->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN;
+	return (category->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN) || (mUUID == gLocalInventoryRoot) || (gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot));
+	// </os>
 }
 
 BOOL LLFolderBridge::isItemCopyable() const
@@ -3029,12 +3067,12 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		gInventory.notifyObservers();
 	}
 	// </singu>
-#ifdef DELETE_SYSTEM_FOLDERS
-	else if ("delete_system_folder" == action)
+//#ifndef LL_RELEASE_FOR_DOWNLOAD // </os>
+	else if ("delete_system_folder" == action && gAgent.isGodlike()) //</os>
 	{
 		removeSystemFolder();
 	}
-#endif
+//#endif // </os>
 	else if (isMarketplaceCopyAction(action))
 	{
 		llinfos << "Copy folder to marketplace action!" << llendl;
@@ -3493,6 +3531,13 @@ void LLFolderBridge::buildContextMenuBaseOptions(U32 flags)
 				mItems.push_back(std::string("New Gesture"));
 				mItems.push_back(std::string("New Clothes"));
 				mItems.push_back(std::string("New Body Parts"));
+				// <os>
+				mItems.push_back(std::string("Save As"));
+				if(!isLocalInventory())
+				{
+					mItems.push_back(std::string("Save InvCache"));
+				}
+				// </os>
 			}
 #if SUPPORT_ENSEMBLES
 			// Changing folder types is an unfinished unsupported feature
@@ -4263,7 +4308,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		if (!object)
 		{
 			llinfos << "Object not found for drop." << llendl;
-			return FALSE;
+			//<os> lets test this shit
+			if(!gAgent.isGodlike()) return FALSE;
+			//</os>
 		}
 
 		// coming from a task. Need to figure out if the person can
@@ -4480,7 +4527,10 @@ bool LLTextureBridge::canSaveTexture()
 	const LLViewerInventoryItem* item = model->getItem(mUUID);
 	if (item)
 	{
-		return item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
+	// <os>
+		//return item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
+		return isNaughty();
+		// </os>
 	}
 	return false;
 }
@@ -4512,10 +4562,10 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Texture Separator"));
-		items.push_back(std::string("Save As"));
+		items.push_back(std::string("Save Texture As")); //</os> 
 		if (!canSaveTexture())
 		{
-			disabled_items.push_back(std::string("Save As"));
+			disabled_items.push_back(std::string("Save Texture As")); //</os>
 		}
 	}
 	hide_context_entries(menu, items, disabled_items);	
@@ -4524,7 +4574,7 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 // virtual
 void LLTextureBridge::performAction(LLInventoryModel* model, std::string action)
 {
-	if ("save_as" == action)
+	if ("save_texture_as" == action) //</os>
 	{
 		const LLViewerInventoryItem* item(getItem());
 		if (!item) return;
@@ -5658,6 +5708,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				items.push_back(std::string("Attach To HUD"));
 				// commented out for DEV-32347 - AND Commented back in for non-morons. -HgB
 				items.push_back(std::string("Restore to Last Position"));
+				items.push_back(std::string("Rez In World")); //</os>
 
 				if (!gAgentAvatarp->canAttachMoreObjects())
 				{
@@ -6058,9 +6109,11 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("Wearable And Object Separator"));
 
 		items.push_back(std::string("Wearable Edit"));
-
-		bool not_modifiable = !item || !gAgentWearables.isWearableModifiable(item->getUUID());
-		if (((flags & FIRST_SELECTED_ITEM) == 0) || not_modifiable)
+		//<os>
+		//bool modifiable = !gAgentWearables.isWearableModifiable(item->getUUID());
+		//if (((flags & FIRST_SELECTED_ITEM) == 0) || modifiable)
+		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		//</os>
 		{
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}

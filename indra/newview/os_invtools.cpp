@@ -14,6 +14,8 @@
 #include "llpreviewtexture.h"
 #include "llpreviewgesture.h"
 #include "llpreviewlandmark.h"
+#include "os_floaterhex.h"
+#include "os_floatertexteditor.h"
 #include "llappviewer.h"
 #include "llnotificationsutil.h"
 #include "llcombobox.h"
@@ -145,7 +147,8 @@ void OSInvTools::open(LLUUID item_id)
 	}
 	else
 	{
-		llwarns << "Dunno how to open type " << type << llendl;
+		llwarns << "Dunno how to open type " << type << ", falling back to hex editor" << llendl;
+		DOFloaterHex::show(item_id);
 	}
 }
 
@@ -325,63 +328,60 @@ void OSInvTools::loadInvCache(std::string filename)
 
 }
 
-// static
-void OSInvTools::saveInvCache_continued(AIFilePicker* fp, LLFolderView* folder)
-{
-	// kinda dumb, but we're just going to play along with this...
-	// keeps legacy with the other functions
-	OSInvTools::saveInvCache(fp->getFilename(), folder);
-}
-
 //static
 void OSInvTools::saveInvCache(LLFolderView* folder)
 {
 	AIFilePicker* filepicker = AIFilePicker::create();
-	filepicker->run(boost::bind(&OSInvTools::saveInvCache_continued, filepicker, folder));
+	filepicker->open("untitled.inv");
+	filepicker->run(boost::bind(&OSInvTools::saveInvCache_continued, folder, filepicker));
 }
 
-//static
-void OSInvTools::saveInvCache(std::string filename, LLFolderView* folder)
+// static
+void OSInvTools::saveInvCache_continued(LLFolderView* folder, AIFilePicker* filepicker)
 {
-	LLInventoryModel* model = &gInventory;
-	std::set<LLUUID> selected_items = folder->getSelectionList();
-	if (selected_items.size() < 1)
+	if (filepicker->hasFilename())
 	{
-		// No items selected?  Wtfboom
-		return;
-	}
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	// Make complete lists of child categories and items
-	std::set<LLUUID>::iterator sel_iter = selected_items.begin();
-	std::set<LLUUID>::iterator sel_end = selected_items.end();
-	for (; sel_iter != sel_end; ++sel_iter)
-	{
-		LLInventoryCategory* cat = model->getCategory(*sel_iter);
-		if (cat)
+		const std::string filename = filepicker->getFilename();
+		LLInventoryModel* model = &gInventory;
+		std::set<LLUUID> selected_items = folder->getSelectionList();
+		if (selected_items.size() < 1)
 		{
-			climb(cat, cats, items);
+			// No items selected?  Wtfboom
+			return;
 		}
-	}
-	// And what about items inside a folder that wasn't selected?
-	// I guess I will just add selected items, so long as they aren't already added
-	for (sel_iter = selected_items.begin(); sel_iter != sel_end; ++sel_iter)
-	{
-		LLInventoryItem* item = model->getItem(*sel_iter);
-		if (item)
+		LLInventoryModel::cat_array_t cats;
+		LLInventoryModel::item_array_t items;
+		// Make complete lists of child categories and items
+		std::set<LLUUID>::iterator sel_iter = selected_items.begin();
+		std::set<LLUUID>::iterator sel_end = selected_items.end();
+		for (; sel_iter != sel_end; ++sel_iter)
 		{
-			if (std::find(items.begin(), items.end(), item) == items.end())
+			LLInventoryCategory* cat = model->getCategory(*sel_iter);
+			if (cat)
 			{
-				items.push_back(LLPointer<LLViewerInventoryItem>((LLViewerInventoryItem*)item));
-				LLInventoryCategory* parent = model->getCategory(item->getParentUUID());
-				if (std::find(cats.begin(), cats.end(), parent) == cats.end())
+				climb(cat, cats, items);
+			}
+		}
+		// And what about items inside a folder that wasn't selected?
+		// I guess I will just add selected items, so long as they aren't already added
+		for (sel_iter = selected_items.begin(); sel_iter != sel_end; ++sel_iter)
+		{
+			LLInventoryItem* item = model->getItem(*sel_iter);
+			if (item)
+			{
+				if (std::find(items.begin(), items.end(), item) == items.end())
 				{
-					cats.push_back(LLPointer<LLViewerInventoryCategory>((LLViewerInventoryCategory*)parent));
+					items.push_back(LLPointer<LLViewerInventoryItem>((LLViewerInventoryItem*)item));
+					LLInventoryCategory* parent = model->getCategory(item->getParentUUID());
+					if (std::find(cats.begin(), cats.end(), parent) == cats.end())
+					{
+						cats.push_back(LLPointer<LLViewerInventoryCategory>((LLViewerInventoryCategory*)parent));
+					}
 				}
 			}
 		}
+		LLInventoryModel::saveToFile(filename, cats, items);
 	}
-	LLInventoryModel::saveToFile(filename, cats, items);
 }
 
 // static

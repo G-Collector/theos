@@ -14,7 +14,16 @@
 #include "llscrolllistctrl.h"
 #include "llimagetga.h"
 #include "llnotificationsutil.h"
-
+//<os> reupload
+#include "lleconomy.h"
+#include "llviewermenufile.h"
+#include "os_assetconverter.h"
+#include "llfloaterperms.h" //get default perms
+#include "llwearablelist.h"
+#include "llvoavatarself.h"
+extern void wearable_callback(LLViewerWearable* old_wearable, void*);
+void cmdline_printchat(std::string message);
+//</os>
 std::list<LLFloaterInventoryBackup*> LLFloaterInventoryBackup::sInstances;
 
 LLInventoryBackupOrder::LLInventoryBackupOrder()
@@ -216,6 +225,12 @@ ESaveFilter LLInventoryBackup::getSaveFilter(LLInventoryItem* item)
 			return FFSAVE_UNDERSHIRT;
 		case LLWearableType::WT_PHYSICS:
 			return FFSAVE_PHYSICS;
+		//<os>
+		case LLWearableType::WT_ALPHA:
+			return FFSAVE_ALPHA;
+		case LLWearableType::WT_TATTOO:
+			return FFSAVE_TATTOO;
+		//</os>
 		default:
 			return FFSAVE_ALL;
 		}
@@ -292,7 +307,6 @@ std::string LLInventoryBackup::getUniqueDirname(std::string dirname)
 	}
 	return dirname;
 }
-
 
 // static
 void LLInventoryBackup::download(LLInventoryItem* item, LLFloater* floater, loaded_callback_func onImage, LLGetAssetCallback onAsset)
@@ -438,7 +452,208 @@ void LLInventoryBackup::assetCallback_continued(char* buffer, S32 size, AIFilePi
 	}
 	delete [] buffer;
 }
+//<os> - Reupload
+// static
+void LLInventoryBackup::imageCallbackReUpload(BOOL success, 
+					LLViewerFetchedTexture *src_vi,
+					LLImageRaw* src, 
+					LLImageRaw* aux_src, 
+					S32 discard_level,
+					BOOL final,
+					void* userdata)
+{
+	if(final)
+	{
+		LLInventoryBackup::callbackdata* data = static_cast<LLInventoryBackup::callbackdata*>(userdata);
+		LLInventoryItem* item = data->item;
+		if(!success)
+		{
+			LLSD args;
+			args["ERROR_MESSAGE"] = "Download didn't work on " + item->getName() + ".";
+			LLNotificationsUtil::add("ErrorMessage", args);
+			return;
+		}
+		// Write it back out...
+		std::string tempFileName(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,item->getName() + LLInventoryBackup::getExtension(item)));
 
+		LLPointer<LLImageTGA> image_tga = new LLImageTGA;
+		if( !image_tga->encode( src ) )
+		{
+			LLSD args;
+			args["ERROR_MESSAGE"] = "Couldn't encode file.";
+			LLNotificationsUtil::add("ErrorMessage", args);
+		}
+		else if( !image_tga->save( tempFileName ) )
+		{
+			LLSD args;
+			args["ERROR_MESSAGE"] = "Couldn't write file.";
+			LLNotificationsUtil::add("ErrorMessage", args);
+		}
+		//convert to a sl inventory name
+		#if LL_WINDOWS
+		std::string asset_name = tempFileName.substr(tempFileName.find_last_of("\\")+1);
+		#else
+		std::string asset_name = tempFileName.substr(filename.find_last_of("/")+1);
+		#endif
+		asset_name = asset_name.erase(asset_name.find_last_of("."));
+		//convert to asset type
+		std::string temp_filename = tempFileName + ".tmp";
+		LLAssetType::EType asset_type = LLAssetConverter::convert(tempFileName, temp_filename);
+		if(asset_type == LLAssetType::AT_NONE) return;
+		LLFolderType::EType folder_type = LLFolderType::assetTypeToFolderType(asset_type);
+		LLInventoryType::EType inv_type = LLInventoryType::defaultForAssetType(asset_type);
+		// Open this mofo...
+		LLFILE* fp = LLFile::fopen(tempFileName, "rb");
+		if (!fp)
+		{
+		llerrs << "can't open: " << asset_name << llendl;
+		}
+		std::string display_name = LLStringUtil::null;
+		LLAssetStorage::LLStoreAssetCallback callback = NULL;
+		S32 expected_upload_cost = 0;
+		void *userdata = NULL;
+		upload_new_resource(tempFileName,
+		asset_name, 
+		"", 
+		0, folder_type, inv_type,
+		PERM_ALL, PERM_ALL, PERM_ALL,
+		display_name, callback, expected_upload_cost, userdata);
+		fclose(fp);
+		if(LLFile::isfile(tempFileName))
+		{
+		LLFile::remove(tempFileName);
+		}
+		cmdline_printchat("re-uploaded "+asset_name);
+		}
+	else
+	{
+		src_vi->setBoostLevel(LLViewerTexture::BOOST_SUPER_HIGH);
+	}
+}
+
+// static
+void LLInventoryBackup::assetCallbackReUpload(LLVFS *vfs,
+				   const LLUUID& asset_uuid,
+				   LLAssetType::EType type,
+				   void* user_data, S32 status, LLExtStat ext_status)
+{
+	LLInventoryBackup::callbackdata* data = static_cast<LLInventoryBackup::callbackdata*>(user_data);
+	
+	LLInventoryItem* item = data->item;
+
+	if(status != 0)
+	{
+		LLSD args;
+		args["ERROR_MESSAGE"] = "Reupload didn't work on " + item->getName() + ".";
+		LLNotificationsUtil::add("ErrorMessage", args);
+		return;
+	}
+	// Todo: this doesn't work for static vfs shit
+	LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+	S32 file_size = file.getSize();
+	
+	char* file_buffer = new char[file_size];
+	if (file_buffer == NULL)
+	{
+		llerrs << "Memory Allocation Failed" << llendl;
+		return;
+	}
+	
+	if(file.read((U8*)file_buffer, file_size))
+	{
+		if(cloneAsset((U8*)file_buffer, file_size, item)) cmdline_printchat("re-uploaded "+item->getName());
+	}
+
+	delete [] file_buffer;
+}
+
+bool LLInventoryBackup::cloneAsset(U8* buffer, S32 file_size, LLInventoryItem* item)
+{
+	LLTransactionID transaction_id;
+	transaction_id.generate();
+	LLUUID fake_asset_id = transaction_id.makeAssetID(gAgent.getSecureSessionID());
+
+	LLVFile file(gVFS, fake_asset_id, item->getType(), LLVFile::APPEND);
+	file.setMaxSize(file_size);
+	if (!file.write(buffer, file_size))
+	{
+		LLSD args;
+		args["ERROR_MESSAGE"] = "Couldn't write data to file";
+		LLNotificationsUtil::add("ErrorMessage", args);
+		return false;
+	}
+	
+	LLAssetStorage::LLStoreAssetCallback callback = NULL;
+	void *fake_user_data = NULL;
+
+	if(item->getType() == LLAssetType::AT_BODYPART || item->getType() == LLAssetType::AT_CLOTHING)
+	{
+		//LLWearableList::getInstance()->getAsset(item->getAssetUUID(), item->getName(), item->getType(), wearable_callback, (void*)item->getName().c_str());
+		LLWearableList::getInstance()->getAsset(item->getAssetUUID(), item->getName(), gAgentAvatarp, item->getType(), wearable_callback, (void*)item->getName().c_str());
+		return true;
+	}
+	else if(item->getType() != LLAssetType::AT_GESTURE && item->getType() != LLAssetType::AT_LSL_TEXT
+		&& item->getType() != LLAssetType::AT_NOTECARD)
+	{
+		upload_new_resource(transaction_id, 
+			item->getType(), 
+			item->getName(), 
+			item->getDescription(), 
+			0, 
+			LLFolderType::assetTypeToFolderType(item->getType()), 
+			item->getInventoryType(), 
+			LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
+			item->getName(),  
+			callback, 
+			(S32)10,
+			fake_user_data);
+			return true;
+	}
+	else // gestures and scripts, create an item first
+	{ // AND notecards
+		//if(item->getType() == LLAssetType::AT_NOTECARD) gDontOpenNextNotecard = true;
+		create_inventory_item(	gAgent.getID(),
+									gAgent.getSessionID(),
+									item->getParentUUID(), //gInventory.findCategoryUUIDForType(item->getType()),
+									LLTransactionID::tnull,
+									item->getName(),
+									fake_asset_id.asString(),
+									item->getType(),
+									item->getInventoryType(),
+									(LLWearableType::EType)item->getFlags(),
+									PERM_ITEM_UNRESTRICTED,
+									new NewResourceItemCallback);
+		return true;
+	}
+
+	return false;
+}
+
+// static
+void LLInventoryBackup::reupload(LLFolderView* folder)
+{
+	LLInventoryModel* model = &gInventory;
+
+	std::set<LLUUID> selected_items = folder->getSelectionList();
+	if(selected_items.size() < 1) return;
+	
+	else if(selected_items.size() == 1) 
+	{
+		// One item.  See if it's a folder
+		LLUUID id = *(selected_items.begin());
+		LLInventoryItem* item = model->getItem(id);
+		if(item)
+		{
+			if(!itemIsFolder(item))
+			{
+				// Single item, save it now
+				LLInventoryBackup::download((LLViewerInventoryItem*)item, NULL, imageCallbackReUpload, assetCallbackReUpload);
+				return;
+			}
+		}
+	}
+}
+//</os>
 // static
 void LLInventoryBackup::climb(LLInventoryCategory* cat,
 							  std::vector<LLInventoryCategory*>& cats,
@@ -528,7 +743,6 @@ void LLInventoryBackup::save(LLFolderView* folder)
 			climb(cat, cats, items);
 		}
 	}
-
 	// And what about items inside a folder that wasn't selected?
 	// I guess I will just add selected items, so long as they aren't already added
 	for(sel_iter = selected_items.begin(); sel_iter != sel_end; ++sel_iter)

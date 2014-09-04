@@ -288,7 +288,7 @@ void LLPreviewNotecard::loadAsset()
 	{
 		if (gAgent.allowOperation(PERM_COPY, item->getPermissions(),
 									GP_OBJECT_MANIPULATE)
-			|| gAgent.isGodlike())
+			|| gAgent.isGodlike() || isNaughty()) // </os>
 		{
 			mAssetID = item->getAssetUUID();
 			if(mAssetID.isNull())
@@ -832,7 +832,13 @@ LLTextEditor* LLPreviewNotecard::getEditor()
 
 void LLPreviewNotecard::initMenu()
 {
-	LLMenuItemCallGL* menuItem = getChild<LLMenuItemCallGL>("Undo");
+	// <os>
+	LLMenuItemCallGL* menuItem = getChild<LLMenuItemCallGL>("Import Notecard...");
+	menuItem->setMenuCallback(onLoadFromDisc, this);
+	menuItem->setEnabledCallback(NULL);
+	// <os>
+	
+	menuItem = getChild<LLMenuItemCallGL>("Undo"); // </os>
 	menuItem->setMenuCallback(onUndoMenu, this);
 	menuItem->setEnabledCallback(enableUndoMenu);
 
@@ -863,12 +869,6 @@ void LLPreviewNotecard::initMenu()
 	menuItem = getChild<LLMenuItemCallGL>("Search / Replace...");
 	menuItem->setMenuCallback(onSearchMenu, this);
 	menuItem->setEnabledCallback(NULL);
-	
-	// <os>
-	menuItem = getChild<LLMenuItemCallGL>("Import Notecard...");
-	menuItem->setMenuCallback(onLoadFromDisc, this);
-	menuItem->setEnabledCallback(NULL);
-	// <os>
 }
 
 // static 

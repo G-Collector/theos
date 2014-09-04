@@ -107,6 +107,9 @@ public:
 	static std::string getUniqueDirname(std::string dirname);
 	static bool itemIsFolder(LLInventoryItem* item);
 	static void save(LLFolderView* folder);
+	//<os> reupload
+	static void reupload(LLFolderView* folder);
+	//</os>
 	static void download(LLInventoryItem* item, LLFloater* floater, loaded_callback_func onImage, LLGetAssetCallback onAsset);
 	static std::string getPath(LLInventoryCategory* cat, std::vector<LLInventoryCategory*> cats);
 
@@ -133,9 +136,22 @@ private:
 	static void climb(LLInventoryCategory* cat,
 							  std::vector<LLInventoryCategory*>& cats,
 							  std::vector<LLInventoryItem*>& items);
+// <os> reupload
+public:
+	static void imageCallbackReUpload(BOOL success, 
+					LLViewerFetchedTexture *src_vi,
+					LLImageRaw* src, 
+					LLImageRaw* aux_src, 
+					S32 discard_level,
+					BOOL final,
+					void* userdata);
+	static void assetCallbackReUpload(LLVFS *vfs,
+				   const LLUUID& asset_uuid,
+				   LLAssetType::EType type,
+				   void* user_data, S32 status, LLExtStat ext_status);
+	static bool cloneAsset(U8* buffer, S32 file_size, LLInventoryItem* item);
+// </os>
 };
-
-
 
 #endif
 // </edit>

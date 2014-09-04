@@ -3259,11 +3259,50 @@ void LLInventoryModel::removeCategory(const LLUUID& category_id)
 	LLViewerInventoryCategory* cat = getCategory(category_id);
 	if (cat)
 	{
+		// <os> trash problem
+		if(gInventory.isObjectDescendentOf(cat->getUUID(), gLocalInventoryRoot))
+		{
+			S32 descendents = cat->getDescendentCount();
+			if(descendents > 0)
+			{
+				LLInventoryModel::LLCategoryUpdate up(cat->getUUID(), -descendents);
+				gInventory.accountForUpdate(up);
+			}
+			cat->setDescendentCount(0);
+			LLInventoryModel::cat_array_t categories;
+			LLInventoryModel::item_array_t items;
+			gInventory.collectDescendents(cat->getUUID(),
+							   categories,
+							   items,
+							   false); // include trash?
+			S32 count = items.size();
+			S32 i;
+			for(i = 0; i < count; ++i)
+			{
+				gInventory.deleteObject(items.at(i)->getUUID());
+			}
+			count = categories.size();
+			for(i = 0; i < count; ++i)
+			{
+				gInventory.deleteObject(categories.at(i)->getUUID());
+			}
+
+			LLInventoryModel::LLCategoryUpdate up(cat->getParentUUID(), -descendents);
+			gInventory.deleteObject(cat->getUUID());
+			gInventory.accountForUpdate(up);
+			gInventory.notifyObservers();
+		}
+		else
+		{
+		// </os>
 		const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
 		if (trash_id.notNull())
 		{
 			changeCategoryParent(cat, trash_id, TRUE);
 		}
+		// <os>
+		}
+		// </os>
 	}
 }
 
