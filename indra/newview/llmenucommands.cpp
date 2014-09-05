@@ -113,6 +113,7 @@
 #include "llviewerparcelmgr.h"
 //<os>
 #include "os_floaterinspecttexture.h"
+#include "os_floaterexport.h"
 #include "os_circuits.h"
 #include "os_floatermessagebuilder.h"
 // </os>
@@ -208,6 +209,7 @@ struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
 		registerFloater("show inspect", boost::bind(LLFloaterInspect::showInstance, LLSD()));
 		//<os>
 		registerFloater("inspect textures", boost::bind(LLFloaterInspectTexture::showInstance, LLSD()));
+		registerFloater("export list", boost::bind(LLFloaterExport::showInstance, LLSD()));
 		registerFloater("region circuits", boost::bind(OSCircuits::showInstance, LLSD()));
 		registerFloater("messagebuilder", boost::bind(LLFloaterMessageBuilder::show, std::string("")));
 		//</os>

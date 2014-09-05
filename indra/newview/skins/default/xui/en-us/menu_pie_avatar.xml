@@ -25,8 +25,7 @@
 	<pie_menu label="Export" name="Export Menu">
 	  <menu_item_call enabled="false" hidden="false" label="XML..." mouse_opaque="true"
                  name="Save As...">
-          <on_click function="Object.SaveAs" />
-          <on_enable function="Object.EnableSaveAs" />
+          <on_click function="Avatar.SaveAs" />
         </menu_item_call>
 		<menu_item_separator />
 		<menu_item_separator />
@@ -34,7 +33,7 @@
 		<menu_item_separator />
 		<menu_item_separator />
 	<menu_item_call label="OBJ..." mouse_opaque="true" name="Save OBJ...">
-		<on_click function="Object.SaveAsOBJ" />
+		<on_click function="Avatar.SaveAsOBJ" />
 		</menu_item_call>
 	<menu_item_call label="DAE..." mouse_opaque="true" name="Save DAE...">
 		<on_click function="Object.SaveAsDAE" />
@@ -72,6 +71,9 @@
 			</menu_item_call>
       <menu_item_call enabled="true" label="Reload" mouse_opaque="true" name="Reload Textures">
         <on_click function="Avatar.ReloadTextures" />
+      </menu_item_call>
+      <menu_item_call enabled="true" label="AvTextures" mouse_opaque="true" name="Debug Layers">
+        <on_click function="Avatar.Debug" />
       </menu_item_call>
 		</pie_menu>
 		<menu_item_call enabled="false" label="Give Card" mouse_opaque="true" name="Give Card">

@@ -2887,29 +2887,8 @@ class LLAvatarReportAbuse : public view_listener_t
 };
 
 //---------------------------------------------------------------------------
-// Object import / export
+// XML Import
 //---------------------------------------------------------------------------
-
-class LLObjectEnableSaveAs : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		bool new_value = (object != NULL);
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
-		return true;
-	}
-};
-
-class LLObjectSaveAs : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLFloaterExport* floater = new LLFloaterExport();
-		floater->center();
-		return true;
-	}
-};
 
 class LLObjectEnableImport : public view_listener_t
 {
@@ -8986,6 +8965,19 @@ class LLAvatarTexInspect : public view_listener_t
 	}
 };
 
+class LLAvatarSaveAs : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if (avatar)
+		{
+			show_floater("export list");
+		}
+	 return true;
+	}
+};
+
 //Delete all owned objects in the region
 class OSDeleteAllYours: public view_listener_t
 {
@@ -9782,6 +9774,7 @@ void initialize_menus()
 	addMenu(new LLAvatarTexInspect(),"Avatar.TextureInspect");
 	addMenu(new LLAvatarHudList(), "Avatar.HudList");
 	addMenu(new LLAvatarEnableHudList(), "Avatar.EnableHudList");
+	addMenu(new LLAvatarSaveAs(), "Avatar.SaveAs");
 	//</os>
 
 	// Object pie menu
@@ -9812,10 +9805,6 @@ void initialize_menus()
 	addMenu(new LLObjectDerender(), "Object.DERENDER");
 	addMenu(new LLAvatarReloadTextures(), "Avatar.ReloadTextures");
 	addMenu(new LLObjectReloadTextures(), "Object.ReloadTextures");
-	// <os>
-	addMenu(new LLObjectSaveAs(), "Object.SaveAs");
-	addMenu(new LLObjectImport(), "Object.Import");
-	// </edit>
 
 
 	addMenu(new LLObjectEnableOpen(), "Object.EnableOpen");
@@ -9827,10 +9816,6 @@ void initialize_menus()
 	addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
 	addMenu(new LLObjectEnableMute(), "Object.EnableMute");
 	addMenu(new LLObjectEnableBuy(), "Object.EnableBuy");
-	// <os>
-	addMenu(new LLObjectEnableSaveAs(), "Object.EnableSaveAs");
-	addMenu(new LLObjectEnableImport(), "Object.EnableImport");
-	// </os>
 
 	/*addMenu(new LLObjectVisibleTouch(), "Object.VisibleTouch");
 	addMenu(new LLObjectVisibleCustomTouch(), "Object.VisibleCustomTouch");

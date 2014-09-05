@@ -12,6 +12,7 @@
 #include "statemachine/aifilepicker.h"
 #include "llagent.h"
 #include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llavatarappearancedefines.h"
 #include "os_importobject.h"
 #include "llviewerobjectlist.h"
@@ -26,8 +27,8 @@
 #include "llimagej2c.h"
 std::vector<LLFloaterExport*> LLFloaterExport::instances;
 
-LLVOAvatar* find_avatar_from_object( LLViewerObject* object );
-LLVOAvatar* find_avatar_from_object( const LLUUID& object_id );
+//LLVOAvatar* find_avatar_from_object( LLViewerObject* object );
+//LLVOAvatar* find_avatar_from_object( const LLUUID& object_id );
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -269,17 +270,24 @@ LLSD LLExportable::asLLSD()
 	return LLSD();
 }
 
-LLFloaterExport::LLFloaterExport()
-:	LLFloater()
+LLFloaterExport::LLFloaterExport(const LLSD&) 
+: LLFloater(std::string("Export List")),
+	mObjectID(LLUUID::null),
+	mIsAvatar(false),
+	mDirty(true)
 {
-	mSelection = LLSelectMgr::getInstance()->getSelection();
-	LLUICtrlFactory::getInstance()->buildFloater(this, "os_floater_export.xml");
-	LLFloaterExport::instances.push_back(this);
+	mCommitCallbackRegistrar.add("Export.SelectAll",	boost::bind(&LLFloaterExport::onClickSelectAll, this));
+	mCommitCallbackRegistrar.add("Export.SelectObjects",	boost::bind(&LLFloaterExport::onClickSelectObjects, this));
+	mCommitCallbackRegistrar.add("Export.SelectWearales",	boost::bind(&LLFloaterExport::onClickSelectWearables, this));
+	mCommitCallbackRegistrar.add("Export.SaveAs",	boost::bind(&LLFloaterExport::onClickSaveAs, this));
+	mCommitCallbackRegistrar.add("Export.Copy",	boost::bind(&LLFloaterExport::onClickMakeCopy, this));
+	LLUICtrlFactory::getInstance()->buildFloater(this, "os_floater_export.xml", NULL, false);
 }
 
-
-LLFloaterExport::~LLFloaterExport()
+LLFloaterExport::~LLFloaterExport(void)
 {
+	LLSelectMgr::getInstance()->deselectAll();
+	
 	std::vector<LLFloaterExport*>::iterator pos = std::find(LLFloaterExport::instances.begin(), LLFloaterExport::instances.end(), this);
 	if(pos != LLFloaterExport::instances.end())
 	{
@@ -287,22 +295,93 @@ LLFloaterExport::~LLFloaterExport()
 	}
 }
 
-BOOL LLFloaterExport::postBuild(void)
+BOOL LLFloaterExport::postBuild()
 {
-	if(!mSelection) return TRUE;
-	
-	std::map<LLViewerObject*, bool> avatars;
-	LLViewerObject* foo = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
- 	LLVOAvatar* avatar = find_avatar_from_object(foo);
-	if(avatar)
-	{
-		if(!avatars[foo]) avatars[foo] = true;
-	}
-	if(mSelection->getRootObjectCount() < 1) return TRUE;
-	// New stuff: Populate prim name map
+	mExportList = getChild<LLScrollListCtrl>("export_list");
 
-	for (LLObjectSelection::valid_iterator iter = mSelection->valid_begin();
-		 iter != mSelection->valid_end(); iter++)
+	if(LLSelectMgr::getInstance()->getSelection()->isEmpty())
+	{
+		mIsAvatar = true;
+		addAvatarStuff(gAgentAvatarp);
+	}
+
+	mObjectID = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->getID();
+
+	if (mObjectID.isNull())
+	{
+		mIsAvatar = false;
+		LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterExport::updateSelection, this));
+	}
+	else
+	{
+		LLViewerObject* obj = gObjectList.findObject(mObjectID);
+
+		if (obj && obj->isAvatar() && !mIsAvatar)
+		{
+			mIsAvatar = true;
+			addAvatarStuff((LLVOAvatar*)obj);
+		}
+		else
+		{
+			mIsAvatar = false;
+			LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterExport::updateSelection, this));
+		}
+	}
+	
+	return TRUE;
+}
+
+void LLFloaterExport::onOpen()
+{
+	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
+	if (!mIsAvatar)
+	{
+		if(!(object_selection->getPrimaryObject()))
+		{
+			close();
+			return;
+		}
+		mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+	}
+	dirty();
+}
+
+void LLFloaterExport::updateSelection()
+{
+	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
+	LLSelectNode* node = object_selection->getFirstRootNode();
+
+	if (node && !node->mValid)
+	{
+		return;
+	}
+
+	mObjectSelection = object_selection;
+	dirty();
+}
+
+void LLFloaterExport::dirty()
+{
+	mDirty = true;
+}
+
+void LLFloaterExport::draw()
+{
+	if (mDirty)
+	{
+		refresh();
+		mDirty = false;
+	}
+	LLFloater::draw();
+}
+
+void LLFloaterExport::refresh()
+{
+	if(!mObjectSelection) return;
+	if(mObjectSelection->getRootObjectCount() < 1) return;
+
+	for (LLObjectSelection::valid_iterator iter = mObjectSelection->valid_begin();
+		 iter != mObjectSelection->valid_end(); iter++)
 	{
 		LLSelectNode* nodep = *iter;
 		LLViewerObject* objectp = nodep->getObject();
@@ -311,20 +390,14 @@ BOOL LLFloaterExport::postBuild(void)
 		mPrimNameMap[localid] = std::pair<std::string, std::string>(name, nodep->mDescription);
 	}
 
-	// Older stuff
-
-	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("export_list");
-
-	//std::map<LLViewerObject*, bool> avatars;
-
-	for (LLObjectSelection::valid_root_iterator iter = mSelection->valid_root_begin();
-		 iter != mSelection->valid_root_end(); iter++)
+	for (LLObjectSelection::valid_root_iterator iter = mObjectSelection->valid_root_begin();
+		 iter != mObjectSelection->valid_root_end(); iter++)
 	{
 		LLSelectNode* nodep = *iter;
 		LLViewerObject* objectp = nodep->getObject();
 		std::string objectp_id = llformat("%d", objectp->getLocalID());
 
-		if(list->getItemIndex(objectp->getID()) == -1)
+		if(mExportList->getItemIndex(objectp->getID()) == -1)
 		{
 			bool is_attachment = false;
 			bool is_root = true;
@@ -340,7 +413,7 @@ BOOL LLFloaterExport::postBuild(void)
 				{
 					// parent is an avatar
 					is_attachment = true;
-					if(!avatars[parentp]) avatars[parentp] = true;
+					addAvatarStuff((LLVOAvatar*)parentp);
 				}
 			}
 
@@ -385,42 +458,23 @@ BOOL LLFloaterExport::postBuild(void)
 				LLExportable* exportable = new LLExportable(objectp, nodep->mName, mPrimNameMap);
 				mExportables[objectp->getID()] = exportable->asLLSD();
 
-				list->addElement(element, ADD_BOTTOM);
+				mExportList->addElement(element, ADD_BOTTOM);
 
 				addToPrimList(objectp);
 			}
 			else if(is_avatar)
 			{
-				if(!avatars[objectp])
-				{
-					avatars[objectp] = true;
-				}
+				addAvatarStuff((LLVOAvatar*)objectp);
 			}
 		}
-	}
-	std::map<LLViewerObject*, bool>::iterator avatar_iter = avatars.begin();
-	std::map<LLViewerObject*, bool>::iterator avatars_end = avatars.end();
-	for( ; avatar_iter != avatars_end; avatar_iter++)
-	{
-		LLViewerObject* avatar = (*avatar_iter).first;
-		addAvatarStuff((LLVOAvatar*)avatar);
 	}
 
 	updateNamesProgress();
 
-	childSetAction("select_all_btn", onClickSelectAll, this);
-	childSetAction("select_objects_btn", onClickSelectObjects, this);
-	childSetAction("select_wearables_btn", onClickSelectWearables, this);
-
-	childSetAction("save_as_btn", onClickSaveAs, this);
-	childSetAction("make_copy_btn", onClickMakeCopy, this);
-
-	return TRUE;
 }
 
 void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 {
-	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("export_list");
 	for( S32 type_itr = 0; type_itr < LLWearableType::WT_COUNT; type_itr++ )
 	{
 		const LLWearableType::EType type = (LLWearableType::EType)type_itr;
@@ -453,8 +507,10 @@ void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 
 		if(exists)
 		{
+			LLUUID uuid = avatarp->getID();
 			std::string wearable_name = LLWearableType::getTypeName( type );
 			std::string name = avatarp->getFullname() + " " + wearable_name;
+
 			LLUUID myid;
 			myid.generate();
 
@@ -477,12 +533,13 @@ void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 
 			LLSD& avatarid_column = element["columns"][LIST_AVATARID];
 			avatarid_column["column"] = "avatarid";
-			avatarid_column["value"] = avatarp->getID();
+			avatarid_column["value"] = uuid;
 
 			LLExportable* exportable = new LLExportable(avatarp, type, mPrimNameMap);
 			mExportables[myid] = exportable->asLLSD();
 
-			list->addElement(element, ADD_BOTTOM);
+			mExportList->addElement(element, ADD_BOTTOM);
+	
 		}
 	}
 
@@ -491,7 +548,7 @@ void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 	for (LLViewerObject::child_list_t::iterator i = child_list.begin(); i != child_list.end(); ++i)
 	{
 		LLViewerObject* childp = *i;
-		if(list->getItemIndex(childp->getID()) == -1)
+		if(mExportList->getItemIndex(childp->getID()) == -1)
 		{
 			LLSD element;
 			element["id"] = childp->getID();
@@ -517,7 +574,7 @@ void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 			LLExportable* exportable = new LLExportable(childp, "Object", mPrimNameMap);
 			mExportables[childp->getID()] = exportable->asLLSD();
 
-			list->addElement(element, ADD_BOTTOM);
+			mExportList->addElement(element, ADD_BOTTOM);
 
 			addToPrimList(childp);
 			//LLSelectMgr::getInstance()->selectObjectAndFamily(childp, false);
@@ -579,11 +636,9 @@ void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 }
 
 //static
-void LLFloaterExport::onClickSelectAll(void* user_data)
+void LLFloaterExport::onClickSelectAll()
 {
-	LLFloaterExport* floater = (LLFloaterExport*)user_data;
-	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("export_list");
-	std::vector<LLScrollListItem*> items = list->getAllData();
+	std::vector<LLScrollListItem*> items = mExportList->getAllData();
 	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
 	std::vector<LLScrollListItem*>::iterator items_end = items.end();
 	bool new_value = !((*item_iter)->getColumn(LIST_CHECKED)->getValue());
@@ -595,11 +650,9 @@ void LLFloaterExport::onClickSelectAll(void* user_data)
 }
 
 //static
-void LLFloaterExport::onClickSelectObjects(void* user_data)
+void LLFloaterExport::onClickSelectObjects()
 {
-	LLFloaterExport* floater = (LLFloaterExport*)user_data;
-	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("export_list");
-	std::vector<LLScrollListItem*> items = list->getAllData();
+	std::vector<LLScrollListItem*> items = mExportList->getAllData();
 	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
 	std::vector<LLScrollListItem*>::iterator items_end = items.end();
 	bool new_value = false;
@@ -622,11 +675,9 @@ void LLFloaterExport::onClickSelectObjects(void* user_data)
 }
 
 //static
-void LLFloaterExport::onClickSelectWearables(void* user_data)
+void LLFloaterExport::onClickSelectWearables()
 {
-	LLFloaterExport* floater = (LLFloaterExport*)user_data;
-	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("export_list");
-	std::vector<LLScrollListItem*> items = list->getAllData();
+	std::vector<LLScrollListItem*> items = mExportList->getAllData();
 	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
 	std::vector<LLScrollListItem*>::iterator items_end = items.end();
 	bool new_value = false;
@@ -650,8 +701,7 @@ void LLFloaterExport::onClickSelectWearables(void* user_data)
 
 LLSD LLFloaterExport::getLLSD()
 {
-	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("export_list");
-	std::vector<LLScrollListItem*> items = list->getAllData();
+	std::vector<LLScrollListItem*> items = mExportList->getAllData();
 	LLSD sd;
 	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
 	std::vector<LLScrollListItem*>::iterator items_end = items.end();
@@ -772,18 +822,16 @@ void LLFloaterExport::onClickSaveAs_Callback(LLFloaterExport* floater, AIFilePic
 	floater->close();
 }
 //static
-void LLFloaterExport::onClickSaveAs(void* user_data)
+void LLFloaterExport::onClickSaveAs()
 {
-	LLFloaterExport* floater = (LLFloaterExport*)user_data;
-	LLSD sd = floater->getLLSD();
+	LLSD sd = getLLSD();
 
 	if(sd.size())
 	{
 		std::string default_filename = "untitled";
 
 		// count the number of selected items
-		LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("export_list");
-		std::vector<LLScrollListItem*> items = list->getAllData();
+		std::vector<LLScrollListItem*> items = mExportList->getAllData();
 		int item_count = 0;
 		LLUUID avatarid = (*(items.begin()))->getColumn(LIST_AVATARID)->getValue().asUUID();
 		bool all_same_avatarid = true;
@@ -835,7 +883,7 @@ void LLFloaterExport::onClickSaveAs(void* user_data)
 		}
 		AIFilePicker* filepicker = AIFilePicker::create();
 		filepicker->open(LLDir::getScrubbedFileName(default_filename + ".xml"), FFSAVE_XML);
-		filepicker->run(boost::bind(&LLFloaterExport::onClickSaveAs_Callback, floater, filepicker));
+		filepicker->run(boost::bind(&LLFloaterExport::onClickSaveAs_Callback, this, filepicker));
 	}
 	else
 	{
@@ -847,10 +895,9 @@ void LLFloaterExport::onClickSaveAs(void* user_data)
 }
 
 //static
-void LLFloaterExport::onClickMakeCopy(void* user_data)
+void LLFloaterExport::onClickMakeCopy()
 {
-	LLFloaterExport* floater = (LLFloaterExport*)user_data;
-	LLSD sd = floater->getLLSD();
+	LLSD sd = getLLSD();
 
 	if(sd.size())
 	{
@@ -865,7 +912,7 @@ void LLFloaterExport::onClickMakeCopy(void* user_data)
 	}
 	
 	// I guess close the floater because only one import is allowed at once anyway
-	floater->close();
+	close();
 }
 
 void LLFloaterExport::addToPrimList(LLViewerObject* object)
@@ -894,11 +941,10 @@ void LLFloaterExport::receivePrimName(LLViewerObject* object, std::string name, 
 	if(std::find(mPrimList.begin(), mPrimList.end(), localid) != mPrimList.end())
 	{
 		mPrimNameMap[localid] = std::pair<std::string, std::string>(name, desc);
-		LLScrollListCtrl* list = getChild<LLScrollListCtrl>("export_list");
-		S32 item_index = list->getItemIndex(fullid);
+		S32 item_index = mExportList->getItemIndex(fullid);
 		if(item_index != -1)
 		{
-			std::vector<LLScrollListItem*> items = list->getAllData();
+			std::vector<LLScrollListItem*> items = mExportList->getAllData();
 			std::vector<LLScrollListItem*>::iterator iter = items.begin();
 			std::vector<LLScrollListItem*>::iterator end = items.end();
 			for( ; iter != end; ++iter)

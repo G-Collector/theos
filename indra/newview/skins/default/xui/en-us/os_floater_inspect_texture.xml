@@ -6,7 +6,7 @@
  layout="topleft"
  min_height="400"
  min_width="730"
- name="inspect_texture"
+ name="inspect textures"
  help_topic="inspect_texture"
  save_rect="true"
  title="Object Texture Inspect"
