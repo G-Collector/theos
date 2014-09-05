@@ -172,14 +172,15 @@ endif(WINDOWS AND WORD_SIZE EQUAL 32)
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")
 
+set(VIEWER_STRING "OldSkool" CACHE STRING "Viewer Spoof Name")
 set(VIEWER_CHANNEL "Singularity" CACHE STRING "Viewer Channel Name")
 set(VIEWER_LOGIN_CHANNEL "${VIEWER_CHANNEL}" CACHE STRING "Fake login channel for A/B Testing")
-set(VIEWER_BRANDING_ID "singularity" CACHE STRING "Viewer branding id (currently secondlife|snowglobe)")
+set(VIEWER_BRANDING_ID "oldskool" CACHE STRING "Viewer branding id (currently secondlife|snowglobe)")
 
 # *TODO: break out proper Branding-secondlife.cmake, Branding-snowglobe.cmake, etc
 string(REGEX REPLACE " +" "" VIEWER_CHANNEL_ONE_WORD "${VIEWER_CHANNEL}")
-set(VIEWER_BRANDING_NAME "${VIEWER_CHANNEL_ONE_WORD}")
-set(VIEWER_BRANDING_NAME_CAMELCASE "${VIEWER_CHANNEL_ONE_WORD}")
+set(VIEWER_BRANDING_NAME "${VIEWER_STRING_ONE_WORD}")
+set(VIEWER_BRANDING_NAME_CAMELCASE "${VIEWER_STRING_ONE_WORD}")
 
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
 

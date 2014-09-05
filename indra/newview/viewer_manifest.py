@@ -108,6 +108,15 @@ class ViewerManifest(LLManifest):
                 self.end_prefix("dark/textures")
             self.path("dark.xml")
             self.path("dark/*.xml")
+            if self.prefix(src="firebird/textures"):
+                self.path("*.tga")
+                self.path("*.j2c")
+                self.path("*.jpg")
+                self.path("*.png")
+                self.path("textures.xml")
+                self.end_prefix("firebird/textures")
+            self.path("Firebird.xml")
+            self.path("firebird/*.xml")
 
             # Local HTML files (e.g. loading screen)
             if self.prefix(src="*/html"):
@@ -144,7 +153,11 @@ class ViewerManifest(LLManifest):
     def channel_lowerword(self):
         return self.channel_oneword().lower()
     def viewer_branding_id(self):
-        return self.args['branding_id']
+        return self.args['branding_id']	
+    def viewer_name_string(self):
+        mapping={"singularity":'Singularity',
+                 "oldskool":'OldSkool'}
+        return mapping[self.viewer_branding_id()]
     def installer_prefix(self):
         return self.channel_oneword() + "_"
 
@@ -233,7 +246,8 @@ class WindowsManifest(ViewerManifest):
         return self.args.get('arch') == "x86_64"
     
     def final_exe(self):
-        return self.channel_oneword() + 'Viewer.exe'
+        #return self.channel_oneword() + 'Viewer.exe'
+        return self.viewer_name_string() + 'Viewer.exe'
 
 
     def construct(self):
@@ -414,7 +428,8 @@ class WindowsManifest(ViewerManifest):
             mask = "%s_%s_x86-64_Setup.exe"
         else:
             mask = "%s_%s_Setup.exe"
-        return mask % (self.channel_oneword(), '-'.join(self.args['version']))
+        #return mask % (self.channel_oneword(), '-'.join(self.args['version']))
+        return mask % (self.viewer_name_string(), '-'.join(self.args['version']))
 
     def package_finish(self):
         # a standard map of strings for replacing in the templates
