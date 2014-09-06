@@ -3486,7 +3486,13 @@ void LLFolderBridge::buildContextMenuBaseOptions(U32 flags)
 	mItems.clear();
 	mDisabledItems.clear();
 // [/RLVa:KB]
-
+	// <os>
+	if (gLocalInventoryRoot == mUUID)
+	{
+		// This is the localinventory folder.
+		mItems.push_back(std::string("Save As"));
+	}
+	// </os>
 	if (lost_and_found_id == mUUID)
 	{
 		// This is the lost+found folder.
