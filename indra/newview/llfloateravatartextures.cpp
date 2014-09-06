@@ -39,6 +39,9 @@
 #include "lluictrlfactory.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
+#include "llfloaterchat.h"
+#include "llclipboard.h"
+#include "os_invtools.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -78,6 +81,7 @@ BOOL LLFloaterAvatarTextures::postBuild()
 	mTitle = getTitle();
 
 	childSetAction("Dump", onClickDump, this);
+	childSetAction("Copy", onClickCopy, this);
 
 	refresh();
 	return TRUE;
@@ -86,6 +90,7 @@ BOOL LLFloaterAvatarTextures::postBuild()
 void LLFloaterAvatarTextures::draw()
 {
 	refresh();
+	unique_textures.clear();
 	LLFloater::draw();
 }
 
@@ -162,20 +167,56 @@ void LLFloaterAvatarTextures::refresh()
 */
 // </edit>
 
-// static
-void LLFloaterAvatarTextures::onClickDump(void* data)
+void LLFloaterAvatarTextures::populate()
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLFloaterAvatarTextures* self = (LLFloaterAvatarTextures*)data;
-	LLVOAvatar* avatarp = find_avatar(self->mID);
+	LLVOAvatar* avatarp = find_avatar(mID);
 	if (!avatarp) return;
-
+	std::ostringstream stream;
 	for (S32 i = 0; i < avatarp->getNumTEs(); i++)
 	{
 		const LLTextureEntry* te = avatarp->getTE(i);
 		if (!te) continue;
-
-		llinfos << "Avatar TE " << i << " id " << te->getID() << llendl;
+		LLUUID id = te->getID();
+		if(unique_textures[id]) continue;
+		unique_textures[id] = true;
 	}
-#endif
+
+}
+
+// static
+void LLFloaterAvatarTextures::onClickDump(void* data)
+{
+	LLFloaterAvatarTextures* self = (LLFloaterAvatarTextures*)data;
+	self->populate();
+	std::ostringstream stream;
+	typedef std::map<LLUUID, bool>::iterator map_iter;
+	for(map_iter i = self->unique_textures.begin(); i != self->unique_textures.end(); ++i)
+	{
+		LLUUID mUUID = (*i).first;
+		stream << mUUID << "\n";
+	}
+	
+	LLChat chat;
+	chat.mSourceType = CHAT_SOURCE_SYSTEM;
+	chat.mText = self->getTitle()+" Texture UUIDs have been copied to your clipboard.";
+	gClipboard.copyFromSubstring(utf8str_to_wstring(stream.str()), 0, stream.str().size() );
+	LLFloaterChat::addChat(chat);
+}
+
+// static
+void LLFloaterAvatarTextures::onClickCopy(void* data)
+{
+	LLFloaterAvatarTextures* self = (LLFloaterAvatarTextures*)data;
+	self->populate();
+	typedef std::map<LLUUID, bool>::iterator map_iter;
+	for(map_iter i = self->unique_textures.begin(); i != self->unique_textures.end(); ++i)
+	{
+		LLUUID mUUID = (*i).first;
+		OSInvTools::addItem(mUUID.asString(), (int)LLAssetType::AT_TEXTURE, mUUID, false);
+	}
+	
+	LLChat chat;
+	chat.mSourceType = CHAT_SOURCE_SYSTEM;
+	chat.mText = self->getTitle()+" Textures copied to your inventory.";
+	LLFloaterChat::addChat(chat);
 }

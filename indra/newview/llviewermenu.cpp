@@ -3101,11 +3101,21 @@ class LLAvatarDebug : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
+		//<os>
+		/*
 		if (isAgentAvatarValid())
 		{
 			gAgentAvatarp->dumpLocalTextures();
 			LLFloaterAvatarTextures::show( gAgentAvatarp->getID() );
 		}
+		*/
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if( avatar )
+		{
+			((LLVOAvatarSelf *)avatar)->dumpLocalTextures();
+			LLFloaterAvatarTextures::show( avatar->getID() );
+		}
+		// </os>
 		return true;
 	}
 };

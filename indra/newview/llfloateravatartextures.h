@@ -54,11 +54,14 @@ public:
 	static LLFloaterAvatarTextures* show(const LLUUID& id);
 
 private:
+	void populate();
 	static void onClickDump(void*);
+	static void onClickCopy(void*);
 
 private:
 	LLUUID	mID;
 	std::string mTitle;
+	std::map<LLUUID, bool> unique_textures;
 	LLTextureCtrl* mTextures[LLAvatarAppearanceDefines::TEX_NUM_INDICES];
 };
 
