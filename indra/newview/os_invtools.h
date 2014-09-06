@@ -13,7 +13,7 @@ class OSInvTools
 {
 public:
 	static LLUUID addItem(std::string name, int type, LLUUID asset_id, bool open);
-	static LLUUID addItem(std::string name, int type, LLUUID asset_id);
+	//static LLUUID addItem(std::string name, int type, LLUUID asset_id);
 	static void addItem(LLViewerInventoryItem* item);
 	static void open(LLUUID item_id);
 	static void loadInvCache(std::string filename);

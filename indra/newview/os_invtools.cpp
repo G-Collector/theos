@@ -23,20 +23,38 @@
 #include "lluictrlfactory.h"
 
 #include "statemachine/aifilepicker.h"
-
+/*
 LLUUID OSInvTools::addItem(std::string name, int type, LLUUID asset_id, bool open_now)
 {
 	LLUUID item_id = addItem(name, type, asset_id);
 	if (open_now) open(item_id);
 	return item_id;
 }
-
-LLUUID OSInvTools::addItem(std::string name, int type, LLUUID asset_id)
+*/
+LLUUID OSInvTools::addItem(std::string name, int type, LLUUID asset_id, bool open_now)
 {
 	LLUUID item_id;
-	item_id.generate();
 	std::string asset_string = "";
 	asset_id.toString(asset_string);
+	
+	// <os> duplicate check
+	BOOL exists = FALSE;
+	LLInventoryModel::item_array_t* items;
+	LLInventoryModel::cat_array_t* cats;
+	gInventory.getDirectDescendentsOf(gLocalInventoryRoot, cats, items);
+	S32 count = items->size();
+	for (S32 i = 0; i < count; ++i)
+	{
+		if (items->at(i)->getDescription() == asset_string)
+		{
+			item_id = items->at(i)->getUUID();
+			exists = TRUE;
+		}
+	}
+	if(!exists) 
+	{
+	// </os>
+	item_id.generate();
 	LLPermissions new_perms;
 	new_perms.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
 	new_perms.initMasks(PERM_ALL, PERM_ALL, PERM_ALL, PERM_ALL, PERM_ALL);
@@ -53,6 +71,8 @@ LLUUID OSInvTools::addItem(std::string name, int type, LLUUID asset_id)
 		0,
 		time_corrected());
 	addItem(item);
+	}// </os>
+	if (open_now) open(item_id);
 	return item_id;
 }
 
