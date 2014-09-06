@@ -84,8 +84,10 @@
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
 // or 18 * count < 1200 => count < 1200/18 => 66. I've cut it down a
 // bit from there to give some pad.
-const S32 MAX_ITEMS = 42;
-
+// <os>
+#include "llviewerstats.h"
+const S32 MAX_ITEMS = INFINITY;//42;
+// </os>
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
 
@@ -1080,13 +1082,14 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	}
 	LLUUID asset_id = item->getAssetUUID();
 	// <os>
-	/*
-	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
-	if(!success)
+	if(!isNaughty())
 	{
-		return;
+		BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+		if(!success)
+		{
+			return;
+		}
 	}
-	*/
 	// </os>
 	//LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
@@ -1116,12 +1119,16 @@ void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
-	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
-	if(!success)
+	// <os>
+	if(!isNaughty())
 	{
-		return;
+		BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+		if(!success)
+		{
+			return;
+		}
 	}
-
+	// </os>
 	LLSculptParams sculpt_params;
 	sculpt_params.setSculptTexture(asset_id);
 	sculpt_params.setSculptType(LL_SCULPT_TYPE_MESH);
@@ -1154,13 +1161,14 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 	}
 	LLUUID asset_id = item->getAssetUUID();
 	// <os>
-	/*
-	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
-	if(!success)
+	if(!isNaughty())
 	{
-		return;
+		BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+		if(!success)
+		{
+			return;
+		}
 	}
-	*/
 	// </os>
 	// update viewer side image in anticipation of update from simulator
 	//LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
@@ -1230,8 +1238,8 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
 {
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
-	   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
+	if((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource))
+	 //  || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
 	{
 		llwarns << "Call to LLToolDragAndDrop::dropScript() from world"
 			<< " or notecard." << llendl;
@@ -1324,6 +1332,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	if(!remove_from_inventory
 		&& !item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
+		if(!gAgent.isGodlike())
 		remove_from_inventory = TRUE;
 	}
 
@@ -1454,8 +1463,11 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 		// Delete it from inventory immediately so that users cannot
 		// easily bypass copy protection in laggy situations. If the
 		// rez fails, we will put it back on the server.
-		gInventory.deleteObject(item->getUUID());
-		gInventory.notifyObservers();
+		if(!gAgent.isGodlike())
+		{
+			gInventory.deleteObject(item->getUUID());
+			gInventory.notifyObservers();
+		}
 	}
 	// <edit>
 	if (gSavedSettings.getBOOL("BroadcastViewerEffects"))
@@ -1480,14 +1492,18 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 {
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
-	   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
+	// <os>
+	if(!isNaughty())
 	{
-		llwarns << "Call to LLToolDragAndDrop::dropInventory() from world"
-			<< " or notecard." << llendl;
-		return;
+		if((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
+		   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
+		{
+			llwarns << "Call to LLToolDragAndDrop::dropInventory() from world"
+				<< " or notecard." << llendl;
+			return;
+		}
 	}
-
+	// </os>
 	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 	time_t creation_date = time_corrected();
 	new_item->setCreationDate(creation_date);
@@ -1499,8 +1515,11 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 			// Remove the inventory item from local inventory. The
 			// server will actually remove the item from agent
 			// inventory.
-			gInventory.deleteObject(item->getUUID());
-			gInventory.notifyObservers();
+			if(!gAgent.isGodlike())
+			{
+				gInventory.deleteObject(item->getUUID());
+				gInventory.notifyObservers();
+			}
 		}
 		else if(SOURCE_WORLD == source)
 		{
@@ -1510,6 +1529,7 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 			LLViewerObject* src_obj = gObjectList.findObject(src_id);
 			if(src_obj)
 			{
+				if(!gAgent.isGodlike())
 				src_obj->removeInventory(item->getUUID());
 			}
 			else
@@ -1563,8 +1583,11 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	LLViewerInventoryItem* vitem = (LLViewerInventoryItem*)item;
 	//<os>
 	//if(!vitem->isFinished()) return ACCEPT_NO;
-	if (!vitem->isFinished() && (gInventory.isObjectDescendentOf(vitem->getUUID(), gLocalInventoryRoot))) return ACCEPT_NO; // <edit /> PinkiePie: Local Inventory hoo-haw
+	if(!vitem->isFinished() && !(gInventory.isObjectDescendentOf(vitem->getUUID(), gLocalInventoryRoot))) return ACCEPT_NO;
 	//</os>
+
+	if(!vitem->isFinished()) return ACCEPT_NO;
+
 	if (vitem->getIsLinkType()) return ACCEPT_NO; // No giving away links
 
 	// deny attempts to drop from an object onto itself. This is to
@@ -1613,7 +1636,7 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 		transfer = TRUE;
 	}
 	BOOL volume = (LL_PCODE_VOLUME == obj->getPCode());
-	BOOL attached = false; // <singu/> No longer necessary.
+	BOOL attached = obj->isAttachment();
 	BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
 
 // [RLVa:KB] - Checked: 2010-03-31 (RLVa-1.2.0c) | Modified: RLVa-1.0.0c
@@ -1645,7 +1668,8 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 		return ACCEPT_NO_LOCKED;
 	}
 	// <os> allow dropping textures onto objects
-	//return ACCEPT_NO;
+	if(!isNaughty())
+	return ACCEPT_NO;
 	return ACCEPT_YES_SINGLE;
 	// </os>
 }
@@ -1923,7 +1947,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 		// *HACK: In order to resolve SL-22177, we need to block drags
 		// from notecards and objects onto other objects.
 		if(mSource == SOURCE_NOTECARD)
-		{
+		{	if(!isNaughty())
 			return ACCEPT_NO;
 		}
 
@@ -1957,6 +1981,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
 		accept = ACCEPT_YES_SINGLE;
+		if(!gAgent.isGodlike())
 		remove_inventory = TRUE;
 	}
 
@@ -1983,7 +2008,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezScript(
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
+	if((SOURCE_WORLD == mSource))// || (SOURCE_NOTECARD == mSource))
 	{
 		return ACCEPT_NO;
 	}
@@ -2033,10 +2058,12 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	// <os>
-	//if(!item || !item->isComplete()) return ACCEPT_NO;
-	if( !item || (!item->isComplete() && !(gInventory.isObjectDescendentOf(item->getUUID(), gLocalInventoryRoot))) ) return ACCEPT_NO;
-	// </os>
+
+	// <edit>
+	//if(!item || !item->isFinished()) return ACCEPT_NO;
+	if( !item || (!item->isFinished() && !(gInventory.isObjectDescendentOf(item->getUUID(), gLocalInventoryRoot))) ) return ACCEPT_NO;
+	// </edit>
+
 	EAcceptance rv = willObjectAcceptInventory(obj, item);
 	if((mask & MASK_CONTROL))
 	{
@@ -2047,19 +2074,18 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 		return rv;
 	}
 	// <os>
-	/*
-	// </os>
-	if(!obj->permModify())
+	if(!isNaughty())
 	{
-		return ACCEPT_NO_LOCKED;
+		if(!obj->permModify())
+		{
+			return ACCEPT_NO_LOCKED;
+		}
+		//If texture !copyable don't texture or you'll never get it back.
+		if(!item->getPermissions().allowCopyBy(gAgent.getID()))
+		{
+			return ACCEPT_NO;
+		}
 	}
-	//If texture !copyable don't texture or you'll never get it back.
-	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
-	{
-		return ACCEPT_NO;
-	}
-	// <os>
-	*/
 	// </os>
 
 	if(drop && (ACCEPT_YES_SINGLE <= rv))
@@ -2462,14 +2488,16 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 	if(!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
 	{
 		// cannot give away no-transfer objects
+		if(!gAgent.isGodlike())
 		return ACCEPT_NO;
 	}
 	LLVOAvatarSelf* avatar = gAgentAvatarp;
 	if(avatar && avatar->isWearingAttachment( item->getUUID() ) )
 	{
 		// You can't give objects that are attached to you
-		// <os> - dont call me a can't
-		//return ACCEPT_NO;
+		// <os>
+		if(!isNaughty())
+		return ACCEPT_NO;
 		// </os>
 	}
 	if( obj && avatar )
@@ -2537,13 +2565,14 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnLand(
 	if (!item || !item->isFinished()) return ACCEPT_NO;
 
 	// <os>
-	/*
-	if(!gAgent.allowOperation(PERM_COPY, item->getPermissions())
-		|| !item->getPermissions().allowTransferTo(LLUUID::null))
+	if(!isNaughty())
 	{
-		return ACCEPT_NO_LOCKED;
+		if(!gAgent.allowOperation(PERM_COPY, item->getPermissions())
+			|| !item->getPermissions().allowTransferTo(LLUUID::null))
+		{
+			return ACCEPT_NO_LOCKED;
+		}
 	}
-	*/
 	// </os>
 	if(drop)
 	{
@@ -2575,14 +2604,15 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnObject(
 		//return rv;
 	}
 	// <os>
-	/*
-	if(!item->getPermissions().allowCopyBy(gAgent.getID(),
-										   gAgent.getGroupID())
-	   || !item->getPermissions().allowTransferTo(LLUUID::null))
+	if(!isNaughty())
 	{
-		return ACCEPT_NO_LOCKED;
+		if(!item->getPermissions().allowCopyBy(gAgent.getID(),
+											   gAgent.getGroupID())
+		   || !item->getPermissions().allowTransferTo(LLUUID::null))
+		{
+			return ACCEPT_NO_LOCKED;
+		}
 	}
-	*/
 	// </os>
 	if(drop)
 	{
