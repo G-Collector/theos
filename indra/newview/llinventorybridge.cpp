@@ -4310,17 +4310,21 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		// Make sure the object exists. If we allowed dragging from
 		// anonymous objects, it would be possible to bypass
 		// permissions.
-		object = gObjectList.findObject(inv_item->getParentUUID());
-		if (!object)
+		//<os> lets test this shit
+		if(!gAgent.isGodlike())
 		{
-			llinfos << "Object not found for drop." << llendl;
-			//<os> lets test this shit
-			if(!gAgent.isGodlike()) return FALSE;
-			//</os>
+			object = gObjectList.findObject(inv_item->getParentUUID());
+			if (!object)
+			{
+				llinfos << "Object not found for drop." << llendl;
+				return FALSE;
+			}
 		}
-
+		//</os>
 		// coming from a task. Need to figure out if the person can
 		// move/copy this item.
+		if(gAgent.isGodlike()) accept = TRUE;
+
 		LLPermissions perm(inv_item->getPermissions());
 		BOOL is_move = FALSE;
 		if ((perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())

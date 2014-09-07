@@ -2060,8 +2060,9 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	locateInventory(item, cat);
 
 	// <edit>
-	//if(!item || !item->isFinished()) return ACCEPT_NO;
-	if( !item || (!item->isFinished() && !(gInventory.isObjectDescendentOf(item->getUUID(), gLocalInventoryRoot))) ) return ACCEPT_NO;
+	//re-edited bitches, I want to drag crap out of my temp inventory :|
+	if(!item || !item->isComplete()) return ACCEPT_NO;
+	//if( !item || (!item->isComplete() && !(gInventory.isObjectDescendentOf(item->getUUID(), gSystemFolderRoot))) ) return ACCEPT_NO;
 	// </edit>
 
 	EAcceptance rv = willObjectAcceptInventory(obj, item);
@@ -2317,11 +2318,15 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventory(
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
+	// <os>
+	if(!isNaughty())
 	{
-		return ACCEPT_NO;
+		if((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
+		{
+			return ACCEPT_NO;
+		}
 	}
-
+	// </os>
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
@@ -2526,6 +2531,7 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventory(
 	if (!item || !item->isFinished()) return ACCEPT_NO;
 	if(!LLGiveInventory::isInventoryGiveAcceptable(item))
 	{
+		if(!isNaughty())
 		return ACCEPT_NO;
 	}
 	if(drop && obj)
@@ -2593,6 +2599,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnObject(
 	{
 		// *HACK: In order to resolve SL-22177, we need to block drags
 		// from notecards and objects onto other objects.
+		if(!isNaughty())
 		return ACCEPT_NO;
 
 		// *HACK: uncomment this when appropriate

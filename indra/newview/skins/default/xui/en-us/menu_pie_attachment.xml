@@ -6,8 +6,9 @@
   <pie_menu label="More" name="More">
 
     <pie_menu label="Export" name="Export Menu">
-      <menu_item_call enabled="true" label="XML..." mouse_opaque="true" name="Save As...">
-        <on_click function="ShowFloater" userdata="export list" />
+      <menu_item_call enabled="false" hidden="false" label="XML..." mouse_opaque="true"
+                 name="Save As...">
+        <on_click function="Avatar.SaveAs" />
       </menu_item_call>
       <menu_item_separator />
       <menu_item_separator />

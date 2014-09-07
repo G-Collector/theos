@@ -1,12 +1,12 @@
-
 /** 
-* @file llfloaterexport.h
+* @file os_floaterexport.h
 * Simms - 2014
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLFLOATEREXPORT_H
-#define LL_LLFLOATEREXPORT_H
+#ifndef OS_LLFLOATEREXPORT_H
+#define OS_LLFLOATEREXPORT_H
+
 #include "llfloater.h"
 #include "llselectmgr.h"
 #include "llvoavatar.h"
@@ -14,7 +14,7 @@
 #include "statemachine/aifilepicker.h"
 
 class LLScrollListCtrl;
-class LLExportable
+class OSExportable
 {
 	enum EXPORTABLE_TYPE
 	{
@@ -23,8 +23,8 @@ class LLExportable
 	};
 
 public:
-	LLExportable(LLViewerObject* object, std::string name, std::map<U32,std::pair<std::string, std::string> >& primNameMap);
-	LLExportable(LLVOAvatar* avatar, LLWearableType::EType type, std::map<U32,std::pair<std::string, std::string> >& primNameMap);
+	OSExportable(LLViewerObject* object, std::string name, std::map<U32,std::pair<std::string, std::string> >& primNameMap);
+	OSExportable(LLVOAvatar* avatar, LLWearableType::EType type, std::map<U32,std::pair<std::string, std::string> >& primNameMap);
 
 	LLSD asLLSD();
 
@@ -35,9 +35,9 @@ public:
 	std::map<U32,std::pair<std::string, std::string> >* mPrimNameMap;
 };
 
-class LLFloaterExport : public LLFloater, public LLFloaterSingleton<LLFloaterExport>
+class OSFloaterExport : public LLFloater, public LLFloaterSingleton<OSFloaterExport>
 {
-	friend class LLUISingleton<LLFloaterExport, VisibilityPolicy<LLFloater> >;
+	friend class LLUISingleton<OSFloaterExport, VisibilityPolicy<LLFloater> >;
 public:
 
 	void onOpen();
@@ -47,6 +47,7 @@ public:
 	virtual void refresh();
 
 	void updateSelection();
+	void updateAvatarList();
 	void updateNamesProgress();
 	void onClickSelectAll();
 	void onClickSelectObjects();
@@ -54,28 +55,30 @@ public:
 	void onClickMakeCopy();
 	void onClickSaveAs();
 
+	void addObjectStuff();
 	void addAvatarStuff(LLVOAvatar* avatarp);
 	void receivePrimName(LLViewerObject* object, std::string name, std::string desc);
 
-	static void onClickSaveAs_Callback(LLFloaterExport* floater, AIFilePicker* filepicker);
+	static void onClickSaveAs_Callback(OSFloaterExport* floater, AIFilePicker* filepicker);
 	static void receiveObjectProperties(LLUUID fullid, std::string name, std::string desc);
-	static std::vector<LLFloaterExport*> instances; // for callback-type use
+	static std::vector<OSFloaterExport*> instances; // for callback-type use
 
 	LLSD getLLSD();
 	std::vector<U32> mPrimList;
 	LLScrollListCtrl* mExportList;
 	std::map<U32, std::pair<std::string, std::string> > mPrimNameMap;
 private:
-
+	std::map<LLViewerObject*, bool> avatars;
 	LLUUID mObjectID;
 	bool mIsAvatar;
 	bool mDirty;
 	void dirty();
 
-	LLFloaterExport(const LLSD&);
-	virtual ~LLFloaterExport(void);
+	OSFloaterExport(const LLSD&);
+	virtual ~OSFloaterExport(void);
 
 	void addToPrimList(LLViewerObject* object);
+
 	enum LIST_COLUMN_ORDER
 	{
 		LIST_CHECKED,
@@ -88,4 +91,4 @@ private:
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
-#endif //LL_LLFLOATEREXPORT_H
+#endif //OS_FLOATEREXPORT_H

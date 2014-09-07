@@ -1,4 +1,8 @@
-// <edit>
+/** 
+* @file os_floaterexport.h
+* Simms - 2014
+* $/LicenseInfo$
+*/
  
 #include "llviewerprecompiledheaders.h"
 #include "os_floaterexport.h"
@@ -25,10 +29,7 @@
 #include "llappviewer.h"
 #include "llsdutil_math.h"
 #include "llimagej2c.h"
-std::vector<LLFloaterExport*> LLFloaterExport::instances;
-
-//LLVOAvatar* find_avatar_from_object( LLViewerObject* object );
-//LLVOAvatar* find_avatar_from_object( const LLUUID& object_id );
+std::vector<OSFloaterExport*> OSFloaterExport::instances;
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -46,7 +47,7 @@ void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagel
 {
 	if(imageformat==IMG_CODEC_TGA && mFormattedImage->getCodec()==IMG_CODEC_J2C)
 	{
-		llwarns<<"Bleh its a tga not saving"<<llendl;
+		llwarns<<"problem downloading tga"<<llendl;
 		mFormattedImage=NULL;
 		mImageSize=0;
 		return;
@@ -96,14 +97,14 @@ private:
 };
 
 
-LLExportable::LLExportable(LLViewerObject* object, std::string name, std::map<U32,std::pair<std::string, std::string> >& primNameMap)
+OSExportable::OSExportable(LLViewerObject* object, std::string name, std::map<U32,std::pair<std::string, std::string> >& primNameMap)
 :	mObject(object),
 	mType(EXPORTABLE_OBJECT),
 	mPrimNameMap(&primNameMap)
 {
 }
 
-LLExportable::LLExportable(LLVOAvatar* avatar, LLWearableType::EType type, std::map<U32,std::pair<std::string, std::string> >& primNameMap)
+OSExportable::OSExportable(LLVOAvatar* avatar, LLWearableType::EType type, std::map<U32,std::pair<std::string, std::string> >& primNameMap)
 :	mAvatar(avatar),
 	mType(EXPORTABLE_WEARABLE),
 	mWearableType(type),
@@ -111,7 +112,7 @@ LLExportable::LLExportable(LLVOAvatar* avatar, LLWearableType::EType type, std::
 {
 }
 
-LLSD LLExportable::asLLSD()
+LLSD OSExportable::asLLSD()
 {
 	if(mType == EXPORTABLE_OBJECT)
 	{
@@ -270,68 +271,59 @@ LLSD LLExportable::asLLSD()
 	return LLSD();
 }
 
-LLFloaterExport::LLFloaterExport(const LLSD&) 
+OSFloaterExport::OSFloaterExport(const LLSD&) 
 : LLFloater(std::string("Export List")),
 	mObjectID(LLUUID::null),
 	mIsAvatar(false),
 	mDirty(true)
 {
-	mCommitCallbackRegistrar.add("Export.SelectAll",	boost::bind(&LLFloaterExport::onClickSelectAll, this));
-	mCommitCallbackRegistrar.add("Export.SelectObjects",	boost::bind(&LLFloaterExport::onClickSelectObjects, this));
-	mCommitCallbackRegistrar.add("Export.SelectWearales",	boost::bind(&LLFloaterExport::onClickSelectWearables, this));
-	mCommitCallbackRegistrar.add("Export.SaveAs",	boost::bind(&LLFloaterExport::onClickSaveAs, this));
-	mCommitCallbackRegistrar.add("Export.Copy",	boost::bind(&LLFloaterExport::onClickMakeCopy, this));
+	mCommitCallbackRegistrar.add("Export.SelectAll",	boost::bind(&OSFloaterExport::onClickSelectAll, this));
+	mCommitCallbackRegistrar.add("Export.SelectObjects",	boost::bind(&OSFloaterExport::onClickSelectObjects, this));
+	mCommitCallbackRegistrar.add("Export.SelectWearales",	boost::bind(&OSFloaterExport::onClickSelectWearables, this));
+	mCommitCallbackRegistrar.add("Export.SaveAs",	boost::bind(&OSFloaterExport::onClickSaveAs, this));
+	mCommitCallbackRegistrar.add("Export.Copy",	boost::bind(&OSFloaterExport::onClickMakeCopy, this));
 	LLUICtrlFactory::getInstance()->buildFloater(this, "os_floater_export.xml", NULL, false);
 }
 
-LLFloaterExport::~LLFloaterExport(void)
+OSFloaterExport::~OSFloaterExport(void)
 {
 	LLSelectMgr::getInstance()->deselectAll();
 	
-	std::vector<LLFloaterExport*>::iterator pos = std::find(LLFloaterExport::instances.begin(), LLFloaterExport::instances.end(), this);
-	if(pos != LLFloaterExport::instances.end())
+	std::vector<OSFloaterExport*>::iterator pos = std::find(OSFloaterExport::instances.begin(), OSFloaterExport::instances.end(), this);
+	if(pos != OSFloaterExport::instances.end())
 	{
-		LLFloaterExport::instances.erase(pos);
+		OSFloaterExport::instances.erase(pos);
 	}
 }
 
-BOOL LLFloaterExport::postBuild()
+BOOL OSFloaterExport::postBuild()
 {
-	mExportList = getChild<LLScrollListCtrl>("export_list");
-
-	if(LLSelectMgr::getInstance()->getSelection()->isEmpty())
-	{
-		mIsAvatar = true;
-		addAvatarStuff(gAgentAvatarp);
-	}
-
 	mObjectID = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->getID();
-
+	mExportList = getChild<LLScrollListCtrl>("export_list");
 	if (mObjectID.isNull())
 	{
 		mIsAvatar = false;
-		LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterExport::updateSelection, this));
+		LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&OSFloaterExport::updateSelection, this));
 	}
 	else
 	{
-		LLViewerObject* obj = gObjectList.findObject(mObjectID);
+		LLVOAvatar* avatarp = gObjectList.findAvatar(mObjectID);
 
-		if (obj && obj->isAvatar() && !mIsAvatar)
+		if (avatarp)
 		{
 			mIsAvatar = true;
-			addAvatarStuff((LLVOAvatar*)obj);
 		}
 		else
 		{
 			mIsAvatar = false;
-			LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterExport::updateSelection, this));
+			LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&OSFloaterExport::updateSelection, this));
 		}
 	}
-	
+
 	return TRUE;
 }
 
-void LLFloaterExport::onOpen()
+void OSFloaterExport::onOpen()
 {
 	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
 	if (!mIsAvatar)
@@ -346,7 +338,7 @@ void LLFloaterExport::onOpen()
 	dirty();
 }
 
-void LLFloaterExport::updateSelection()
+void OSFloaterExport::updateSelection()
 {
 	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
 	LLSelectNode* node = object_selection->getFirstRootNode();
@@ -360,12 +352,12 @@ void LLFloaterExport::updateSelection()
 	dirty();
 }
 
-void LLFloaterExport::dirty()
+void OSFloaterExport::dirty()
 {
 	mDirty = true;
 }
 
-void LLFloaterExport::draw()
+void OSFloaterExport::draw()
 {
 	if (mDirty)
 	{
@@ -375,111 +367,46 @@ void LLFloaterExport::draw()
 	LLFloater::draw();
 }
 
-void LLFloaterExport::refresh()
-{
-	if(!mObjectSelection) return;
-	if(mObjectSelection->getRootObjectCount() < 1) return;
-
-	for (LLObjectSelection::valid_iterator iter = mObjectSelection->valid_begin();
-		 iter != mObjectSelection->valid_end(); iter++)
+void OSFloaterExport::refresh()
+{	
+	if (mIsAvatar)
 	{
-		LLSelectNode* nodep = *iter;
-		LLViewerObject* objectp = nodep->getObject();
-		U32 localid = objectp->getLocalID();
-		std::string name = nodep->mName;
-		mPrimNameMap[localid] = std::pair<std::string, std::string>(name, nodep->mDescription);
-	}
-
-	for (LLObjectSelection::valid_root_iterator iter = mObjectSelection->valid_root_begin();
-		 iter != mObjectSelection->valid_root_end(); iter++)
-	{
-		LLSelectNode* nodep = *iter;
-		LLViewerObject* objectp = nodep->getObject();
-		std::string objectp_id = llformat("%d", objectp->getLocalID());
-
-		if(mExportList->getItemIndex(objectp->getID()) == -1)
+		LLVOAvatar* avatarp = gObjectList.findAvatar(mObjectID);
+		if (!avatarp) return;
+		if(!avatars[avatarp]) 
 		{
-			bool is_attachment = false;
-			bool is_root = true;
-			LLViewerObject* parentp = objectp->getSubParent();
-			if(parentp)
-			{
-				if(!parentp->isAvatar())
-				{
-					// parent is a prim I guess
-					is_root = false;
-				}
-				else
-				{
-					// parent is an avatar
-					is_attachment = true;
-					addAvatarStuff((LLVOAvatar*)parentp);
-				}
-			}
-
-			bool is_prim = true;
-			if(objectp->getPCode() >= LL_PCODE_APP)
-			{
-				is_prim = false;
-			}
-
-			bool is_avatar = objectp->isAvatar();
-
-			
-			if(is_root && is_prim)
-			{
-				LLSD element;
-				element["id"] = objectp->getID();
-
-				LLSD& check_column = element["columns"][LIST_CHECKED];
-				check_column["column"] = "checked";
-				check_column["type"] = "checkbox";
-				check_column["value"] = true;
-
-				LLSD& type_column = element["columns"][LIST_TYPE];
-				type_column["column"] = "type";
-				type_column["type"] = "icon";
-				type_column["value"] = "inv_item_object.tga";
-
-				LLSD& name_column = element["columns"][LIST_NAME];
-				name_column["column"] = "name";
-				if(is_attachment)
-					name_column["value"] = nodep->mName + " (worn on " + utf8str_tolower(objectp->getAttachmentPointName()) + ")";
-				else
-					name_column["value"] = nodep->mName;
-
-				LLSD& avatarid_column = element["columns"][LIST_AVATARID];
-				avatarid_column["column"] = "avatarid";
-				if(is_attachment)
-					avatarid_column["value"] = parentp->getID();
-				else
-					avatarid_column["value"] = LLUUID::null;
-
-				LLExportable* exportable = new LLExportable(objectp, nodep->mName, mPrimNameMap);
-				mExportables[objectp->getID()] = exportable->asLLSD();
-
-				mExportList->addElement(element, ADD_BOTTOM);
-
-				addToPrimList(objectp);
-			}
-			else if(is_avatar)
-			{
-				addAvatarStuff((LLVOAvatar*)objectp);
-			}
+			avatars[avatarp] = true;
+			updateAvatarList();
+		}
+		else
+		{
+			addObjectStuff();
 		}
 	}
-
-	updateNamesProgress();
-
+	else
+	{
+		addObjectStuff();
+	}
 }
 
-void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
+void OSFloaterExport::updateAvatarList()
 {
+	LLSelectMgr::getInstance()->deselectAll();
+	std::map<LLViewerObject*, bool>::iterator avatar_iter = avatars.begin();
+	std::map<LLViewerObject*, bool>::iterator avatars_end = avatars.end();
+	for( ; avatar_iter != avatars_end; avatar_iter++)
+	{
+		LLViewerObject* avatar = (*avatar_iter).first;
+		addAvatarStuff((LLVOAvatar*)avatar);
+	}
+}
+
+void OSFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
+{
+	// Add Wearables
 	for( S32 type_itr = 0; type_itr < LLWearableType::WT_COUNT; type_itr++ )
 	{
 		const LLWearableType::EType type = (LLWearableType::EType)type_itr;
-		// guess whether this wearable actually exists
-		// by checking whether it has any textures that aren't default
 		bool exists = false;
 		if(type == LLWearableType::WT_SHAPE)
 		{
@@ -504,7 +431,6 @@ void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 				}
 			}
 		}
-
 		if(exists)
 		{
 			LLUUID uuid = avatarp->getID();
@@ -535,108 +461,115 @@ void LLFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 			avatarid_column["column"] = "avatarid";
 			avatarid_column["value"] = uuid;
 
-			LLExportable* exportable = new LLExportable(avatarp, type, mPrimNameMap);
+			OSExportable* exportable = new OSExportable(avatarp, type, mPrimNameMap);
+
 			mExportables[myid] = exportable->asLLSD();
 
 			mExportList->addElement(element, ADD_BOTTOM);
-	
 		}
 	}
-
-	// Add attachments
-	LLViewerObject::child_list_t child_list = avatarp->getChildren();
-	for (LLViewerObject::child_list_t::iterator i = child_list.begin(); i != child_list.end(); ++i)
+	// Add Attachments
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
+		 iter != avatarp->mAttachmentPoints.end(); )
 	{
-		LLViewerObject* childp = *i;
-		if(mExportList->getItemIndex(childp->getID()) == -1)
+		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+
+		LLViewerJointAttachment *attachment = curiter->second;
+		if (attachment)
 		{
-			LLSD element;
-			element["id"] = childp->getID();
-
-			LLSD& check_column = element["columns"][LIST_CHECKED];
-			check_column["column"] = "checked";
-			check_column["type"] = "checkbox";
-			check_column["value"] = false;
-
-			LLSD& type_column = element["columns"][LIST_TYPE];
-			type_column["column"] = "type";
-			type_column["type"] = "icon";
-			type_column["value"] = "inv_item_object.tga";
-
-			LLSD& name_column = element["columns"][LIST_NAME];
-			name_column["column"] = "name";
-			name_column["value"] = "Object (worn on " + utf8str_tolower(childp->getAttachmentPointName()) + ")";
-
-			LLSD& avatarid_column = element["columns"][LIST_AVATARID];
-			avatarid_column["column"] = "avatarid";
-			avatarid_column["value"] = avatarp->getID();
-
-			LLExportable* exportable = new LLExportable(childp, "Object", mPrimNameMap);
-			mExportables[childp->getID()] = exportable->asLLSD();
-
-			mExportList->addElement(element, ADD_BOTTOM);
-
-			addToPrimList(childp);
-			//LLSelectMgr::getInstance()->selectObjectAndFamily(childp, false);
-			//LLSelectMgr::getInstance()->deselectObjectAndFamily(childp, true, true);
-
-			LLViewerObject::child_list_t select_list = childp->getChildren();
-			LLViewerObject::child_list_t::iterator select_iter;
-			int block_counter;
-
-			gMessageSystem->newMessageFast(_PREHASH_ObjectSelect);
-			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			gMessageSystem->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
-			gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-			gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, childp->getLocalID());
-			block_counter = 0;
-			for (select_iter = select_list.begin(); select_iter != select_list.end(); ++select_iter)
+			for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator attachment_iter = attachment->mAttachedObjects.begin();
+				 attachment_iter != attachment->mAttachedObjects.end();
+				 ++attachment_iter)
 			{
-				block_counter++;
-				if(block_counter >= 254)
+				LLViewerObject* attached_object = (*attachment_iter);
+				if (attached_object)
 				{
-					// start a new message
-					gMessageSystem->sendReliable(childp->getRegion()->getHost());
-					gMessageSystem->newMessageFast(_PREHASH_ObjectSelect);
-					gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-					gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-					gMessageSystem->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
+					LLSelectMgr::getInstance()->selectObjectAndFamily(attached_object);
 				}
-				gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-				gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, (*select_iter)->getLocalID());
 			}
-			gMessageSystem->sendReliable(childp->getRegion()->getHost());
-
-			gMessageSystem->newMessageFast(_PREHASH_ObjectDeselect);
-			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			gMessageSystem->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
-			gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-			gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, childp->getLocalID());
-			block_counter = 0;
-			for (select_iter = select_list.begin(); select_iter != select_list.end(); ++select_iter)
-			{
-				block_counter++;
-				if(block_counter >= 254)
-				{
-					// start a new message
-					gMessageSystem->sendReliable(childp->getRegion()->getHost());
-					gMessageSystem->newMessageFast(_PREHASH_ObjectDeselect);
-					gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-					gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-					gMessageSystem->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
-				}
-				gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-				gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, (*select_iter)->getLocalID());
-			}
-			gMessageSystem->sendReliable(childp->getRegion()->getHost());
 		}
 	}
+
+	LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&OSFloaterExport::updateSelection, this));
+}
+
+void OSFloaterExport::addObjectStuff()
+{
+	for (LLObjectSelection::valid_iterator iter = mObjectSelection->valid_begin(); iter != mObjectSelection->valid_end(); iter++)
+	{
+		LLSelectNode* nodep = *iter;
+		LLViewerObject* objectp = nodep->getObject();
+		U32 localid = objectp->getLocalID();
+		std::string name = nodep->mName;
+		mPrimNameMap[localid] = std::pair<std::string, std::string>(name, nodep->mDescription);
+		std::string objectp_id = llformat("%d", objectp->getLocalID());
+
+		if (nodep->mCreationDate == 0) continue;
+	
+		if(mExportList->getItemIndex(objectp->getID()) == -1)
+		{
+			bool is_attachment = false;
+			bool is_root = true;
+			LLViewerObject* parentp = objectp->getSubParent();
+			if(parentp)
+			{
+				if(!parentp->isAvatar())
+				// parent must be a prim.
+					is_root = false;
+				else
+				// parent is an avatar.
+					is_attachment = true;
+			}
+
+			bool is_prim = true;
+			if(objectp->getPCode() >= LL_PCODE_APP)
+				is_prim = false;
+			
+			if(is_root && is_prim)
+			{
+				LLSD element;
+				element["id"] = objectp->getID();
+
+				LLSD& check_column = element["columns"][LIST_CHECKED];
+				check_column["column"] = "checked";
+				check_column["type"] = "checkbox";
+				check_column["value"] = !mIsAvatar;
+
+				LLSD& type_column = element["columns"][LIST_TYPE];
+				type_column["column"] = "type";
+				type_column["type"] = "icon";
+				type_column["value"] = "inv_item_object.tga";
+
+				LLSD& name_column = element["columns"][LIST_NAME];
+				name_column["column"] = "name";
+				if(is_attachment)
+					name_column["value"] = nodep->mName + " (worn on " + utf8str_tolower(objectp->getAttachmentPointName()) + ")";
+				else
+					name_column["value"] = nodep->mName;
+
+				LLSD& avatarid_column = element["columns"][LIST_AVATARID];
+				avatarid_column["column"] = "avatarid";
+				if(is_attachment)
+					avatarid_column["value"] = parentp->getID();
+				else
+					avatarid_column["value"] = LLUUID::null;
+
+				OSExportable* exportable = new OSExportable(objectp, nodep->mName, mPrimNameMap);
+				mExportables[objectp->getID()] = exportable->asLLSD();
+
+				mExportList->addElement(element, ADD_BOTTOM);
+
+				addToPrimList(objectp);
+			}
+		}
+	}
+
+	updateNamesProgress();
 }
 
 //static
-void LLFloaterExport::onClickSelectAll()
+void OSFloaterExport::onClickSelectAll()
 {
 	std::vector<LLScrollListItem*> items = mExportList->getAllData();
 	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
@@ -650,7 +583,7 @@ void LLFloaterExport::onClickSelectAll()
 }
 
 //static
-void LLFloaterExport::onClickSelectObjects()
+void OSFloaterExport::onClickSelectObjects()
 {
 	std::vector<LLScrollListItem*> items = mExportList->getAllData();
 	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
@@ -675,7 +608,7 @@ void LLFloaterExport::onClickSelectObjects()
 }
 
 //static
-void LLFloaterExport::onClickSelectWearables()
+void OSFloaterExport::onClickSelectWearables()
 {
 	std::vector<LLScrollListItem*> items = mExportList->getAllData();
 	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
@@ -699,7 +632,7 @@ void LLFloaterExport::onClickSelectWearables()
 	}
 }
 
-LLSD LLFloaterExport::getLLSD()
+LLSD OSFloaterExport::getLLSD()
 {
 	std::vector<LLScrollListItem*> items = mExportList->getAllData();
 	LLSD sd;
@@ -725,7 +658,7 @@ LLSD LLFloaterExport::getLLSD()
 	return sd;
 }
 /*static*/
-void LLFloaterExport::onClickSaveAs_Callback(LLFloaterExport* floater, AIFilePicker* filepicker)
+void OSFloaterExport::onClickSaveAs_Callback(OSFloaterExport* floater, AIFilePicker* filepicker)
 {
 	if(!filepicker->hasFilename())
 	{
@@ -822,7 +755,7 @@ void LLFloaterExport::onClickSaveAs_Callback(LLFloaterExport* floater, AIFilePic
 	floater->close();
 }
 //static
-void LLFloaterExport::onClickSaveAs()
+void OSFloaterExport::onClickSaveAs()
 {
 	LLSD sd = getLLSD();
 
@@ -883,7 +816,7 @@ void LLFloaterExport::onClickSaveAs()
 		}
 		AIFilePicker* filepicker = AIFilePicker::create();
 		filepicker->open(LLDir::getScrubbedFileName(default_filename + ".xml"), FFSAVE_XML);
-		filepicker->run(boost::bind(&LLFloaterExport::onClickSaveAs_Callback, this, filepicker));
+		filepicker->run(boost::bind(&OSFloaterExport::onClickSaveAs_Callback, this, filepicker));
 	}
 	else
 	{
@@ -895,7 +828,7 @@ void LLFloaterExport::onClickSaveAs()
 }
 
 //static
-void LLFloaterExport::onClickMakeCopy()
+void OSFloaterExport::onClickMakeCopy()
 {
 	LLSD sd = getLLSD();
 
@@ -911,11 +844,10 @@ void LLFloaterExport::onClickMakeCopy()
 		return;
 	}
 	
-	// I guess close the floater because only one import is allowed at once anyway
 	close();
 }
 
-void LLFloaterExport::addToPrimList(LLViewerObject* object)
+void OSFloaterExport::addToPrimList(LLViewerObject* object)
 {
 	mPrimList.push_back(object->getLocalID());
 	LLViewerObject::child_list_t child_list = object->getChildren();
@@ -929,12 +861,15 @@ void LLFloaterExport::addToPrimList(LLViewerObject* object)
 	}
 }
 
-void LLFloaterExport::updateNamesProgress()
+void OSFloaterExport::updateNamesProgress()
 {
 	childSetText("names_progress_text", llformat("Names retrieved: %d of %d", mPrimNameMap.size(), mPrimList.size()));
+
+	if( mPrimNameMap.size()==mPrimList.size())
+		LLSelectMgr::getInstance()->deselectAll();
 }
 
-void LLFloaterExport::receivePrimName(LLViewerObject* object, std::string name, std::string desc)
+void OSFloaterExport::receivePrimName(LLViewerObject* object, std::string name, std::string desc)
 {
 	LLUUID fullid = object->getID();
 	U32 localid = object->getLocalID();
@@ -961,18 +896,16 @@ void LLFloaterExport::receivePrimName(LLViewerObject* object, std::string name, 
 }
 
 // static
-void LLFloaterExport::receiveObjectProperties(LLUUID fullid, std::string name, std::string desc)
+void OSFloaterExport::receiveObjectProperties(LLUUID fullid, std::string name, std::string desc)
 {
-	if(!LLFloaterExport::instances.empty())
+	if(!OSFloaterExport::instances.empty())
 	{
 		LLViewerObject* object = gObjectList.findObject(fullid);
-		std::vector<LLFloaterExport*>::iterator iter = LLFloaterExport::instances.begin();
-		std::vector<LLFloaterExport*>::iterator end = LLFloaterExport::instances.end();
+		std::vector<OSFloaterExport*>::iterator iter = OSFloaterExport::instances.begin();
+		std::vector<OSFloaterExport*>::iterator end = OSFloaterExport::instances.end();
 		for( ; iter != end; ++iter)
 		{
 			(*iter)->receivePrimName(object, name, desc);
 		}
 	}
 }
-
-// </edit>

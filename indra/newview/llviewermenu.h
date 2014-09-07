@@ -131,6 +131,7 @@ bool for_sale_selection(LLSelectNode* nodep);
 void handle_selected_texture_info(void*);
 void handle_object_edit();
 bool floater_visible(const std::string& floater_name);
+void show_floater(const std::string& floater_name);
 //</os>
 void handle_save_snapshot(void *);
 void handle_toggle_flycam();

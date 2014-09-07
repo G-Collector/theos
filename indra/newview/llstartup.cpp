@@ -2157,11 +2157,11 @@ bool idle_startup()
 		{
 			LLViewerInventoryCategory* local_folder = new LLViewerInventoryCategory(gAgent.getID());
 			local_folder->rename(std::string("Local Inventory"));
-			LLUUID local_folder_id = LLUUID("00000000-0000-0000-0000-000000000001");
-			local_folder->setUUID(local_folder_id);
-			gLocalInventoryRoot = local_folder_id;
+			LLUUID system_folder_id = LLUUID("00000000-0000-0000-0000-000000000001");//"FFFFFFFF-0000-F113-7357-000000000001");
+			local_folder->setUUID(system_folder_id);
+			gLocalInventoryRoot = system_folder_id;
 			local_folder->setParent(LLUUID::null);
-			local_folder->setPreferredType(LLFolderType::FT_ROOT_INVENTORY);
+			local_folder->setPreferredType(LLFolderType::FT_NONE);
 			gInventory.addCategory(local_folder);
 		}
 		// </os>

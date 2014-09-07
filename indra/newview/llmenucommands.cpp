@@ -209,7 +209,7 @@ struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
 		registerFloater("show inspect", boost::bind(LLFloaterInspect::showInstance, LLSD()));
 		//<os>
 		registerFloater("inspect textures", boost::bind(LLFloaterInspectTexture::showInstance, LLSD()));
-		registerFloater("export list", boost::bind(LLFloaterExport::showInstance, LLSD()));
+		registerFloater("export list", boost::bind(OSFloaterExport::showInstance, LLSD()));
 		registerFloater("region circuits", boost::bind(OSCircuits::showInstance, LLSD()));
 		registerFloater("messagebuilder", boost::bind(LLFloaterMessageBuilder::show, std::string("")));
 		//</os>

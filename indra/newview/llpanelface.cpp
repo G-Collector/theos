@@ -2105,9 +2105,9 @@ void LLPanelFace::onTextureSelectionChanged(LLInventoryItem* itemp)
 		LLSaleInfo sale_info;
 		LLSelectMgr::instance().selectGetSaleInfo(sale_info);
 
-		bool can_copy = itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this texture?
-		bool can_transfer = itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this texture?
-		bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply texture belong to the agent?
+		bool can_copy = isNaughty()||itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this texture?
+		bool can_transfer = isNaughty()||itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this texture?
+		bool is_object_owner = isNaughty()||gAgentID == obj_owner_id; // does object for which we are going to apply texture belong to the agent?
 		bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply texture not for sale?
 
 		if (can_copy && can_transfer)

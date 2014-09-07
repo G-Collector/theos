@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Radar Menu" create_jump_keys="true">
+  
+  <menu label="Old Skool" name="OldSkool" create_jump_keys="true">
+    <menu_item_call label="Inspect Huds" name="AvHuds">
+      <on_click function="Radar.Huds"/>
+      <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+    <menu_item_call label="Inspect Textures" name="AvTextures">
+      <on_click function="Radar.ITextures"/>
+      <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+    <menu_item_call label="Avatar Textures" name="AvTextures">
+      <on_click function="Radar.Textures"/>
+      <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+    <menu_item_call label="Avatar Animations" name="AvAnimations">
+      <on_click function="Radar.Animations"/>
+      <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+    <menu_item_call label="Export Xml" name="ExportXml">
+      <on_click function="Radar.ExportXml"/>
+      <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+    <menu_item_call label="Export Obj" name="ExportObj">
+      <on_click function="Radar.ExportObj"/>
+      <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+  </menu>
+  
   <menu label="Avatar" name="Avatar" create_jump_keys="true">
     <menu_item_call label="Profile" name="Profile">
       <on_click function="List.ShowProfile"/>

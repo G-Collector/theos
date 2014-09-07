@@ -5277,7 +5277,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		}
 
 		// <os>
-		LLFloaterExport::receiveObjectProperties(id, name, desc);
+		OSFloaterExport::receiveObjectProperties(id, name, desc);
 		// </os>
 
 	}

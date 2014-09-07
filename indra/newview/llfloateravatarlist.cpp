@@ -55,6 +55,15 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
+//<os>
+#include "awavefront.h"
+#include "os_floaterexport.h"
+#include "llfloaterexploreanimations.h"
+#include "llfloateravatartextures.h"
+#include "os_floaterinspecthuds.h"
+#include "os_floaterinspecttexture.h"
+#include "llviewermenu.h" // show floater
+//< /os>
 // [RLVa:KB]
 #include "rlvhandler.h"
 // [/RLVa:KB]
@@ -362,12 +371,75 @@ namespace
 			return true;
 		}
 	};
+	//<os>
+	class RadarExportXml : public view_listener_t
+	{
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		{
+			LLFloaterAvatarList::instance().context_export();
+			return true;
+		}
+	};
+	
+	class RadarExportObj : public view_listener_t
+	{
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		{
+			LLFloaterAvatarList::instance().context_export_obj();
+			return true;
+		}
+	};
+
+	class RadarAvTextures : public view_listener_t
+	{
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		{
+			LLFloaterAvatarList::instance().context_avtextures();
+			return true;
+		}
+	};
+
+	class RadarTextures : public view_listener_t
+	{
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		{
+			LLFloaterAvatarList::instance().context_textures();
+			return true;
+		}
+	};
+	
+	class RadarAnimations : public view_listener_t
+	{
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		{
+			LLFloaterAvatarList::instance().context_animations();
+			return true;
+		}
+	};
+
+	class RadarHuds : public view_listener_t
+	{
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		{
+			LLFloaterAvatarList::instance().context_avhuds();
+			return true;
+		}
+	};
+	//</os>
 }
 
 void addMenu(view_listener_t* menu, const std::string& name);
 
 void add_radar_listeners()
 {
+	//<os>
+	addMenu(new RadarExportXml(), "Radar.ExportXml");
+	addMenu(new RadarExportObj(), "Radar.ExportObj");
+	addMenu(new RadarAvTextures(), "Radar.Textures");
+	addMenu(new RadarAnimations(), "Radar.Animations");
+	addMenu(new RadarTextures(), "Radar.ITextures");
+	addMenu(new RadarHuds(), "Radar.Huds");
+	//</os>
 	addMenu(new RadarTrack(), "Radar.Track");
 	addMenu(new RadarMark(), "Radar.Mark");
 	addMenu(new RadarFocus(), "Radar.Focus");
@@ -1029,6 +1101,193 @@ void LLFloaterAvatarList::refreshAvatarList()
 //	llinfos << "radar refresh: done" << llendl;
 
 }
+
+//<os>
+
+/**
+*Context Menu
+*/
+
+void LLFloaterAvatarList::context_export()
+{
+	LLScrollListItem* item = mAvatarList->getFirstSelected();
+	if (!item) return;
+
+	LLUUID agent_id = item->getUUID();
+	LLAvatarListEntry* entry = getAvatarEntry(agent_id);
+	if (entry && agent_id.notNull())
+	{
+		BOOL enabled = entry->mStats[STAT_TYPE_DRAW];
+		if(enabled) 
+		{
+			LLViewerObject *obj = gObjectList.findObject(agent_id);
+			if(obj)
+			{
+		 		LLSelectMgr::getInstance()->selectObjectOnly(obj);
+				show_floater("export list");
+			}
+		}
+		else 
+		{
+			LLFloaterChat::addChat(entry->getName()+" is out of range, move closer");
+		}
+
+	}
+}
+
+static	void save_wavefront_continued(WavefrontSaver* wfsaver, AIFilePicker* filepicker)
+{
+	if (filepicker->hasFilename())
+	{
+		const std::string selected_filename = filepicker->getFilename();
+		if (LLFILE* fp = LLFile::fopen(selected_filename, "wb"))
+		{
+			wfsaver->saveFile(fp);
+			llinfos << "OBJ file saved to " << selected_filename << llendl;
+			if (gSavedSettings.getBOOL("OBJExportNotifySuccess"))
+				LLNotificationsUtil::add("WavefrontExportSuccess", LLSD().with("FILENAME", selected_filename));
+			fclose(fp);
+		}
+		else llerrs << "can't open: " << selected_filename << llendl;
+	}
+	else llwarns << "No file; bailing" << llendl;
+
+	delete wfsaver;
+}
+
+void LLFloaterAvatarList::context_export_obj()
+{
+	LLScrollListItem* item = mAvatarList->getFirstSelected();
+	if (!item) return;
+
+	LLUUID agent_id = item->getUUID();
+	LLAvatarListEntry* entry = getAvatarEntry(agent_id);
+	if (entry && agent_id.notNull())
+	{
+		BOOL enabled = entry->mStats[STAT_TYPE_DRAW];
+		if(enabled) 
+		{
+			LLVOAvatar *avatar = gObjectList.findAvatar(agent_id);
+			if(avatar)
+			{
+		 		WavefrontSaver* wfsaver = new WavefrontSaver; // deleted in callback
+				wfsaver->Add(avatar);
+				if (!wfsaver->obj_v.empty())
+				{
+					AIFilePicker* filepicker = AIFilePicker::create();
+					filepicker->open(avatar->getFullname()+".obj");
+					filepicker->run(boost::bind(save_wavefront_continued, wfsaver, filepicker));
+				}
+
+			}
+		}
+		else 
+		{
+			LLFloaterChat::addChat(entry->getName()+" is out of range, move closer");
+		}
+
+	}
+}
+
+void LLFloaterAvatarList::context_avtextures()
+{
+	LLScrollListItem* item = mAvatarList->getFirstSelected();
+	if (!item) return;
+
+	LLUUID agent_id = item->getUUID();
+	LLAvatarListEntry* entry = getAvatarEntry(agent_id);
+	if (entry && agent_id.notNull())
+	{
+		BOOL enabled = entry->mStats[STAT_TYPE_DRAW];
+		if(enabled) 
+		{
+			LLFloaterAvatarTextures::show(agent_id);
+		}
+		else 
+		{
+			LLFloaterChat::addChat(entry->getName()+" is out of range, move closer");
+		}
+
+	}
+}
+
+void LLFloaterAvatarList::context_textures()
+{
+	LLScrollListItem* item = mAvatarList->getFirstSelected();
+	if (!item) return;
+
+	LLUUID agent_id = item->getUUID();
+	LLAvatarListEntry* entry = getAvatarEntry(agent_id);
+	if (entry && agent_id.notNull())
+	{
+		BOOL enabled = entry->mStats[STAT_TYPE_DRAW];
+		if(enabled) 
+		{
+			LLViewerObject *obj = gObjectList.findObject(agent_id);
+			if(obj)
+			{
+		 		LLSelectMgr::getInstance()->selectObjectOnly(obj);
+				show_floater("inspect textures");
+			}
+		}
+		else 
+		{
+			LLFloaterChat::addChat(entry->getName()+" is out of range, move closer");
+		}
+
+	}
+}
+
+void LLFloaterAvatarList::context_animations()
+{
+	LLScrollListItem* item = mAvatarList->getFirstSelected();
+	if (!item) return;
+
+	LLUUID agent_id = item->getUUID();
+	LLAvatarListEntry* entry = getAvatarEntry(agent_id);
+	if (entry && agent_id.notNull())
+	{
+		BOOL enabled = entry->mStats[STAT_TYPE_DRAW];
+		if(enabled) 
+		{
+			new LLFloaterExploreAnimations(agent_id);
+		}
+		else 
+		{
+			LLFloaterChat::addChat(entry->getName()+" is out of range, move closer");
+		}
+
+	}
+}
+
+void LLFloaterAvatarList::context_avhuds()
+{
+	LLScrollListItem* item = mAvatarList->getFirstSelected();
+	if (!item) return;
+
+	LLUUID agent_id = item->getUUID();
+	LLAvatarListEntry* entry = getAvatarEntry(agent_id);
+	if (entry && agent_id.notNull())
+	{
+		BOOL enabled = entry->mStats[STAT_TYPE_DRAW];
+		if(enabled) 
+		{
+			LLViewerObject *obj = gObjectList.findObject(agent_id);
+			if(obj)
+			{
+		 		LLSelectMgr::getInstance()->selectObjectOnly(obj);
+				LLFloaterAttachments* floater = new LLFloaterAttachments();
+				floater->center();
+			}
+		}
+		else 
+		{
+			LLFloaterChat::addChat(entry->getName()+" is out of range, move closer");
+		}
+
+	}
+}
+//< /os>
 
 void LLFloaterAvatarList::onClickIM()
 {

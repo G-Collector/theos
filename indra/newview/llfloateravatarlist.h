@@ -315,6 +315,16 @@ public:
 	void onClickFocus();
 	void onClickGetKey();
 
+	/**
+	*Context Menu
+	*/
+	void context_export();
+	void context_export_obj();
+	void context_avtextures();
+	void context_textures();
+	void context_animations();
+	void context_avhuds();
+
 	void onSelectName();
 	void onCommitUpdateRate();
 
