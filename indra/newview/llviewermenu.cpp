@@ -8979,12 +8979,10 @@ class LLAvatarSaveAs : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
-		if (avatar)
-		{
-			show_floater("export list");
-		}
-	 return true;
+		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if(!obj)return true;
+		show_floater("export list");
+		return true;
 	}
 };
 

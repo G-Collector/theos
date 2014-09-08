@@ -509,17 +509,29 @@ void OSFloaterExport::addObjectStuff()
 	
 		if(mExportList->getItemIndex(objectp->getID()) == -1)
 		{
-			bool is_attachment = false;
 			bool is_root = true;
+			bool is_attachment = false;
 			LLViewerObject* parentp = objectp->getSubParent();
 			if(parentp)
 			{
 				if(!parentp->isAvatar())
-				// parent must be a prim.
+				{
+					// parent is a prim I guess
 					is_root = false;
+				}
 				else
-				// parent is an avatar.
+				{
+					// parent is an avatar
 					is_attachment = true;
+					if(!avatars[parentp]) 
+					{
+						avatars[parentp] = true;
+						mObjectID = parentp->getID();
+						mIsAvatar = true;
+						addAvatarStuff((LLVOAvatar*)parentp);
+						break;
+					}
+				}
 			}
 
 			bool is_prim = true;
