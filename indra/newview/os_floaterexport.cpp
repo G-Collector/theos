@@ -745,7 +745,8 @@ void OSFloaterExport::onClickSaveAs_Callback(OSFloaterExport* floater, AIFilePic
 		while(!textures.empty())
 		{
 			llinfos << "Requesting texture " << textures.front().asString() << llendl;
-			LLViewerTexture* img = gTextureList.findImage(textures.front());
+			//LLViewerTexture* img = gTextureList.findImage(textures.front());
+			LLViewerFetchedTexture* img = LLViewerTextureManager::getFetchedTexture(textures.front(), MIPMAP_TRUE);
 		    img->setBoostLevel(LLViewerTexture::BOOST_MAX_LEVEL);
 
 		    CacheReadResponder* responder = new CacheReadResponder(textures.front(), std::string(path + textures.front().asString() + ".j2c"));
