@@ -140,9 +140,9 @@ LLFloaterAbout::LLFloaterAbout()
 		+ " (64 bit)"
 #endif
 		+ llformat(" %d.%d.%d (%d) %s %s (%s)\n",
-		gVersionMajor, gVersionMinor, gVersionPatch, gVersionBuild,
+		gVersionMajor(), gVersionMinor(), gVersionPatch(), gVersionBuild(),
 		__DATE__, __TIME__,
-		gVersionChannel));
+		gVersionChannel().c_str()));
 	support_widget->appendColoredText(version, FALSE, FALSE, gColors.getColor("TextFgReadOnlyColor"));
 	support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, viewer_link_style);
 

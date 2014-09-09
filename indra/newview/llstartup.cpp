@@ -687,9 +687,9 @@ bool idle_startup()
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
-				   gVersionMajor,
-				   gVersionMinor,
-				   gVersionPatch,
+				   gVersionMajor(),
+				   gVersionMinor(),
+				   gVersionPatch(),
 				   FALSE,
 				   std::string(),
 				   responder,

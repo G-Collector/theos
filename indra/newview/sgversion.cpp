@@ -20,13 +20,38 @@
 #include "llversionviewer.h"
 
 #include "sgversion.h"
+#include "llviewercontrol.h"
 
-const S32 gVersionMajor = LL_VERSION_MAJOR;
-const S32 gVersionMinor = LL_VERSION_MINOR;
-const S32 gVersionPatch = LL_VERSION_PATCH;
-const S32 gVersionBuild = LL_VERSION_BUILD;
 
-const char* gVersionChannel = LL_CHANNEL;
+std::string gVersionChannel()
+{
+	static LLCachedControl<std::string> SpecifiedChannel("SpecifiedChannel");
+	return SpecifiedChannel;
+}
+
+S32 gVersionMajor()
+{
+	static LLCachedControl<U32> SpecifiedVersionMaj("SpecifiedVersionMaj",LL_VERSION_MAJOR);
+	return (S32)SpecifiedVersionMaj;
+}
+
+S32 gVersionMinor()
+{
+	static LLCachedControl<U32> SpecifiedVersionMin("SpecifiedVersionMin",LL_VERSION_MINOR);
+	return (S32)SpecifiedVersionMin;
+}
+
+S32 gVersionPatch()
+{
+	static LLCachedControl<U32> SpecifiedVersionPatch("SpecifiedVersionPatch",LL_VERSION_PATCH);
+	return (S32)SpecifiedVersionPatch;
+}
+
+S32 gVersionBuild()
+{
+	static LLCachedControl<U32> SpecifiedVersionBuild("SpecifiedVersionBuild",LL_VERSION_BUILD);
+	return (S32)SpecifiedVersionBuild;
+}
 
 #if LL_DARWIN
 const char* gVersionBundleID = LL_VERSION_BUNDLE_ID;

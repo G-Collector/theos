@@ -215,11 +215,11 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 {
 	LLSD substitution = default_subs;
 	substitution["VERSION"] = gCurrentVersion;
-	substitution["VERSION_MAJOR"] = gVersionMajor;
-	substitution["VERSION_MINOR"] = gVersionMinor;
-	substitution["VERSION_PATCH"] = gVersionPatch;
-	substitution["VERSION_BUILD"] = gVersionBuild;
-	substitution["CHANNEL"] = gVersionChannel;
+	substitution["VERSION_MAJOR"] = gVersionMajor();
+	substitution["VERSION_MINOR"] = gVersionMinor();
+	substitution["VERSION_PATCH"] = gVersionPatch();
+	substitution["VERSION_BUILD"] = gVersionBuild();
+	substitution["CHANNEL"] = gVersionChannel().c_str();
 	const HippoGridInfo* grid(gHippoGridManager->getCurrentGrid());
 	std::string gridId(grid->isSecondLife() ? getLoginUriDomain() : grid->getGridName());
 	if (grid->isSecondLife())

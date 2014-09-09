@@ -18,13 +18,12 @@
 #ifndef SGVERSION_H
 #define SGVERSION_H
 
-extern const S32 gVersionMajor;
-extern const S32 gVersionMinor;
-extern const S32 gVersionPatch;
-extern const S32 gVersionBuild;
+std::string gVersionChannel();
 
-extern const char* gVersionChannel;
-
+S32 gVersionMajor();
+S32 gVersionMinor();
+S32 gVersionPatch();
+S32 gVersionBuild();
 #if LL_DARWIN
 extern const char* gVersionBundleID;
 #endif

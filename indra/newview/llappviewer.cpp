@@ -764,11 +764,11 @@ bool LLAppViewer::init()
 
 	// Build a string representing the current version number.
     gCurrentVersion = llformat("%s %d.%d.%d.%d",
-        gVersionChannel,
-        gVersionMajor,
-        gVersionMinor,
-        gVersionPatch,
-        gVersionBuild );
+        gVersionChannel().c_str(),
+        gVersionMajor(),
+        gVersionMinor(),
+        gVersionPatch(),
+        gVersionBuild() );
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -2158,7 +2158,7 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("ClientSettingsFile", 
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
 
-	gSavedSettings.setString("VersionChannelName", gVersionChannel);
+	gSavedSettings.setString("VersionChannelName", gVersionChannel().c_str());
 
 #if 0 //#ifndef	LL_RELEASE_FOR_DOWNLOAD
 	// provide developer build only overrides for these control variables that are not
@@ -2650,11 +2650,11 @@ void LLAppViewer::writeSystemInfo()
     
 	gDebugInfo["SLLog"] = LLError::logFileName();
 
-	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel;
-	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild;
+	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel().c_str();
+	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor();
+	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor();
+	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild();
 #if defined(_WIN64) || defined(__x86_64__)
 	gDebugInfo["ClientInfo"]["Architecture"] = "x86_64";
 #else
@@ -2701,7 +2701,7 @@ void LLAppViewer::writeSystemInfo()
 	
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << LLTrans::getString("APP_NAME")
-			<< " version " << gVersionMajor << "." << gVersionMinor << "." << gVersionPatch
+			<< " version " << gVersionMajor() << "." << gVersionMinor() << "." << gVersionPatch()
 			<< LL_ENDL;
 
 	// Dump the local time and time zone
@@ -2762,12 +2762,12 @@ void LLAppViewer::handleViewerCrash()
 	
 	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
 	//to check against no matter what
-	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel;
+	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel().c_str();
 
-	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor();
+	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor();
+	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild();
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])
@@ -4735,12 +4735,12 @@ void LLAppViewer::handleLoginComplete()
 	initMainloopTimeout("Mainloop Init");
 
 	// Store some data to DebugInfo in case of a freeze.
-	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel;
+	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel().c_str();
 
-	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor();
+	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor();
+	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild();
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])

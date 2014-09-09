@@ -609,10 +609,10 @@ LLSD LLFloaterReporter::gatherReport()
 
 	std::ostringstream details;
 
-	details << "V" << gVersionMajor << "."	// client version moved to body of email for abuse reports
-		<< gVersionMinor << "."
-		<< gVersionPatch << "."
-		<< gVersionBuild << std::endl << std::endl;
+	details << "V" << gVersionMajor() << "."	// client version moved to body of email for abuse reports
+		<< gVersionMinor() << "."
+		<< gVersionPatch() << "."
+		<< gVersionBuild() << std::endl << std::endl;
 
 	std::string object_name = getChild<LLUICtrl>("object_name")->getValue().asString();
 	if (!object_name.empty() && !mOwnerName.empty())
@@ -630,9 +630,9 @@ LLSD LLFloaterReporter::gatherReport()
 	std::string version_string;
 	version_string = llformat(
 			"%d.%d.%d %s %s %s %s",
-			gVersionMajor,
-			gVersionMinor,
-			gVersionPatch,
+			gVersionMajor(),
+			gVersionMinor(),
+			gVersionPatch(),
 			platform,
 			gSysCPU.getFamily().c_str(),
 			gGLManager.mGLRenderer.c_str(),

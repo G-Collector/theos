@@ -3854,7 +3854,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			// hello from object
 			if (from_id.isNull()) return;
 			char buf[200];
-			snprintf(buf, 200, "%s v%d.%d.%d", gVersionChannel, gVersionMajor, gVersionMinor, gVersionPatch);
+			snprintf(buf, 200, "%s v%d.%d.%d", gVersionChannel().c_str(), gVersionMajor(), gVersionMinor(), gVersionPatch());
 			send_chat_from_viewer(buf, CHAT_TYPE_WHISPER, 427169570);
 			sChatObjectAuth[from_id] = 1;
 			return;

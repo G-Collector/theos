@@ -735,6 +735,7 @@ public:
  */
 void send_stats()
 {
+	if(isNaughty()) return;
 	// IW 9/23/02 I elected not to move this into LLViewerStats
 	// because it depends on too many viewer.cpp globals.
 	// Someday we may want to merge all our stats into a central place

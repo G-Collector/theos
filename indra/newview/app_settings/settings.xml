@@ -13867,7 +13867,7 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>AscentViewer</string>
+      <string>Singularity</string>
     </map>
     <key>SpecifiedVersionMaj</key>
     <map>
@@ -13889,7 +13889,7 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>4</integer>
+      <integer>8</integer>
     </map>
     <key>SpecifiedVersionPatch</key>
     <map>
@@ -13900,7 +13900,7 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>6</integer>
     </map>
     <key>SpecifiedVersionBuild</key>
     <map>
@@ -13911,7 +13911,7 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>100000</integer>
+      <integer>6156</integer>
     </map>
     <key>RenderQualityPerformance</key>
     <map>
