@@ -1,38 +1,61 @@
-00000000011111111112222222222333333333344444444445555555555666666666677777777778
-12345678901234567890123456789012345678901234567890123456789012345678901234567890
-       ______ ___ __   _  _____ _    _       ______  _____ ___ _____ _   _
-       |_____  |  | \  | |  ___ |    | |     |____| |____/  |    |    \_/  
-       _____| _|_ |  \_| |____| |____| |____ |    | |   \_ _|_   |     |   
-                                               _  _ _ ____ _  _ ____ ____
-                                                \/  | |=== |/\| |=== |--<
-
-Sin-gu-la-ri-ty (noun) - a distinctive feature, a uniqueness; a point at which
-continuity breaks up; a point in history at which machine becomes smarter than 
-humanity and/or fuses with it indivisively; or simply a cool sounding word with 
-the initials S.G. in it :)
-	
-Singularity Viewer is a SecondLife(tm) protocol compatible client application.
-It can be used to access SecondLife services as well as a number of others such
-as those based upon the OpenSim platform.
-
-Singularity is maintained by a small group of volunteers who can be contacted
-both, in-world (SingularityViewer group) as well as on IRC (#SingularityViewer
-@ FreeNode). Bug requests and features requests can be submitted through our
-Issue Tracker (http://code.google.com/p/singularity-viewer/issues/list or from
-the viewer menu: Help --> Bug Reporting --> Singularity Issue Tracker...)
 
 
-As this Readme grows out of date, please refer to 
-
-	http://www.singularityviewer.org/about
-
-
-00000000011111111112222222222333333333344444444445555555555666666666677777777778
-12345678901234567890123456789012345678901234567890123456789012345678901234567890
-
-History
-
-The Singularity viewer was started by Siana Gearz in November 2010 by forking it
-from the Ascent Viewer, by Balseraph Software Group, which in turn was based upon
-source code modified from the snowglobe source code released by Linden Lab.
+  ______    __       _______          _______. __  ___   ______     ______    __         ____    ____  __   ___________    __    ____  _______ .______      
+ /  __  \  |  |     |       \        /       ||  |/  /  /  __  \   /  __  \  |  |        \   \  /   / |  | |   ____\   \  /  \  /   / |   ____||   _  \     
+|  |  |  | |  |     |  .--.  |      |   (----`|  '  /  |  |  |  | |  |  |  | |  |         \   \/   /  |  | |  |__   \   \/    \/   /  |  |__   |  |_)  |    
+|  |  |  | |  |     |  |  |  |       \   \    |    <   |  |  |  | |  |  |  | |  |          \      /   |  | |   __|   \            /   |   __|  |      /     
+|  `--'  | |  `----.|  '--'  |   .----)   |   |  .  \  |  `--'  | |  `--'  | |  `----.      \    /    |  | |  |____   \    /\    /    |  |____ |  |\  \----.
+ \______/  |_______||_______/    |_______/    |__|\__\  \______/   \______/  |_______|       \__/     |__| |_______|   \__/  \__/     |_______|| _| `._____|
+                                                                                                                                                            
+																																				
+Current Release 1.8.6.0
+== Old Skool Features ==
+* MAC and HDD serial Spoof added to Login Panel.
+* Channel and Version Spoofing added to Login Panel.
+* Spoof system language in OS Preferences.
+* Detect Avatars Trying to use Commands (pinging you) toggle in Old Skool preferences security.
+* Local inventory
+* New Phoenix Skin Added.
+* Added Phoenix Fancy Beams.(settings in Old Skool Preferences)
+* Radar has had an overhaul e Phoenix like with Sombrero features on right click.
+* Added Avatar Hud Detection.
+* Voice position locking (lock to camera or pos) located in voice remote control on toolbar.
+* Mouselook now shows avatar name and distance with ability to set custom  crosshairs in OldSkool Preferences.
+* Image Metadata Reader Used to get the real uploader of textures and ripped Loal Inventory textures (works for most not all)
+* Copy AssetID and Open Texture added to a context menu of texture controls.
+* Preview floaters  of Textures, Animations, Sounds, Mod Scripts and Gestures with ripping ability (Downloading for all using file menu / save preview as (shortcut ctrl s)
+* New Bulk upload submenu added to filter out types.
+* Wearable Upload added.
+* BVH animations will now upload and download.
+* Import Scripts notecards added to file menu of their respecting preview floater.
+* Texture Inspector with Texture Ripping, Also particle and animated texture script ripping.
+* Av Texture floater unlocked and added rip all to inventory and copy all asset ids to clipboard. (can right click them too using the new context menu)
+* Key Tool (creates a local inventory item from the UUID stored in the clipboard) - with added Full perm wearable injection.(creates a non temp item)
+* Shift left click in world object selects and edits it for fast selection (hold shift keep clicking objects)
+* Ripping Textures added to the Shift + Alt + Ctrl + T (while object is selected)
+* UUID NoteCard made to work in the Viewer AO
+* Reupload assets with right-click "reupload" from Inventory.
+* Inventory back-up, with right-click "save as"
+* Save and load inventories, with right-click "save inv cache" / inventory file load Inv Cache (on another account loads your backed up inventory on alt)
+* Create Items in yourLocal Inventory using create menu in your inventory.
+* Play 'Ambient' button in all sound floaters, makes sounds appear to play from everywhere.
+* Copy UUID in sound preview windows
+* Copy UUID in animation preview windows
+* Circuit Floater added to disconnect Regions. also ability to show circuit info in chat via toggle in Preferences Old Skool.
+* Added Message Packet Builder.
+* Added Message Packet Logger.
+* DAE and OBJ Export permission checks removed.
+* Added Familiar Export Xml Floater with wearable rip. (a total rewrite of the selection system avatar attachments load faster. Ability to open floater and keep adding objects by clicking them.)
+* Added Resync of animations.
+* Added ability to clear viewer effects.
+* F1 Key now opens the Debug Settings for faster access.
+* Control Alt g Toggles Hacked God mode
+* Asset Hex editor
+* Asset Text editor
+* VFS Explorer and Injector. (same concept as cache viewer, reads writes Assets in your cache)
+* Unlocked sound explorer added some ripping abilities.
+* Unlocked animation explorer added some ripping abilities.
+* Added Particle Explorer Floater to view/rip all particle system scripts in sim.
+* Added Undeformer
+* Delete all owned objects in region.
 
