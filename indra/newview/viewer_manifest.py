@@ -159,7 +159,7 @@ class ViewerManifest(LLManifest):
                  "oldskool":'OldSkool'}
         return mapping[self.viewer_branding_id()]
     def installer_prefix(self):
-        return self.channel_oneword() + "_"
+        return mapping[self.viewer_branding_id()] + "_"
 
     def flags_list(self):
         """ Convenience function that returns the command-line flags
@@ -652,7 +652,7 @@ class DarwinManifest(ViewerManifest):
                                  { 'viewer_binary' : self.dst_path_of('Contents/MacOS/'+self.app_name())})
 
     def app_name(self):
-        return self.channel_oneword()
+        return mapping[self.viewer_branding_id()]
 
     def package_finish(self):
         channel_standin = self.app_name()
