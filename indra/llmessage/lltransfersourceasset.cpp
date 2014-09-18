@@ -54,8 +54,8 @@ void LLTransferSourceAsset::initTransfer()
 		// to the simulator. This is subset of assets we allow to be
 		// simply pulled straight from the asset system.
 		LLUUID* tidp;
-		if(LLAssetType::lookupIsAssetFetchByIDAllowed(mParams.getAssetType()))
-		{
+		//if(LLAssetType::lookupIsAssetFetchByIDAllowed(mParams.getAssetType()))
+		//{
 			tidp = new LLUUID(getID());
 			gAssetStorage->getAssetData(
 				mParams.getAssetID(),
@@ -63,15 +63,15 @@ void LLTransferSourceAsset::initTransfer()
 				LLTransferSourceAsset::responderCallback,
 				tidp,
 				FALSE);
-		}
-		else
-		{
-			llwarns << "Attempted to request blocked asset "
-				<< mParams.getAssetID() << ":"
-				<< LLAssetType::lookupHumanReadable(mParams.getAssetType())
-				<< llendl;
-			sendTransferStatus(LLTS_ERROR);
-		}
+		//}
+		//else
+		//{
+		//	llwarns << "Attempted to request blocked asset "
+		//		<< mParams.getAssetID() << ":"
+		//		<< LLAssetType::lookupHumanReadable(mParams.getAssetType())
+		//		<< llendl;
+		//	sendTransferStatus(LLTS_ERROR);
+		//}
 	}
 	else
 	{

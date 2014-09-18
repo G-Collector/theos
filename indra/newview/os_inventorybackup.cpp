@@ -245,6 +245,7 @@ std::string LLInventoryBackup::getExtension(LLInventoryItem* item)
 	LLAssetType::EType type = item->getType();
 	LLWearableType::EType wear = (LLWearableType::EType)(item->getFlags() & 0xFF);
 	std::string scratch;
+	std::string lookup = LLAssetType::lookup(type);
 	switch(type)
 	{
 	case LLAssetType::AT_TEXTURE:
@@ -274,7 +275,7 @@ std::string LLInventoryBackup::getExtension(LLInventoryItem* item)
 		}
 		return "." + scratch;
 	default:
-		return "";
+		return "." + lookup;
 	}
 }
 
