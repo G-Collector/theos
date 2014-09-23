@@ -6,6 +6,12 @@
 	<button bottom="-370" enabled="true" follows="left|bottom" font="SansSerif"
 	     halign="center" height="20" label="Get Items" label_selected="Get Items" left_delta="120"
 	     mouse_opaque="false" name="Get Items" scale_image="true" width="100" />
+  <button bottom="-370" enabled="true" follows="left|bottom" font="SansSerif"
+	     halign="center" height="20" label="Import" label_selected="Import" left_delta="120"
+	     mouse_opaque="false" name="Import" scale_image="true" width="100" />
+  <button bottom="-370" enabled="true" follows="left|bottom" font="SansSerif"
+	     halign="center" height="20" label="Export" label_selected="Export" left_delta="120"
+	     mouse_opaque="false" name="Export" scale_image="true" width="100" />
 	<!--<check_box follows="left|bottom" bottom_delta="0" left_delta="110" name="https_chk" label="Saves via HTTPS" />-->
 	<icon bottom="-19" color="1 1 1 1" enabled="true" follows="top|right" height="16"
 	     image_name="icon_lock.tga" left="344" mouse_opaque="true" name="lock"
@@ -24,12 +30,7 @@
 	<menu_bar bottom="-56" drop_shadow="false" enabled="true" follows="left|top|right"
 	     height="18" left="8" mouse_opaque="false" name="motecard_menu" opaque="false"
 	     tear_off="false" width="220">
-    <menu label="File" name="File" tear_off="false">
-      <menu_item_separator/>
-      <menu_item_call label="Import Notecard..." name="Import Notecard..."/>
-    </menu>
 		<menu label="Edit" name="Edit" tear_off="false">
-      <menu_item_separator/>
 			<menu_item_call label="Undo" name="Undo" shortcut="control|Z"/>
 			<menu_item_call label="Redo" name="Redo" shortcut="control|Y"/>
 			<menu_item_separator/>

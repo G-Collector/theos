@@ -109,11 +109,10 @@ protected:
 							   void* user_data, S32 status, LLExtStat ext_status);
 
 	static void onClickSave(void* data);
-	// <os>
-	static void	onLoadFromDisc(void*);
-	void        onLoadFromDisc_continued(AIFilePicker* filepicker);
-	// </os>
+	// <edit>
 	static void onClickGetItems(void* data);
+	static void onClickExportText(void* data);
+	static void onClickImportText(void* data);
 
 	static void onSaveComplete(const LLUUID& asset_uuid,
 							   void* user_data,
@@ -125,6 +124,9 @@ protected:
 
 	void			initMenu();
 
+	static void		onSaveMenu(void* userdata);
+	static void		onExportTextMenu(void* userdata);
+	static void		onImportTextMenu(void* userdata);
 	static void		onSearchMenu(void* userdata);
 	static void		onUndoMenu(void* userdata);
 	static void		onRedoMenu(void* userdata);
@@ -134,6 +136,9 @@ protected:
 	static void		onSelectAllMenu(void* userdata);
 	static void		onDeselectMenu(void* userdata);
 
+	static BOOL		enableSaveMenu(void* userdata);
+	static BOOL		enableExportTextMenu(void* userdata);
+	static BOOL		enableImportTextMenu(void* userdata);
 	static BOOL		enableUndoMenu(void* userdata);
 	static BOOL		enableRedoMenu(void* userdata);
 	static BOOL		enableCutMenu(void* userdata);
@@ -155,6 +160,7 @@ protected:
 	virtual BOOL canSaveAs() const;
 	virtual void saveAs();
 	void saveAs_continued(AIFilePicker* filepicker);
+	void onImportText_continued(AIFilePicker* filepicker);
 	// </edit>
 };
 

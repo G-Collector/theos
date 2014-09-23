@@ -786,12 +786,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				//items.push_back(std::string("Magic Get"));
 			}
 
-			if ( LLAssetType::AT_NOTECARD == obj->getType() )//its crashing on notecards can use text editor anyway.
-			{
-				disabled_items.push_back("Reupload");
-			// </os>
-			}
-
 			items.push_back(std::string("Copy Separator"));
 
 			items.push_back(std::string("Copy"));

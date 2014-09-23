@@ -115,6 +115,9 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 		LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_notecard.xml");
 		// <edit>
 		childSetAction("Get Items", onClickGetItems, this);
+		childSetAction("Export", onClickExportText, this);
+		childSetAction("Import", onClickImportText, this);
+		
 		// </edit>
 
 		if( mAssetID.isNull() )
@@ -288,7 +291,7 @@ void LLPreviewNotecard::loadAsset()
 	{
 		if (gAgent.allowOperation(PERM_COPY, item->getPermissions(),
 									GP_OBJECT_MANIPULATE)
-			|| gAgent.isGodlike() || isNaughty()) // </os>
+			|| gAgent.isGodlike())
 		{
 			mAssetID = item->getAssetUUID();
 			if(mAssetID.isNull())
@@ -497,6 +500,47 @@ void LLPreviewNotecard::onClickGetItems(void* user_data)
 				#endif
 			}
 		}
+	}
+}
+
+//static 
+void LLPreviewNotecard::onClickExportText(void* userdata)
+{
+	LLPreviewNotecard* self = static_cast<LLPreviewNotecard*>(userdata);
+	if (self) self->saveAs();
+}
+
+//static 
+void LLPreviewNotecard::onClickImportText(void* userdata)
+{
+	LLPreviewNotecard* self = static_cast<LLPreviewNotecard*>(userdata);
+	if (!self) return;
+
+	AIFilePicker* file_picker = AIFilePicker::create();
+	file_picker->open(FFLOAD_NOTECARD);
+	file_picker->run(boost::bind(&LLPreviewNotecard::onImportText_continued, self, file_picker));
+}
+
+void LLPreviewNotecard::onImportText_continued(AIFilePicker* file_picker)
+{
+	if (!file_picker->hasFilename())
+	{
+		return;
+	}
+	const std::string filename = file_picker->getFilename();
+	if (LLViewerTextEditor* editor = findChild<LLViewerTextEditor>("Notecard Editor"))
+	{
+		std::ifstream fin(filename.c_str());
+		editor->clear();		
+		std::string line;
+		while (!fin.eof())
+		{ 
+			getline(fin, line);
+			line = line + "\n";
+			editor->insertText(line);
+		}
+		fin.close();
+		saveIfNeeded();
 	}
 }
 // </edit>
@@ -750,59 +794,6 @@ void LLPreviewNotecard::saveAs_continued(AIFilePicker* filepicker)
 	export_file.close();
 }
 
-//<os>
-void LLPreviewNotecard::onLoadFromDisc( void* data )
-{
-	LLPreviewNotecard* self = (LLPreviewNotecard*) data;
-	
-	AIFilePicker* file_picker = AIFilePicker::create();
-	file_picker->open(FFLOAD_NOTECARD);
-	file_picker->run(boost::bind(&LLPreviewNotecard::onLoadFromDisc_continued, self, file_picker));
-}
-
-void LLPreviewNotecard::onLoadFromDisc_continued(AIFilePicker* file_picker)
-{
-	if (!file_picker->hasFilename())
-	{
-		return;
-	}
-	LLPreviewNotecard* preview = (LLPreviewNotecard*)this;
-	if (preview)
-	{
-	LLViewerTextEditor* editor = preview->getChild<LLViewerTextEditor>("Notecard Editor");
-	std::string filename = file_picker->getFilename();
-	S32 file_size;
-		LLAPRFile infile(filename, LL_APR_RB, &file_size);
-		apr_file_t* fp = infile.getFileHandle();
-		if (!fp)
-		{
-			llwarns << "Can't open the file: " << filename << llendl;	
-		}
-		else
-		{
-			char*	file_buffer;
-
-			file_buffer = new char[file_size + 1];
-
-			if (file_size == infile.read(file_buffer, file_size))
-			{
-				file_buffer[file_size] = 0;
-				if(!editor->importBuffer( file_buffer, file_size+1 ))
-				{
-					llinfos << "wtf IMPORT fail" << llendl;
-				}else
-				{
-					editor->setEnabled(1);
-				}
-			}
-			delete[] file_buffer;
-			file_buffer = NULL;
-		}
-		infile.close();
-	}
-}
-// </os>
-
 LLUUID LLPreviewNotecard::getNotecardItemID()
 {
 	return mNotecardItemID;
@@ -832,13 +823,7 @@ LLTextEditor* LLPreviewNotecard::getEditor()
 
 void LLPreviewNotecard::initMenu()
 {
-	// <os>
-	LLMenuItemCallGL* menuItem = getChild<LLMenuItemCallGL>("Import Notecard...");
-	menuItem->setMenuCallback(onLoadFromDisc, this);
-	menuItem->setEnabledCallback(NULL);
-	// <os>
-	
-	menuItem = getChild<LLMenuItemCallGL>("Undo"); // </os>
+	LLMenuItemCallGL* menuItem = getChild<LLMenuItemCallGL>("Undo");
 	menuItem->setMenuCallback(onUndoMenu, this);
 	menuItem->setEnabledCallback(enableUndoMenu);
 
