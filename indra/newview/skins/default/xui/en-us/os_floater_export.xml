@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="true"
-     can_resize="true" height="400" width="310" min_width="310" min_height="200"  
+     can_resize="true" height="400" width="310" min_width="310" min_height="200"
      name="export list" title="Export...">
   <scroll_list bottom="76" can_resize="true" column_padding="0" draw_heading="false"
      follows="left|top|bottom|right" left="10" multi_select="true"
@@ -10,9 +10,11 @@
     <column name="checked" width="20" />
     <column name="type" width="20" />
     <column dynamicwidth="true" label="Name" name="name" />
+    <column name="desc" width="0" />
+    <column name="local" width="0" />
     <column name="avatarid" width="0" />
   </scroll_list>
-	<text bottom="50" left="10" width="100" height="20">Select/Deselect:</text>
+  <text bottom="50" left="10" width="100" height="20">Select/Deselect:</text>
 
   <button bottom="52" follows="bottom|left" font="SansSerif" halign="center"
 	     height="20" label="All" label_selected="All" left="110"
@@ -36,20 +38,21 @@
 		function="Export.SelectWearales" />
   </button>
 
-  <text bottom="25" left="10" width="250" height="20" name="names_progress_text"></text>
-  <check_box bottom="28" left="186" width="250" height="20" name="download_textures" label="Download Textures" initial_value="false"/>
+  <text bottom="40" left="10" width="250" height="16" name="names_progress_text"></text>
+  <check_box bottom="23" left="10" width="250" height="16" name="download_textures" label="Download Textures" initial_value="false"/>
+  <check_box bottom_delta="-16" left="10" width="250" height="20" name="export_inventory" label="Download Inventory" initial_value="false"/>
 
   <button bottom="8" follows="bottom|left" font="SansSerif" halign="center"
-	     height="20" label="Save As..." label_selected="All" left="10"
+	     height="20" label="Save As..." label_selected="All" left="152"
 	     mouse_opaque="true" name="save_as_btn"
-	     width="142" >
+	     width="145" >
     <button.commit_callback
 		function="Export.SaveAs" />
   </button>
-  <button bottom="8" follows="bottom|left" font="SansSerif" halign="center"
-	     height="20" label="Make Copy" label_selected="Make Copy" left="158"
+  <button bottom_delta="22" follows="bottom|left" font="SansSerif" halign="center"
+	     height="20" label="Make Copy" label_selected="Make Copy" left="152"
 	     mouse_opaque="true" name="make_copy_btn"
-	     width="142" >
+	     width="145" >
     <button.commit_callback
 		function="Export.Copy" />
   </button>

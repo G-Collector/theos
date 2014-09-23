@@ -9795,6 +9795,8 @@ void initialize_menus()
 	addMenu(new LLObjectReturn(), "Object.Return");
 	addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
 	// <edit>
+	addMenu(new LLObjectImport(), "Object.Import");
+	addMenu(new LLObjectEnableImport(), "Object.EnableImport");
 	addMenu(new LLObjectMeasure(), "Object.Measure");
 	addMenu(new LLObjectData(), "Object.Data");
 	addMenu(new LLScriptCount(), "Object.ScriptCount");

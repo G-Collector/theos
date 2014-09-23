@@ -152,6 +152,9 @@ void LLFloaterXmlImportOptions::onClickOK(void* user_data)
 	LLXmlImportOptions* opt = new LLXmlImportOptions(floaterp->mDefaultOptions);
 	opt->clear();
 	opt->mReplaceTexture = floaterp->childGetValue("upload_textures");
+	//inv
+	opt->mUploadInventory = floaterp->childGetValue("upload_inventory");
+	// inv
 	LLScrollListCtrl* list = floaterp->getChild<LLScrollListCtrl>("import_list");
 	std::vector<LLScrollListItem*> items = list->getAllData();
 	std::vector<LLScrollListItem*>::iterator item_end = items.end();
@@ -190,26 +193,51 @@ void LLFloaterXmlImportOptions::onClickOK(void* user_data)
 			}
 		}
 	}
-	if(opt->mReplaceTexture)
+	//inv
+	if(opt->mReplaceTexture||opt->mUploadInventory)
 	{
 		textures.unique();
 		if(!opt->mAssetDir.empty() && LLFile::isdir(opt->mAssetDir))
 		{
 			opt->mAssetDir.append(gDirUtilp->getDirDelimiter()); //lets add the Delimiter now
-			for(std::list<LLUUID>::iterator itr = textures.begin(); itr != textures.end(); ++itr)
+			if(opt->mReplaceTexture)
 			{
-				std::string filename = opt->mAssetDir + (*itr).asString() + ".j2c";
-				//llinfos << "Looking texture at " << filename << llendl;
-				if(LLFile::isfile(filename))
+				for(std::list<LLUUID>::iterator itr = textures.begin(); itr != textures.end(); ++itr)
 				{
-					//llinfos << "Found texture at " << filename << llendl;
-					LLImportAssetData* data = new LLImportAssetData(filename,(*itr),LLAssetType::AT_TEXTURE);
+					std::string filename = opt->mAssetDir + (*itr).asString() + ".j2c";
+					//llinfos << "Looking texture at " << filename << llendl;
+					if(LLFile::isfile(filename))
+					{
+						//llinfos << "Found texture at " << filename << llendl;
+						LLImportAssetData* data = new LLImportAssetData(filename,(*itr),LLAssetType::AT_TEXTURE);
 
-					opt->mAssets.push_back(data);
+						opt->mAssets.push_back(data);
+					}
+				}
+			}
+			if(opt->mUploadInventory)
+			{
+				LLSD inventory = opt->mLLSD;
+				for (LLSD::array_iterator inv = inventory.beginArray(); inv != inventory.endArray(); ++inv)
+				{
+					LLSD item = (*inv);
+					std::string filename = opt->mAssetDir + item["name"].asString() + "." + item["type"].asString();
+
+					if(LLFile::isfile(filename))
+					{
+						LLFloaterChat::print("file "+filename+" exists");
+						LLImportAssetData* data = new LLImportAssetData(filename,(LLUUID)item["asset_id"].asString(),LLAssetType::lookup(item["type"].asString()));
+						opt->mAssets.push_back(data);
+					}else
+					{
+						LLFloaterChat::print("file "+filename+" does not exist");
+						filename = "";
+						continue;
+					}
 				}
 			}
 		}
-	}
+	}   // inv
 	opt->mKeepPosition = floaterp->childGetValue("keep_position_check");
 	LLXmlImport::import(opt);
 	floaterp->close();

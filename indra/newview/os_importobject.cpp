@@ -34,6 +34,14 @@
 #include "llviewerobjectlist.h"
 #include "llsdutil_math.h"
 #include "llimagej2c.h"
+//inv
+#include "llwearablelist.h"
+#include "llvoavatarself.h"
+#include "lltooldraganddrop.h"
+#include "llviewermenufile.h"
+S32 sUploadAmount = 10;
+extern void wearable_callback(LLViewerWearable* old_wearable, void*);// <os> wearable callback.
+// inv
 // static vars
 bool LLXmlImport::sImportInProgress = false;
 bool LLXmlImport::sImportHasAttachments = false;
@@ -75,6 +83,9 @@ LLXmlImportOptions::LLXmlImportOptions(LLXmlImportOptions* options)
 	mSupplier = options->mSupplier;
 	mKeepPosition = options->mKeepPosition;
 	mAssetDir = options->mAssetDir;
+	//inv
+	mLLSD = options->mLLSD;
+	// inv
 	mID = options->mID;
 }
 LLXmlImportOptions::LLXmlImportOptions(std::string filename)
@@ -138,6 +149,12 @@ void LLXmlImportOptions::init(LLSD llsd)
 		}
 		else // assumed to be a prim
 			unsorted_objects.push_back(new LLImportObject(key, item));
+		//inv
+		if (item.has("contents"))
+		{
+			mLLSD = item["contents"];//inventory;
+		}
+		// inv
 	}
 	// Separate roots from children
 	int total_objects = (int)unsorted_objects.size();
@@ -161,12 +178,53 @@ LLImportAssetData::LLImportAssetData(std::string infilename,LLUUID inassetid,LLA
 	oldassetid = inassetid;
 	type = intype;
 	inv_type = LLInventoryType::defaultForAssetType(type);
-	name = inassetid.asString(); //use the original asset id as the name
+	//inv
+	name = gDirUtilp->getBaseFileName(infilename,true);//inassetid.asString(); //use the original asset id as the name
+	// inv
 	description = "";
 	filename = infilename;
 }
-//We dont need this yet, but its useful to have
-/*class LLImportTransferCallback : public LLInventoryCallback
+//inv
+LLViewerObject* findByLocalID(U32 local)
+{
+	S32 i;
+	S32 total = gObjectList.getNumObjects();
+
+	for (i = 0; i < total; i++)
+	{
+		LLViewerObject *objectp = gObjectList.getObject(i);
+		if (objectp)
+		{
+			if(objectp->getLocalID() == local)return objectp;
+		}
+	}
+	return NULL;
+}
+
+void insert(LLViewerInventoryItem* item, LLViewerObject* objectp, LLImportAssetData* data)
+{
+	if(!item)
+	{
+		return;
+	}
+	if(objectp)
+	{
+		LLToolDragAndDrop::dropScript(objectp,
+							item,
+							TRUE,
+							LLToolDragAndDrop::SOURCE_AGENT,
+							gAgent.getID());
+		LLFloaterChat::print("inserted.");
+	}
+	delete data;
+	//gImportTracker.asset_insertions -= 1;
+	//if(gImportTracker.asset_insertions == 0)
+	//{
+	//	gImportTracker.finish();
+	//}
+}
+
+class LLImportTransferCallback : public LLInventoryCallback
 {
 public:
         LLImportTransferCallback(LLImportAssetData* data)
@@ -175,12 +233,19 @@ public:
         }
         void fire(const LLUUID &inv_item)
         {
-		//add to the inventory inject array and inject after the prim has been made.
+			//add to the inventory inject array and inject after the prim has been made.
+			//LLFloaterChat::print("completed upload, inserting...");
+			//LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(inv_item);
+
+			//LLViewerObject* objectp = gObjectList.findObject(mParentId)
+
+			//LLViewerObject* objectp = findByLocalID(mData->localid);
+			//insert(item, objectp, mData);
         }
 private:
-        LLImportAssetData* data;
+        LLImportAssetData* mData;
 };
-*/
+// inv
 class LLImportInventoryResponder : public LLAssetUploadResponder
 {
 public:
@@ -252,50 +317,214 @@ public:
 			std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
 			if(!url.empty())
 			{
-				LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
-				if( !integrity_test->loadAndValidate( data->filename ) )
+				if(data->type==LLAssetType::AT_TEXTURE||data->type==LLAssetType::AT_TEXTURE_TGA) 
 				{
+					LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
+					if( !integrity_test->loadAndValidate( data->filename ) )
+					{
 					llinfos << "Image: " << data->filename << " is corrupt." << llendl;
 				}
+			}
+			S32 file_size;
+			LLAPRFile infile ;
+			infile.open(data->filename, LL_APR_RB, LLAPRFile::short_lived, &file_size);
+			if (infile.getFileHandle())
+			{
+				LLVFile file(gVFS, data->assetid, data->type, LLVFile::WRITE);
+				file.setMaxSize(file_size);
+				const S32 buf_size = 65536;
+				U8 copy_buf[buf_size];
+				while ((file_size = infile.read(copy_buf, buf_size)))
+				{
+					file.write(copy_buf, file_size);
+				}
+				LLSD body;
+				body["folder_id"] = data->folderid;
+				body["asset_type"] = LLAssetType::lookup(data->type);
+				body["inventory_type"] = LLInventoryType::lookup(data->inv_type);
+				body["name"] = data->name;
+				body["description"] = data->description;
+				body["next_owner_mask"] = LLSD::Integer(U32_MAX);
+				body["group_mask"] = LLSD::Integer(U32_MAX);
+				body["everyone_mask"] = LLSD::Integer(U32_MAX);
+				body["expected_upload_cost"] = LLSD::Integer(LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+				LLHTTPClient::post(url, body, new LLImportInventoryResponder(body, data->assetid, data->type,data));
+			}
+		}
+		else
+				llinfos << "NewFileAgentInventory does not exist!!!!" << llendl;
+		}
+		else
+			LLXmlImport::finish_init();
+			//add to the inventory inject array and inject after the prim has been made.
+			//LLFloaterChat::print("completed upload, inserting...");
+			//LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem((content["new_inventory_item"].asUUID()));
+			//LLViewerObject* objectp = findByLocalID(mData->localid);
+			//insert(item, objectp, mData);
+        }
+private:
+        LLImportAssetData* mData;
+		/*virtual*/ char const* getName(void) const { return "LLImportInventoryResponder"; }
+};
+//inv
+class LLPostInvUploadResponder : public LLAssetUploadResponder
+{
+public:
+	LLPostInvUploadResponder(const LLSD& post_data,
+								const LLUUID& vfile_id,
+								LLAssetType::EType asset_type, LLUUID item, LLImportAssetData* idata) : LLAssetUploadResponder(post_data, vfile_id, asset_type)
+	{
+		item_id = item;
+		data = idata;
+	}
+
+	LLPostInvUploadResponder(const LLSD& post_data,
+								const std::string& file_name,
+											   LLAssetType::EType asset_type) : LLAssetUploadResponder(post_data, file_name, asset_type)
+	{
+	}
+	virtual void uploadComplete(const LLSD& content)
+	{
+		LLViewerInventoryItem* new_item = (LLViewerInventoryItem*)gInventory.getItem(item_id);
+		if(!new_item) return;
+		//new_item->setDescription("(No Description)");
+		LLPermissions perms = new_item->getPermissions();
+		perms.setMaskNext(LLFloaterPerms::getNextOwnerPerms(LLAssetType::lookup(data->type)));
+		perms.setMaskGroup(LLFloaterPerms::getGroupPerms(LLAssetType::lookup(data->type)));
+		perms.setMaskEveryone(LLFloaterPerms::getEveryonePerms(LLAssetType::lookup(data->type)));
+		new_item->setPermissions(perms);
+		new_item->updateServer(FALSE);
+		gInventory.updateItem(new_item);
+		gInventory.notifyObservers();
+
+		LLXmlImport::sUploadedAssets++;
+		if(!LLXmlImport::sImportInProgress) return;
+		LLFloaterImportProgress::update();
+		if(LLXmlImport::sUploadedAssets < LLXmlImport::sTotalAssets)
+		{
+		/*	LLImportAssetData* data = LLXmlImport::sXmlImportOptions->mAssets[LLXmlImport::sUploadedAssets];
+		        data->folderid = data->folderid;
+				// copy this file into the vfs for upload
 				S32 file_size;
-				LLAPRFile infile ;
-				infile.open(data->filename, LL_APR_RB, LLAPRFile::short_lived, &file_size);
+				LLAPRFile infile(data->filename, LL_APR_RB, &file_size);
 				if (infile.getFileHandle())
 				{
 					LLVFile file(gVFS, data->assetid, data->type, LLVFile::WRITE);
+
 					file.setMaxSize(file_size);
+
 					const S32 buf_size = 65536;
 					U8 copy_buf[buf_size];
 					while ((file_size = infile.read(copy_buf, buf_size)))
 					{
 						file.write(copy_buf, file_size);
 					}
-					
-					LLSD body;
-					body["folder_id"] = data->folderid;
-					body["asset_type"] = LLAssetType::lookup(data->type);
-					body["inventory_type"] = LLInventoryType::lookup(data->inv_type);
-					body["name"] = data->name;
-					body["description"] = data->description;
-					body["next_owner_mask"] = LLSD::Integer(U32_MAX);
-					body["group_mask"] = LLSD::Integer(U32_MAX);
-					body["everyone_mask"] = LLSD::Integer(U32_MAX);
-					body["expected_upload_cost"] = LLSD::Integer(LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
-					LLHTTPClient::post(url, body, new LLImportInventoryResponder(body, data->assetid, data->type,data));
+					LLPointer<LLInventoryCallback> cb = new LLPostInvCallback(data); //new NewResourceItemCallback);
+						create_inventory_item(	gAgent.getID(),
+						gAgent.getSessionID(),
+						gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(data->type)),
+						LLTransactionID::tnull,
+						data->name,
+						data->description,
+						data->type,
+						data->inv_type,
+						data->wear_type,
+						PERM_ITEM_UNRESTRICTED,
+						cb);
 				}
-			}
-			else
-				llinfos << "NewFileAgentInventory does not exist!!!!" << llendl;
+				else
+				{
+					LLFloaterChat::print(llformat( "Unable to access output file: %s", data->filename.c_str()));
+					LLXmlImport::finish_init();
+				}*/
 		}
 		else
 			LLXmlImport::finish_init();
-		
-                
-        }
+			//add to the inventory inject array and inject after the prim has been made.
+			//LLFloaterChat::print("completed upload, inserting...");
+			//LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem((content["new_inventory_item"].asUUID()));
+			//LLViewerObject* objectp = findByLocalID(data->localid);
+			//insert(new_item, objectp, data);
+	}
 private:
-        LLImportAssetData* mData;
-		/*virtual*/ char const* getName(void) const { return "LLImportInventoryResponder"; }
+	LLUUID item_id;
+	LLImportAssetData* data;
+	/*virtual*/ char const* getName(void) const { return "LLPostInvUploadResponder"; }
 };
+
+class LLPostInvCallback : public LLInventoryCallback
+{
+public:
+	LLPostInvCallback(LLImportAssetData* idata)
+	{
+		data = idata;
+	}
+	void fire(const LLUUID &inv_item)
+	{
+		switch(data->type)
+		{
+			case LLAssetType::AT_GESTURE:
+			{
+				std::string agent_url = gAgent.getRegion()->getCapability("UpdateGestureAgentInventory");
+				LLSD body;
+				body["item_id"] = inv_item;
+				LLHTTPClient::post(agent_url, body,
+				new LLPostInvUploadResponder(body, data->assetid, data->type,inv_item,data));
+			}
+			break;
+			case LLAssetType::AT_NOTECARD:
+			{
+				std::string agent_url = gAgent.getRegion()->getCapability("UpdateNotecardAgentInventory");
+				LLSD body;
+				body["item_id"] = inv_item;
+				LLHTTPClient::post(agent_url, body,
+				new LLPostInvUploadResponder(body, data->assetid, data->type,inv_item,data));			
+			}
+			break;
+			case LLAssetType::AT_LSL_TEXT:
+			{
+				LLUUID fake_asset_id = data->tid.makeAssetID(gAgent.getSecureSessionID());
+				std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgent");
+				LLSD body;
+				body["item_id"] = inv_item;
+				BOOL domono = FALSE;
+				body["target"] = (domono == TRUE) ? "mono" : "lsl2";
+				LLHTTPClient::post(url, body, new LLPostInvUploadResponder(body, fake_asset_id, data->type,inv_item,data));
+			}
+			break;
+			default:
+			break;
+		}
+	}
+private:
+	LLImportAssetData* data;
+};
+
+void LLImportInventorycallback(const LLUUID& uuid, void* user_data, S32 result, LLExtStat ext_status)//wearbles
+{
+	if(result == LL_ERR_NOERR)
+	{
+		LLImportAssetData* data = (LLImportAssetData*)user_data;
+		LLPointer<LLInventoryCallback> cb = new LLImportTransferCallback(data);
+		LLPermissions perm;
+
+		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+		gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(data->type)), data->tid, data->name,
+		data->description, data->type, LLInventoryType::defaultForAssetType(data->type), data->wear_type,
+		LLFloaterPerms::getNextOwnerPerms(), cb);
+		
+		LLXmlImport::sUploadedAssets++;
+		if(!LLXmlImport::sImportInProgress) return;
+		LLFloaterImportProgress::update();
+		LLXmlImport::finish_init();
+
+	}else
+	{
+		LLFloaterChat::print("error: "+std::string(LLAssetStorage::getErrorString(result)));
+		LLXmlImport::finish_init();
+	}
+}
+// inv
 
 std::string terse_F32_string( F32 f )
 {
@@ -516,6 +745,10 @@ LLImportObject::LLImportObject(std::string id, LLSD prim)
 	{
 		mPrimDescription = prim["description"].asString();
 	}
+	//if(prim.has("contents"))
+	//{
+		//mParentId = prim["parent"].asString();
+	//}
 }
 		
 void LLXmlImport::rez_supply()
@@ -716,54 +949,122 @@ void LLXmlImport::import(LLXmlImportOptions* import_options)
 	{
 		sFolderID = gInventory.createNewCategory( gInventory.getRootFolderID(), LLFolderType::FT_NONE, sXmlImportOptions->mName);
 	}
-	if(sXmlImportOptions->mReplaceTexture && sTotalAssets > 0 && !sXmlImportOptions->mAssetDir.empty())
+	//inv
+	if(sTotalAssets > 0 && !sXmlImportOptions->mAssetDir.empty())
 	{
-		LLUUID folder_id = gInventory.createNewCategory( sFolderID, LLFolderType::FT_NONE, "Textures");
-		//starting up the texture uploading
-		LLImportAssetData* data = sXmlImportOptions->mAssets[0];
-                data->folderid = folder_id;
-		sTextureReplace[data->oldassetid] = data->assetid;
-		std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
-		if(!url.empty())
+		LLUUID folder_id = gInventory.getRootFolderID();
+
+		if(sXmlImportOptions->mReplaceTexture)
 		{
+			folder_id = gInventory.createNewCategory( sFolderID, LLFolderType::FT_NONE, "Textures");
+		}
+		if(sXmlImportOptions->mUploadInventory)
+		{
+			folder_id = gInventory.createNewCategory( sFolderID, LLFolderType::FT_NONE, "Assets");
+		}
+
+		//starting up the uploading
+		LLImportAssetData* data = sXmlImportOptions->mAssets[0];
+        data->folderid = folder_id;
+		data->wear_type = NOT_WEARABLE;
+
+		LLUUID asset_id = (data->type==LLAssetType::AT_GESTURE||data->type==LLAssetType::AT_LSL_TEXT||data->type==LLAssetType::AT_NOTECARD) ? data->tid.makeAssetID(gAgent.getSecureSessionID()) : data->assetid;
+
+		if(data->type==LLAssetType::AT_TEXTURE||data->type==LLAssetType::AT_TEXTURE_TGA) 
+		{
+			sTextureReplace[data->oldassetid] = data->assetid;
 			LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
 			if( !integrity_test->loadAndValidate( data->filename ) )
 			{
 				llinfos << "Image: " << data->filename << " is corrupt." << llendl;
 			}
-			S32 file_size;
-			LLAPRFile infile ;
-			infile.open(data->filename, LL_APR_RB, LLAPRFile::short_lived, &file_size);
-			if (infile.getFileHandle())
-			{
-				LLVFile file(gVFS, data->assetid, data->type, LLVFile::WRITE);
-				file.setMaxSize(file_size);
-				const S32 buf_size = 65536;
-				U8 copy_buf[buf_size];
-				while ((file_size = infile.read(copy_buf, buf_size)))
-				{
-					file.write(copy_buf, file_size);
-				}
+		}
+		// copy this file into the vfs for upload
+		S32 file_size;
+		LLAPRFile infile(data->filename, LL_APR_RB, &file_size);
+		if (infile.getFileHandle())
+		{
+			LLVFile file(gVFS, asset_id, data->type, LLVFile::WRITE);
 
-				LLSD body;
-				body["folder_id"] = folder_id;
-				body["asset_type"] = LLAssetType::lookup(data->type);
-				body["inventory_type"] = LLInventoryType::lookup(data->inv_type);
-				body["name"] = data->name;
-				body["description"] = data->description;
-				body["next_owner_mask"] = LLSD::Integer(U32_MAX);
-				body["group_mask"] = LLSD::Integer(U32_MAX);
-				body["everyone_mask"] = LLSD::Integer(U32_MAX);
-				body["expected_upload_cost"] = LLSD::Integer(LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
-				LLHTTPClient::post(url, body, new LLImportInventoryResponder(body, data->assetid, data->type,data));
+			file.setMaxSize(file_size);
+
+			const S32 buf_size = 65536;
+			U8 copy_buf[buf_size];
+			while ((file_size = infile.read(copy_buf, buf_size)))
+			{
+				file.write(copy_buf, file_size);
 			}
 		}
 		else
 		{
-			//maybe do legacy upload here?????
-			llinfos << "NewFileAgentInventory does not exist!!!!" << llendl;
+			LLFloaterChat::print(llformat( "Unable to access output file: %s", data->filename.c_str()));
 			LLXmlImport::finish_init();
 		}
+
+		switch(data->type)
+		{
+			case LLAssetType::AT_CLOTHING:
+			case LLAssetType::AT_BODYPART:
+			{
+				LLFILE* fp = LLFile::fopen(data->filename, "rb");
+				if(fp)
+				{
+					LLViewerWearable *wearable = LLWearableList::getInstance()->generateNewWearable();
+					wearable->importFile( fp, gAgentAvatarp );	
+					data->wear_type = wearable->getType();
+					delete wearable;
+				}
+				gAssetStorage->storeAssetData(data->tid, data->type,
+				LLImportInventorycallback,
+				(void*)data,
+				FALSE,
+				TRUE,
+				FALSE);
+			}
+			break;
+			case LLAssetType::AT_GESTURE:
+			case LLAssetType::AT_LSL_TEXT:
+			case LLAssetType::AT_NOTECARD:
+			{
+				data->assetid=asset_id;
+				LLPointer<LLInventoryCallback> cb = new LLPostInvCallback(data); //new NewResourceItemCallback);
+				create_inventory_item(	gAgent.getID(),
+				gAgent.getSessionID(),
+				gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(data->type)),
+				LLTransactionID::tnull,
+				data->name,
+				data->description,
+				data->type,
+				data->inv_type,
+				data->wear_type,
+				PERM_ITEM_UNRESTRICTED,
+				cb);	
+			}
+			break;
+			default:
+				std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
+				if(!url.empty())
+				{
+					LLSD body;
+					body["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(data->type));
+					body["asset_type"] = LLAssetType::lookup(data->type);
+					body["inventory_type"] = LLInventoryType::lookup(data->inv_type);
+					body["name"] = data->name;
+					body["description"] = data->description;
+					body["next_owner_mask"] = LLSD::Integer(U32_MAX);
+					body["group_mask"] = LLSD::Integer(U32_MAX);
+					body["everyone_mask"] = LLSD::Integer(U32_MAX);
+					body["expected_upload_cost"] = LLSD::Integer(LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+					LLHTTPClient::post(url, body, new LLImportInventoryResponder(body, data->assetid, data->type,data));
+				}else
+				{
+					//maybe do legacy upload here?????
+					llinfos << "NewFileAgentInventory does not exist!!!!" << llendl;
+					LLXmlImport::finish_init();
+				}
+			break;
+			}
+// inv
 	}
 	else
 		LLXmlImport::finish_init();

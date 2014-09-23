@@ -1,5 +1,7 @@
 /** 
-* @file os_floaterexport.h
+* @file os_floaterexport.cpplistener
+* Day Oh - 2009
+* Cryo - 2011
 * Simms - 2014
 * $/LicenseInfo$
 */
@@ -29,6 +31,10 @@
 #include "llappviewer.h"
 #include "llsdutil_math.h"
 #include "llimagej2c.h"
+#include "llassetstorage.h"
+#include "llnotificationsutil.h"
+#include "llviewertexteditor.h"
+
 std::vector<OSFloaterExport*> OSFloaterExport::instances;
 
 using namespace LLAvatarAppearanceDefines;
@@ -97,6 +103,9 @@ private:
 };
 
 
+/*------------------------------------------*/
+/*--------------OSExportable---------------*/ 
+/*----------------------------------------*/
 OSExportable::OSExportable(LLViewerObject* object, std::string name, std::map<U32,std::pair<std::string, std::string> >& primNameMap)
 :	mObject(object),
 	mType(EXPORTABLE_OBJECT),
@@ -271,6 +280,83 @@ LLSD OSExportable::asLLSD()
 	return LLSD();
 }
 
+// Request the inventories of each object and its child prims
+void OSExportable::requestInventoriesFor(LLViewerObject* object)
+{
+	requestInventoryFor(object);
+	LLViewerObject::child_list_t child_list = object->getChildren();
+	for (LLViewerObject::child_list_t::iterator i = child_list.begin(); i != child_list.end(); ++i)
+	{
+		LLViewerObject* child = *i;
+		if (child->isAvatar()) continue;
+		requestInventoryFor(child);
+	}
+
+}
+
+// Request inventory for each individual prim
+void OSExportable::requestInventoryFor(LLViewerObject* object)
+{
+	llinfos << "Requesting inventory of " << object->getID() << llendl;
+	object->registerInventoryListener(this, NULL);
+	object->dirtyInventory();
+	object->requestInventory();
+}
+
+// An inventory has been received.   
+void OSExportable::inventoryChanged(LLViewerObject* obj, LLInventoryObject::object_list_t* inv, S32, void*)
+{
+	obj->removeInventoryListener(this);
+	std::string inv_key = llformat("%d", obj->getLocalID());
+	LLSD llsd = asLLSD();
+	LLSD::map_iterator map_end = llsd.endMap();
+	for(LLSD::map_iterator map_iter = llsd.beginMap() ; map_iter != map_end; ++map_iter)
+	{
+		std::string key((*map_iter).first);
+		LLSD item = (*map_iter).second;
+		if(key==inv_key)
+		{
+			LLSD linkset;
+			if(!(item.has("contents")))
+			{
+				LLSD inventory;			
+				if(inv)
+				{
+					LLInventoryObject::object_list_t::const_iterator it = inv->begin();
+					LLInventoryObject::object_list_t::const_iterator end = inv->end();
+					U32 num = 0;
+					for ( ; it != end; ++it )
+					{
+						// cast to item to try to get Asset UUID
+						const LLInventoryItem* asset = dynamic_cast<const LLInventoryItem*>(it->get());
+						if(asset)
+						{
+							const LLAssetType::EType asset_type = asset->getActualType();
+							const LLUUID& asset_id = asset->getAssetUUID();
+							const LLUUID& id = asset->getUUID();
+							LLSD inv_item;
+							inv_item["parent_id"] = obj->getID();
+							inv_item["name"] = asset->getName();
+							inv_item["item_id"] = id.asString();
+							inv_item["asset_id"] = asset_id.asString();
+							inv_item["type"] = LLAssetType::lookup(asset_type);
+							inv_item["desc"] = asset->getDescription();
+							inventory[num] = inv_item;
+							num += 1;
+						}
+					}
+					item["contents"] = inventory;
+				}
+				linkset[key] = item;
+			}
+			OSFloaterExport::getInstance()->replaceExportableValue(obj->getID(), linkset);
+		}
+	}
+}
+
+/*------------------------------------------*/
+/*-------------OSFloaterExport-------------*/ 
+/*----------------------------------------*/
 OSFloaterExport::OSFloaterExport(const LLSD&) 
 : LLFloater(std::string("Export List")),
 	mObjectID(LLUUID::null),
@@ -470,24 +556,13 @@ void OSFloaterExport::addAvatarStuff(LLVOAvatar* avatarp)
 	}
 	// Add Attachments
 	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
-	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
-		 iter != avatarp->mAttachmentPoints.end(); )
+	LLViewerObject::child_list_t child_list = avatarp->getChildren();
+	for (LLViewerObject::child_list_t::iterator i = child_list.begin(); i != child_list.end(); ++i)
 	{
-		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-
-		LLViewerJointAttachment *attachment = curiter->second;
-		if (attachment)
+		LLViewerObject* attached_object = (*i);
+		if (attached_object)
 		{
-			for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator attachment_iter = attachment->mAttachedObjects.begin();
-				 attachment_iter != attachment->mAttachedObjects.end();
-				 ++attachment_iter)
-			{
-				LLViewerObject* attached_object = (*attachment_iter);
-				if (attached_object)
-				{
-					LLSelectMgr::getInstance()->selectObjectAndFamily(attached_object);
-				}
-			}
+			LLSelectMgr::getInstance()->selectObjectAndFamily(attached_object);
 		}
 	}
 
@@ -568,7 +643,9 @@ void OSFloaterExport::addObjectStuff()
 					avatarid_column["value"] = LLUUID::null;
 
 				OSExportable* exportable = new OSExportable(objectp, nodep->mName, mPrimNameMap);
-				mExportables[objectp->getID()] = exportable->asLLSD();
+
+				exportable->requestInventoryFor(objectp); // inventories.
+				//mExportables[objectp->getID()] = exportable->asLLSD();
 
 				mExportList->addElement(element, ADD_BOTTOM);
 
@@ -577,7 +654,7 @@ void OSFloaterExport::addObjectStuff()
 		}
 	}
 
-	updateNamesProgress();
+	updateNamesProgress(true); //true deselect all on names loaded.
 }
 
 //static
@@ -680,9 +757,11 @@ void OSFloaterExport::onClickSaveAs_Callback(OSFloaterExport* floater, AIFilePic
 	std::string file_name = filepicker->getFilename();
 	std::string path = file_name.substr(0,file_name.find_last_of(".")) + "_assets";
 	BOOL download_texture = floater->childGetValue("download_textures");
+	BOOL export_inventory = floater->childGetValue("export_inventory");
+	
 	LLSD sd = floater->getLLSD();
 
-	if(download_texture)
+	if(download_texture||export_inventory)
 	{
 		if(!LLFile::isdir(path))
 		{
@@ -716,7 +795,17 @@ void OSFloaterExport::onClickSaveAs_Callback(OSFloaterExport* floater, AIFilePic
 			// I don't understand C++ :(
 			sd[(*map_iter).first] = item;
 
-			if(download_texture)
+			if(export_inventory)
+			{
+				//inventory
+				LLSD::array_iterator inv_iter = item["contents"].beginArray();
+				for( ; inv_iter != item["contents"].endArray(); ++inv_iter)
+				{
+					mirror((*inv_iter)["parent_id"].asUUID(), (*inv_iter)["item_id"].asUUID(), path, (*inv_iter)["name"].asString());
+				}
+			}
+
+			else if(download_texture)
 			{
 				//textures
 				LLSD::array_iterator tex_iter = item["textures"].beginArray();
@@ -761,7 +850,7 @@ void OSFloaterExport::onClickSaveAs_Callback(OSFloaterExport* floater, AIFilePic
 
 	std::string msg = "Saved ";
 	msg.append(file_name);
-	if(download_texture) msg.append(" (Content might take some time to download)");
+	if(download_texture || export_inventory) msg.append(" (Content might take some time to download)");
 	LLChat chat(msg);
 	LLFloaterChat::addChat(chat);
 
@@ -874,11 +963,11 @@ void OSFloaterExport::addToPrimList(LLViewerObject* object)
 	}
 }
 
-void OSFloaterExport::updateNamesProgress()
+void OSFloaterExport::updateNamesProgress(bool deselect)
 {
-	childSetText("names_progress_text", llformat("Names retrieved: %d of %d", mPrimNameMap.size(), mPrimList.size()));
+	childSetText("names_progress_text", llformat("Names: %d of %d", mPrimNameMap.size(), mPrimList.size()));
 
-	if( mPrimNameMap.size()==mPrimList.size())
+	if( mPrimNameMap.size() == mPrimList.size() && deselect)
 		LLSelectMgr::getInstance()->deselectAll();
 }
 
@@ -921,4 +1010,167 @@ void OSFloaterExport::receiveObjectProperties(LLUUID fullid, std::string name, s
 			(*iter)->receivePrimName(object, name, desc);
 		}
 	}
+}
+
+void OSFloaterExport::replaceExportableValue(LLUUID id, LLSD data)
+{
+	//std::map<LLUUID, LLSD>::iterator it = mExportables.find(id);
+	//if (it != mExportables.end())
+	//it->second = data;
+	mExportables[id] = data;
+}
+
+/*void OSFloaterExport::addToExportables(LLUUID id, LLSD data)
+{
+	mExportables.insert(std::make_pair(id, data));
+}
+*/
+
+struct AssetInfo
+{
+	std::string path;
+	std::string name;
+};
+
+void assetCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type, void *userdata, S32 result, LLExtStat extstat)
+{
+	AssetInfo* info = (AssetInfo*)userdata;
+	if(result != 0)
+	{
+		LLFloaterChat::print("Failed to save file "+info->path+" ("+info->name+") : "+std::string(LLAssetStorage::getErrorString(result)));
+		delete info;
+		return;
+	}
+		S32 size = vfs->getSize(uuid, type);
+		U8* buffer = new U8[size];
+		vfs->getData(uuid, type, buffer, 0, size);
+		if( type == LLAssetType::AT_NOTECARD )
+		{
+			LLViewerTextEditor* edit = new LLViewerTextEditor("",LLRect(0,0,0,0),S32_MAX,"");
+			if(edit->importBuffer((char*)buffer, (S32)size))
+			{
+				std::string card = edit->getText();
+				edit->die();
+				delete buffer;
+				buffer = new U8[card.size()];
+				size = card.size();
+				strcpy((char*)buffer,card.c_str());
+			}
+		}
+
+	std::ofstream export_file(info->path.c_str(), std::ofstream::binary);
+	export_file.write((char*)buffer, size);
+	export_file.close();
+	LLFloaterChat::print("Saved file "+info->path+" ("+info->name+")");
+}
+
+// static
+void OSFloaterExport::mirror(const LLUUID& parent_id, const LLUUID& item_id, std::string dir, std::string asset_name)
+{
+	LLViewerObject* object = gObjectList.findObject(parent_id);
+	if (object)
+	{
+		LLInventoryObject* inv_obj = object->getInventoryObject(item_id);
+		if(inv_obj)
+		{
+			const LLInventoryItem* item = dynamic_cast<const LLInventoryItem*>(inv_obj);
+			if(item)
+			{
+				LLPermissions perm(item->getPermissions());
+				{
+					LLDynamicArray<std::string> tree;
+					LLViewerInventoryCategory* cat = gInventory.getCategory(item->getParentUUID());
+					while(cat)
+					{
+						std::string folder = cat->getName();
+						folder = curl_escape(folder.c_str(), folder.size());
+						tree.insert(tree.begin(),folder);
+						cat = gInventory.getCategory(cat->getParentUUID());
+					}
+
+					for (LLDynamicArray<std::string>::iterator it = tree.begin();
+					it != tree.end(); ++it)
+					{
+						std::string folder = *it;
+						dir = dir + folder;
+						if(!LLFile::isdir(dir))
+						{
+							LLFile::mkdir(dir);
+						}
+						dir.append(gDirUtilp->getDirDelimiter());
+					}
+
+					if(asset_name == "")
+					{
+						asset_name = item->getName();
+					}
+
+					LLStringUtil::replaceString(asset_name,":","");
+					LLStringUtil::replaceString(asset_name,"<","");
+					LLStringUtil::replaceString(asset_name,">","");
+					LLStringUtil::replaceString(asset_name,"\"","");
+					LLStringUtil::replaceString(asset_name,"\\","");
+					LLStringUtil::replaceString(asset_name,"/","");
+					LLStringUtil::replaceString(asset_name,"|","");
+					LLStringUtil::replaceString(asset_name,"?","");
+					LLStringUtil::replaceString(asset_name,"*","");
+
+					dir = dir + asset_name + "." + LLAssetType::lookup(item->getType());
+					AssetInfo* info = new AssetInfo;
+					info->path = dir;
+					info->name = asset_name;
+
+					gAssetStorage->getInvItemAsset(object != NULL ? object->getRegion()->getHost() : LLHost::invalid,
+					gAgent.getID(),
+					gAgent.getSessionID(),
+					gAgent.getID(),
+					object != NULL ? object->getID() : LLUUID::null,
+					item->getUUID(),
+					LLUUID::null,
+					item->getType(),
+					assetCallback,
+					info,
+					TRUE);
+				}
+			}
+		}
+	}
+}
+
+// static
+void OSFloaterExport::assetCallback(LLVFS *vfs,
+				   const LLUUID& asset_uuid,
+				   LLAssetType::EType type,
+				   void* user_data, S32 status, LLExtStat ext_status)
+{
+	AssetInfo* info = (AssetInfo*)user_data;
+
+	if(status != 0)
+	{
+		LLSD args;
+		std::string exten = LLAssetType::lookup(type);	
+		args["ERROR_MESSAGE"] = "Inventory download didn't work on " + info->name + "." + exten;
+		LLNotificationsUtil::add("ErrorMessage", args);
+		return;
+	}
+
+	// Todo: this doesn't work for static vfs shit
+	LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+	S32 size = file.getSize();
+
+	char* buffer = new char[size];		// Deleted in assetCallback_continued.
+	if (buffer == NULL)
+	{
+		llerrs << "Memory Allocation Failed" << llendl;
+		return;
+	}
+
+	file.read((U8*)buffer, size);
+
+	// Write it back out...
+	std::ofstream export_file(info->path.c_str(), std::ofstream::binary);
+	export_file.write(buffer, size);
+	export_file.close();
+
+	delete [] buffer;
 }

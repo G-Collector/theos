@@ -18,7 +18,7 @@ public:
     U32 localid;
     LLAssetType::EType type;
     LLInventoryType::EType inv_type;
-	//LLWearableType::EType wear_type; unused
+	LLWearableType::EType wear_type;
     LLTransactionID tid;
     LLUUID assetid;
 	LLUUID folderid;
@@ -68,7 +68,7 @@ public:
 	void clear();
 	void init(LLSD llsd);
 	std::string mName;
-	//LLSD mLLSD;
+	LLSD mLLSD;
 	std::string mAssetDir;
 	std::vector<LLImportAssetData*> mAssets;
 	std::vector<LLImportObject*> mRootObjects;
@@ -77,6 +77,7 @@ public:
 	BOOL mKeepPosition;
 	LLViewerObject* mSupplier;
 	BOOL mReplaceTexture;
+	BOOL mUploadInventory;
 protected:
 	LLUUID mID;
 };

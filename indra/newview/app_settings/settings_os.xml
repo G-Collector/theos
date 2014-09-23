@@ -489,6 +489,17 @@
       			<key>Value</key>
       			<integer>1</integer>
     		</map>
+    		<key>OSInvMirrorLocation</key>
+    		<map>
+      			<key>Comment</key>
+      			<string>toast</string>
+      			<key>Persist</key>
+      			<integer>1</integer>
+      			<key>Type</key>
+      			<string>String</string>
+      			<key>Value</key>
+      			<string></string>
+    		</map>
     		<key>UseInternalWearableName</key>
     		<map>
       			<key>Comment</key>
