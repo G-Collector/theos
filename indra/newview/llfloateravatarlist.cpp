@@ -61,6 +61,11 @@
 #include "llfloaterexploreanimations.h"
 #include "llfloateravatartextures.h"
 #include "os_floaterinspecthuds.h"
+#include "lltooldraganddrop.h" //for pack permissions slam
+#include "llfloatertools.h" //gfloatertools
+#include "llhudeffecttrail.h"
+#include "os_beamcolormapfloater.h"
+#include "os_beammaps.h"
 #include "os_floaterinspecttexture.h"
 #include "llviewermenu.h" // show floater
 //< /os>
@@ -232,6 +237,9 @@ const LLAvatarListEntry::ACTIVITY_TYPE LLAvatarListEntry::getActivity()
 	return mActivityType;
 }
 
+//<edit>
+bool LLFloaterAvatarList::follow_active;
+//</edit>
 LLFloaterAvatarList::LLFloaterAvatarList() :  LLFloater(std::string("radar")), 
 	mTracking(false),
 	mUpdate("RadarUpdateEnabled"),
@@ -452,6 +460,18 @@ void add_radar_listeners()
 BOOL LLFloaterAvatarList::postBuild()
 {
 	// Set callbacks
+	//<os>
+	childSetAction("rez_one_btn", onClickRezOne, this);
+	childSetAction("particle_rings", onClickParticleRings, this);
+	childSetAction("rez_one_btn", onClickRezOne, this);
+	childSetAction("rez_multi_btn", onClickRezMultiple, this);
+	childSetAction("follow_prim_btn", onClickFollowPrim, this);
+	childSetAction("allfollow_prim_btn", onClickAllFollowPrim, this);
+	//childSetCommitCallback("follow_toggle",onClickToggleFollower,this);
+	childSetControlName("FollowLoopSpeed", "FollowInterval");
+	childSetAction("all_beam_at", onClickAllBeamAt, this);
+	childSetAction("clear_effects", onClickClearEffects, this);
+	//</os>
 	childSetAction("profile_btn", boost::bind(&LLFloaterAvatarList::doCommand, this, &cmd_profile, false));
 	childSetAction("im_btn", boost::bind(&LLFloaterAvatarList::onClickIM, this));
 	childSetAction("offer_btn", boost::bind(&LLFloaterAvatarList::onClickTeleportOffer, this));
@@ -462,8 +482,9 @@ BOOL LLFloaterAvatarList::postBuild()
 	childSetAction("next_in_list_btn", boost::bind(&LLFloaterAvatarList::focusOnNext, this, false));
 	childSetAction("prev_marked_btn", boost::bind(&LLFloaterAvatarList::focusOnPrev, this, true));
 	childSetAction("next_marked_btn", boost::bind(&LLFloaterAvatarList::focusOnNext, this, true));
-
 	childSetAction("get_key_btn", boost::bind(&LLFloaterAvatarList::onClickGetKey, this));
+	childSetAction("left_btn", boost::bind(&LLFloaterAvatarList::onClickLeft, this));
+	childSetAction("right_btn", boost::bind(&LLFloaterAvatarList::onClickRight, this));
 
 	childSetAction("freeze_btn", boost::bind(&LLFloaterAvatarList::onClickFreeze, this));
 	childSetAction("eject_btn", boost::bind(&LLFloaterAvatarList::onClickEject, this));
@@ -1103,6 +1124,78 @@ void LLFloaterAvatarList::refreshAvatarList()
 }
 
 //<os>
+void LLFloaterAvatarList::onClickAllBeamAt(void *userdata)
+{
+	LLFloaterAvatarList *self = (LLFloaterAvatarList*)userdata;
+ 	LLScrollListItem *item =   self->mAvatarList->getFirstSelected();
+	if(item){
+	    LLUUID agent_id = item->getUUID();
+		LLViewerObject *dest = gObjectList.findAvatar(agent_id);
+		S32 total_particles = (F32)125.5f;
+		if (dest)
+		{
+			for (S32 i = 0; i < total_particles; i++)
+			{
+				S32 X;
+				S32 total = gObjectList.getNumObjects();
+				for (X = 0; X < total; X++)
+				{
+					LLViewerObject *src = gObjectList.getObject(X);
+					if (src && src->isAvatar())	
+					{
+						LLColor4U rgb = gLggBeamMaps.getCurrentColor(LLColor4U(gAgent.getEffectColor()));
+						F32 r, g, b;
+						LLColor4U output;
+						hslToRgb1(0.5f+sinf(gFrameTimeSeconds*0.3f), 1.0f, 0.5f, r, g, b);
+						output.set(r, g, b);
+						rgb.setVecScaleClamp(output);
+						LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+						effectp->setTargetObject(src);
+						effectp->setColor(rgb);
+						effectp->setSourceObject(dest);
+						F32 duration = 60000.5f;
+						effectp->setDuration(duration);
+					}
+				}
+			}
+		}
+	}
+}
+
+void LLFloaterAvatarList::onClickParticleRings(void *userdata)
+{
+		LLFloaterAvatarList *self = (LLFloaterAvatarList*)userdata;
+ 	LLScrollListItem *item =   self->mAvatarList->getFirstSelected();
+	if(item){
+	    LLUUID agent_id = item->getUUID();
+		LLViewerObject *dest = gObjectList.findAvatar(agent_id);
+		S32 total_particles = (F32)125.5f;
+		if (dest)
+		{
+			for (S32 i = 0; i < total_particles; i++)
+			{
+				LLColor4U rgb = gLggBeamMaps.getCurrentColor(LLColor4U(gAgent.getEffectColor()));
+				F32 r, g, b;
+				LLColor4U output;
+				hslToRgb1(0.5f+sinf(gFrameTimeSeconds*0.3f), 1.0f, 0.5f, r, g, b);
+				output.set(r, g, b);
+				rgb.setVecScaleClamp(output);
+						
+				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+				effectp->setPositionGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal() );
+				effectp->setColor(rgb);
+				effectp->setSourceObject(dest);
+				F32 duration = 60000.5f;
+				effectp->setDuration(duration);
+			}
+		}
+	}
+}
+
+void LLFloaterAvatarList::onClickClearEffects(void *userdata)
+{
+	LLHUDObject::markViewerEffectsDead();
+}
 
 /**
 *Context Menu
@@ -1493,6 +1586,24 @@ bool LLFloaterAvatarList::lookAtAvatar(const LLUUID& uuid)
 	return false;
 }
 
+void LLFloaterAvatarList::onClickRight()
+{
+	LLPanel* button_panel = getChild<LLPanel>("button_tab");
+	if(button_panel) button_panel->setVisible(FALSE);
+
+	LLPanel* oldskool_panel = getChild<LLPanel>("oldskool_tab");
+	if(oldskool_panel) oldskool_panel->setVisible(TRUE);
+}
+
+void LLFloaterAvatarList::onClickLeft()
+{
+	LLPanel* button_panel = getChild<LLPanel>("button_tab");
+	if(button_panel) button_panel->setVisible(TRUE);
+
+	LLPanel* oldskool_panel = getChild<LLPanel>("oldskool_tab");
+	if(oldskool_panel) oldskool_panel->setVisible(FALSE);
+}
+
 void LLFloaterAvatarList::onClickGetKey()
 {
 	if (LLScrollListItem* item = mAvatarList->getFirstSelected())
@@ -1820,12 +1931,24 @@ void LLFloaterAvatarList::onSelectName()
 {
 	if (LLScrollListItem* item = mAvatarList->getFirstSelected())
 	{
+		LLUUID agent_id = item->getUUID();
 		if (LLAvatarListEntry* entry = getAvatarEntry(item->getUUID()))
 		{
 			bool enabled = entry->mStats[STAT_TYPE_DRAW];
 			childSetEnabled("focus_btn", enabled);
 			childSetEnabled("prev_in_list_btn", enabled);
 			childSetEnabled("next_in_list_btn", enabled);
+			LLVOAvatar* avatarp = gObjectList.findAvatar(agent_id);
+			if (avatarp)
+			{
+				LLVector3d agentPos = gAgent.getPosGlobalFromAgent(avatarp->getCharacterPosition());
+				S32 agent_x = llround( (F32)fmod( agentPos.mdV[VX], (F64)REGION_WIDTH_METERS ) );
+				S32 agent_y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
+				S32 agent_z = llround( (F32)agentPos.mdV[VZ] );
+				childSetValue("X", LLSD(agent_x) );
+				childSetValue("Y", LLSD(agent_y) );
+				childSetValue("Z", LLSD(agent_z) );
+			}
 		}
 	}
 }
@@ -1834,3 +1957,255 @@ void LLFloaterAvatarList::onCommitUpdateRate()
 {
 	mUpdateRate = gSavedSettings.getU32("RadarUpdateRate") * 3 + 3;
 }
+void LLFloaterAvatarList::onClickRezOne(void *userdata)
+{		
+LLFloaterAvatarList* avlist = getInstance();
+S32 num_rez = avlist->childGetValue("SimmsNumLoopToSend").asInteger();
+	S32 rezzed_items = 0;
+	 LLVector3 agentPos = gAgent.getPositionAgent();//voavatar->getPositionRegion();
+        F64 local_x = avlist->childGetValue("X");
+        F64 local_y = avlist->childGetValue("Y");
+        F64 local_z = avlist->childGetValue("Z");
+        agentPos.mV[VX] = local_x;
+        agentPos.mV[VY] =  local_y;
+        agentPos.mV[VZ] = local_z;
+
+		LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem((LLUUID)gSavedPerAccountSettings.getString("RadarRezItem"));
+		if(!item) return;
+		LLViewerRegion* regionp = gAgent.getRegion();
+		if (!regionp)
+		{
+			llwarns << "Couldn't find region to rez object" << llendl;
+			return;
+		}
+		make_ui_sound("UISndObjectRezIn");
+		
+		//if (regionp
+		//	&& (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
+		//{
+		//	LLFirstUse::useSandbox();
+		//}
+		BOOL remove_from_inventory = !item->getPermissions().allowCopyBy(gAgent.getID());
+		while(rezzed_items < num_rez)
+		{
+		//Actual Rez Message
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_RezObject);
+		
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID,  gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID,  gAgent.getSessionID());
+		msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
+
+		msg->nextBlock("RezData");
+		msg->addUUIDFast(_PREHASH_FromTaskID, LLUUID::null);
+		msg->addU8Fast(_PREHASH_BypassRaycast, (U8)TRUE);
+		msg->addVector3Fast(_PREHASH_RayStart, agentPos);
+		msg->addVector3Fast(_PREHASH_RayEnd, agentPos);
+		msg->addUUIDFast(_PREHASH_RayTargetID, LLUUID::null);
+		msg->addBOOLFast(_PREHASH_RayEndIsIntersection, FALSE);
+		msg->addBOOLFast(_PREHASH_RezSelected, true);
+		msg->addBOOLFast(_PREHASH_RemoveItem, remove_from_inventory);
+		// deal with permissions slam logic
+		pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
+
+		LLUUID folder_id = item->getParentUUID();
+		msg->nextBlockFast(_PREHASH_InventoryData);
+		item->packMessage(msg);
+		msg->sendReliable(regionp->getHost());
+		++rezzed_items;
+	}
+	
+}
+
+void LLFloaterAvatarList::onClickRezMultiple(void *userdata)
+{
+LLFloaterAvatarList *self = (LLFloaterAvatarList*)userdata;
+S32 num = self->childGetValue("SimmsNumLoopToSend").asInteger();
+F32 fps = LLViewerStats::getInstance()->mFPSStat.getMeanPerSec();
+		F32 x = 0.0f;
+		F32 tosend = num / fps;
+		LLUUID transaction_id;
+		while(x < tosend)
+		{
+		onClickRezOne(userdata);
+		x = x + 1.0f;
+	}
+}
+
+void LLFloaterAvatarList::onClickFollowPrim(void* data)
+{
+	onClickToggleFollower();
+}
+/*
+LLFloaterAvatarList* avlist = getInstance();
+LLScrollListItem *item = avlist->mAvatarList->getFirstSelected();
+if (item)
+		{
+		LLUUID agent_id = item->getUUID();
+		LLVOAvatar* avatarp = gObjectList.findAvatar(agent_id);
+		LLViewerObject* voavatar = gObjectList.findObject(agent_id);
+if(voavatar && avatarp && voavatar->isAvatar() && avatarp->isAvatar())
+		{
+		LLVector3 SLpos = voavatar->getPositionRegion();
+		std::string name = avatarp->getFullname();
+		LLViewerObject* selected_object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject();
+		LLUUID object_uuid = selected_object->getID();
+if(selected_object)
+		{
+		gSavedSettings.setString("RadarFollowObject", object_uuid.asString());
+		LLFloaterAvatarList* self = LLFloaterAvatarList::getInstance();
+		self->childSetValue("radar_followobject_txt", gSavedSettings.getString("RadarFollowObject"));
+		self->childSetValue("radar_followobject_avname", name);
+		LLSelectMgr::getInstance()->deselectAll();
+		gFloaterTools->close();
+		S32 i;
+		S32 total = gObjectList.getNumObjects();
+		LLViewerRegion* our_region = gAgent.getRegion();
+		LLSelectMgr::getInstance()->deselectAll();
+		for (i = 0; i < total; i++)
+		{
+		LLViewerObject *objectp = gObjectList.getObject(i);
+if (objectp)
+		{
+if ((objectp->getRegion() == our_region) && !objectp->isAvatar() && objectp->isRoot() && objectp->permYouOwner() && objectp->getID()==(LLUUID)gSavedSettings.getString("RadarFollowObject"))
+		{
+		LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
+		objectp->setPositionParent(SLpos);
+		LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
+		}
+		//message
+			//std::string msg;
+			//msg.assign("Your Object has been moved to "+name);
+			//LLChat chat(msg);
+			//LLFloaterChat::addChat(chat);
+			}	
+			}	
+		}	
+		}
+	}
+	}
+	*/
+void LLFloaterAvatarList::onClickAllFollowPrim(void* data)
+{		
+LLFloaterAvatarList* avlist = getInstance();
+LLScrollListItem *item = avlist->mAvatarList->getFirstSelected();
+if (item)
+		{
+		LLUUID agent_id = item->getUUID();
+		LLVOAvatar* avatarp = gObjectList.findAvatar(agent_id);
+		LLViewerObject* voavatar = gObjectList.findObject(agent_id);
+
+		if(voavatar && voavatar->isAvatar())
+		{
+		LLVector3 SLpos = voavatar->getPositionRegion();
+		std::string name = avatarp->getFullname();
+		S32 i;
+		S32 total = gObjectList.getNumObjects();
+		LLViewerRegion* our_region = gAgent.getRegion();
+		LLSelectMgr::getInstance()->deselectAll();
+		for (i = 0; i < total; i++)
+		{
+		LLViewerObject *objectp = gObjectList.getObject(i);
+		if (objectp)
+		{
+		if ((objectp->getRegion() == our_region) && !objectp->isAvatar() && objectp->isRoot() && objectp->permYouOwner())
+		{
+		LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
+		objectp->setPositionParent(SLpos);
+		LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
+		//std::string msg = ("All Objects Owned By You Have Been Moved To "+name);
+		//LLFloaterChat::addChat(msg);
+		}
+		}
+	}
+	}
+}
+}
+
+void LLFloaterAvatarList::onClickAllFollowPrimLooped()
+{
+	//LLFloaterAvatarList* self = (LLFloaterAvatarList*)userdata;
+			static const LLCachedControl<F32> follow_interval("FollowInterval", 0.01f);
+			//S32 num = self->childGetValue("FollowLoopSpeed").asInteger();
+
+			F32 fps = LLViewerStats::getInstance()->mFPSStat.getMeanPerSec();
+			F32 x = 0.0f;
+			F32 tosend = follow_interval / fps;
+			LLUUID transaction_id;
+			while(x < tosend)
+			{
+			LLFloaterAvatarList::onClickAllFollowPrim(0);
+			x = x + 1.0f;
+			}
+}
+//</edit>
+//<edit> Follow Timer Class
+class FollowTimer : public LLEventTimer
+{
+public:
+	FollowTimer(F32 interval):
+	  LLEventTimer(interval),
+	  running(TRUE)
+	  {
+		  gSavedSettings.getControl("FollowInterval")->getSignal()->connect(boost::bind(&FollowTimer::update,this,_2));
+		  mTimer.start();
+	  }
+	~FollowTimer()
+	{
+	}
+	void setPeriod(F32 period)
+	{
+		mPeriod = period;
+	}
+	static void update(FollowTimer* timer, const LLSD& newvalue)
+	{
+		F32 follow_interval = newvalue.asFloat();
+		if(timer)
+		{
+			timer->setPeriod(follow_interval);
+		}
+	}
+	BOOL tick()
+	{
+		if(running)
+		{
+		LLFloaterAvatarList::onClickAllFollowPrimLooped();
+		}
+		else
+		{
+		}
+		return !running;
+	}
+	void stop()
+	{
+		running = FALSE;
+	}
+	BOOL running;
+	LLTimer mTimer;
+};
+FollowTimer* follow_timer = NULL;
+void LLFloaterAvatarList::onClickToggleFollower()
+{
+	static const LLCachedControl<F32> follow_interval("FollowInterval", 0.01f);
+	//LLFloaterAvatarList* self = (LLFloaterAvatarList*)user_data;
+
+	if (follow_active)
+	{
+		follow_timer->stop();
+		follow_timer = NULL;
+	}
+	else
+	{
+		follow_timer = new FollowTimer(follow_interval);
+		follow_timer;
+	}
+	//flip
+	follow_active = !follow_active;
+	LLChat chat;
+	chat.mSourceType = CHAT_SOURCE_SYSTEM;
+	chat.mText = llformat("%s%s","Follower is ",(follow_active ? "On" : "Off"));
+	//follow_active = getInstance()->getChild<LLCheckBoxCtrl>("follow_toggle")->get();
+	LLFloaterChat::addChat(chat);
+}
+//<edit>

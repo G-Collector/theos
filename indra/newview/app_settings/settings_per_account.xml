@@ -820,5 +820,28 @@
       <key>Value</key>
       <string/>
     </map>
+    <!--OLD SKOOL-->
+    <key>RadarRezItem</key>
+    <map>
+      <key>Comment</key>
+      <string>UUID of item added to new object created</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
+    <key>FollowInterval</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount of secs in between ticks</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.01</real>
+    </map>
   </map>
 </llsd>

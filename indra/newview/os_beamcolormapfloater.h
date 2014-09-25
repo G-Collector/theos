@@ -21,3 +21,5 @@ class LggBeamColorMap
 	static void show( BOOL showw , void* data);
 };
 
+void hslToRgb1 ( F32 hValIn, F32 sValIn, F32 lValIn, F32& rValOut, F32& gValOut, F32& bValOut );
+

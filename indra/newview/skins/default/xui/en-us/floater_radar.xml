@@ -8,7 +8,7 @@
 	can_drag_on_left="false"
 	rect_control="FloaterRadarRect"
 	min_width="532"
-	min_height="240"
+	min_height="300"
   	width="480" 
 	height="300" >
 	
@@ -165,18 +165,51 @@
 		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnAgeHidden" name="hide_age" label="Age"/>		
 		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnTimeHidden" name="hide_time" label="Time"/>
 		<check_box follows="top|left" bottom_delta="0" left_delta="60" control_name="RadarColumnClientHidden" name="hide_client" label="Client"/>
-
-
+      <text follows="top|left" left="5" bottom_delta="-20" name="hide_columns">OS Rezzer:</text>
+      <text follows="top|left" left="5" bottom_delta="-20" name="hide_columns">Pos:</text>
+      <spinner bottom_delta="-5" decimal_digits="0" follows="top|left" height="16"
+       increment="1" initial_val="128" left="30" max_val="258" min_val="0"
+       mouse_opaque="true" name="X"
+       tool_tip="X coordinate of location to show on map" width="48" />
+      <spinner bottom_delta="0" decimal_digits="0" follows="top|left" height="16"
+           increment="1" initial_val="128" left_delta="50" max_val="258" min_val="0"
+           mouse_opaque="true" name="Y"
+           tool_tip="Y coordinate of location to show on map" width="48" />
+      <spinner bottom_delta="0" decimal_digits="0" follows="top|left" height="16"
+           increment="1" initial_val="0" left_delta="50" max_val="4096" min_val="0"
+           mouse_opaque="true" name="Z"
+           tool_tip="Z coordinate of location to show on map" width="48" />
+      
+    <drop_target control_name="RadarRezItem" follows="top|left" bottom_delta="-1" height="17" left_delta="60" width="321" fill_parent="false" name="radar_object" label="Drop inventory Rez item here." tool_tip="Drop inventory items here to use as the Rez item."/>
+    
     </panel>
   </tab_container>
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Profile" left="140" mouse_opaque="true" name="profile_btn" width="52" />
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="IM" left_delta="55" mouse_opaque="true" name="im_btn" width="42" />
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="TP to" left_delta="45" mouse_opaque="true" name="tp_btn" width="42" />
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="TP offer" left_delta="44" mouse_opaque="true" name="offer_btn" width="54" />
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Track" left_delta="57" mouse_opaque="true" name="track_btn" width="42" />
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Uuid" left_delta="45" mouse_opaque="true" name="get_key_btn" width="42" />
+  <!--Old Skool-->
+  <panel border="false" visible="false" bottom_delta="-5" height="29" left="140" right="-53" follows="left|bottom|right" label="Buttons" mouse_opaque="true" name="oldskool_tab">
 
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Mark" left_delta="45" mouse_opaque="true" name="mark_btn" width="42" />
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="&lt;" left_delta="45" mouse_opaque="true" name="prev_marked_btn" width="22" />
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="&gt;" left_delta="25" mouse_opaque="true" name="next_marked_btn" width="22" />
+    <spinner decimal_digits="0" bottom_delta="-24" follows="left|bottom" height="18" increment="1" initial_val="1"
+    label="Amount" label_width="40" left_delta="0" max_val="999" min_val="0"
+    name="SimmsNumLoopToSend"
+    tool_tip="Number Of Objects To Rez"
+    width="87" />
+    
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Rez Object" left_delta="90" mouse_opaque="true" name="rez_one_btn" width="65" tool_tip="Rez set ammount of the specified object at the selected avatar's position"/>
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Follow" left_delta="65" mouse_opaque="true" name="follow_prim_btn" width="52" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Beams" left_delta="52" mouse_opaque="true" name="all_beam_at" width="42" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Rings" left_delta="42" mouse_opaque="true" name="particle_rings" width="42" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Clear" left_delta="42" mouse_opaque="true" name="clear_effects" width="42" />
+  </panel>
+  <!--Buttons-->
+  <panel border="false" bottom_delta="0" height="29" left="140" right="-53" follows="left|bottom|right" label="Buttons" mouse_opaque="true" name="button_tab">
+    <button bottom_delta="-24" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Profile" left_delta="0" mouse_opaque="true" name="profile_btn" width="52" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="IM" left_delta="55" mouse_opaque="true" name="im_btn" width="42" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="TP to" left_delta="45" mouse_opaque="true" name="tp_btn" width="42" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="TP offer" left_delta="44" mouse_opaque="true" name="offer_btn" width="54" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Track" left_delta="57" mouse_opaque="true" name="track_btn" width="42" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Uuid" left_delta="45" mouse_opaque="true" name="get_key_btn" width="42" />
+    <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="Mark" left_delta="45" mouse_opaque="true" name="mark_btn" width="42" />
+ </panel>
+  
+  <button bottom_delta="5" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="&lt;" left="475" mouse_opaque="true" name="left_btn" width="22" />
+  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center" height="18" label="&gt;" left_delta="25" mouse_opaque="true" name="right_btn" width="22" />
 </floater>

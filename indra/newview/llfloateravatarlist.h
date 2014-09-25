@@ -21,6 +21,10 @@
 #include "lluuid.h"
 #include "lltimer.h"
 #include "llscrolllistctrl.h"
+//<os>
+#include "llhudmanager.h"//for particles/beams
+#include "lleventtimer.h"//for folower
+//</os>
 
 #include <time.h>
 #include <bitset>
@@ -254,7 +258,15 @@ public:
 
 	typedef boost::shared_ptr<LLAvatarListEntry> LLAvatarListEntryPtr;
 	typedef std::vector< LLAvatarListEntryPtr > av_list_t;
-
+	//<edit>
+	static void onClickAllFollowPrim(void *userdata);
+	static void onClickAllFollowPrimLooped();
+	static bool LLFloaterAvatarList::follow_active;
+	static void onClickToggleFollower();
+	static void onClickRezOne(void *userdata);
+	static void onClickRezMultiple(void *userdata);
+	static void onClickFollowPrim(void *userdata);
+	static void onClickFollowPrimDie(void *userdata);
 	// when a line editor loses keyboard focus, it is committed.
 	// commit callbacks are named onCommitWidgetName by convention.
 	//void onCommitBaz(LLUICtrl* ctrl, void *userdata);
@@ -308,12 +320,19 @@ public:
 	 * @param userdata Pointer to user data (LLFloaterAvatarList instance)
 	 */
 
+//<os>
+	static void onClickParticleRings(void *userdata);
+	static void onClickAllBeamAt(void *userdata);
+	static void onClickClearEffects(void *userdata);
+//</os>
 	void onClickIM();
 	void onClickTeleportOffer();
 	void onClickTrack();
 	void onClickMute();
 	void onClickFocus();
 	void onClickGetKey();
+	void onClickLeft();
+	void onClickRight();
 
 	/**
 	*Context Menu

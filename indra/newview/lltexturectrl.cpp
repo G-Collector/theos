@@ -1116,8 +1116,11 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 
 void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 {
-	LLUUID inventory_item_id = findItemID(te.getID(), TRUE);
-	if (inventory_item_id.notNull())
+	//<edit>
+	//LLUUID inventory_item_id = findItemID(te.getID(), TRUE);
+	//if (inventory_item_id.notNull())
+	if (te.getID().notNull())
+	//</edit>
 	{
 		LLToolPipette::getInstance()->setResult(TRUE, "");
 		// <FS:Ansariel> FIRE-8298: Apply now checkbox has no effect
@@ -1138,10 +1141,9 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 		else 
 		{
 			childSetValue("texture_uuid", inventory_item_id.asString());
-		}
-		*/
-		childSetValue("texture_uuid", inventory_item_id.asString());
-		//</os>
+		}*/
+		childSetValue("texture_uuid", te.getID().asString());
+		//</edit>
 		
 		commitIfImmediateSet();
 	}
