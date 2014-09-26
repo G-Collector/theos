@@ -31,11 +31,15 @@
 #include "llappviewer.h"
 #include "llsdutil_math.h"
 #include "llimagej2c.h"
+#include "awavefront.h"
 #include "llassetstorage.h"
 #include "llnotificationsutil.h"
 #include "llviewertexteditor.h"
 
 std::vector<OSFloaterExport*> OSFloaterExport::instances;
+//<Mesh>
+std::map<LLUUID, MeshDetails> OSFloaterExport::mMeshs;
+//</Mesh>
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -148,7 +152,11 @@ LLSD OSExportable::asLLSD()
 			LLViewerObject* object = (*prim_iter);
 
 			LLSD prim_llsd;
-
+			//<Mesh>
+			if(object->isMesh())
+			prim_llsd["type"] = "mesh";
+			else
+			//</Mesh>
 			prim_llsd["type"] = "prim";
 
 			if (!object->isRoot())
@@ -366,6 +374,9 @@ OSFloaterExport::OSFloaterExport(const LLSD&)
 	mCommitCallbackRegistrar.add("Export.SelectAll",	boost::bind(&OSFloaterExport::onClickSelectAll, this));
 	mCommitCallbackRegistrar.add("Export.SelectObjects",	boost::bind(&OSFloaterExport::onClickSelectObjects, this));
 	mCommitCallbackRegistrar.add("Export.SelectWearales",	boost::bind(&OSFloaterExport::onClickSelectWearables, this));
+	//<Mesh>
+	mCommitCallbackRegistrar.add("Export.SelectMeshes", boost::bind(&OSFloaterExport::onClickSelectMeshes, this));
+	//</Mesh>
 	mCommitCallbackRegistrar.add("Export.SaveAs",	boost::bind(&OSFloaterExport::onClickSaveAs, this));
 	mCommitCallbackRegistrar.add("Export.Copy",	boost::bind(&OSFloaterExport::onClickMakeCopy, this));
 	LLUICtrlFactory::getInstance()->buildFloater(this, "os_floater_export.xml", NULL, false);
@@ -384,6 +395,7 @@ OSFloaterExport::~OSFloaterExport(void)
 
 BOOL OSFloaterExport::postBuild()
 {
+	if(LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 0) //fix crash
 	mObjectID = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->getID();
 	mExportList = getChild<LLScrollListCtrl>("export_list");
 	if (mObjectID.isNull())
@@ -584,6 +596,9 @@ void OSFloaterExport::addObjectStuff()
 	
 		if(mExportList->getItemIndex(objectp->getID()) == -1)
 		{
+			//Mesh>
+			bool has_mesh = objectp->isMesh();
+			//</Mesh>
 			bool is_root = true;
 			bool is_attachment = false;
 			LLViewerObject* parentp = objectp->getSubParent();
@@ -626,7 +641,25 @@ void OSFloaterExport::addObjectStuff()
 				LLSD& type_column = element["columns"][LIST_TYPE];
 				type_column["column"] = "type";
 				type_column["type"] = "icon";
-				type_column["value"] = "inv_item_object.tga";
+				//<Mesh>
+				//type_column["value"] = "inv_item_object.tga";
+				if(has_mesh)
+				{
+					type_column["value"] = "inv_item_mesh.tga";
+
+					U32 localid = objectp->getLocalID();
+					if(std::find(mPrimList.begin(), mPrimList.end(), localid) != mPrimList.end())
+					{
+						MeshDetails* details = &mMeshs[objectp->getID()];
+						details->id = objectp->getID();
+						details->name = mPrimNameMap[localid].first;
+					}
+				}
+				else
+				{
+					type_column["value"] = "inv_item_object.tga";
+				}
+				//</Mesh>
 
 				LLSD& name_column = element["columns"][LIST_NAME];
 				name_column["column"] = "name";
@@ -704,8 +737,10 @@ void OSFloaterExport::onClickSelectWearables()
 	std::vector<LLScrollListItem*>::iterator items_end = items.end();
 	bool new_value = false;
 	for( ; item_iter != items_end; ++item_iter)
-	{
-		if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_object.tga")
+	{//<Mesh>
+		//if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_object.tga")
+		if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_object.tga" && ((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_mesh.tga")
+		//</Mesh>if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_object.tga" && ((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_mesh.tga")
 		{
 			new_value = !((*item_iter)->getColumn(LIST_CHECKED)->getValue());
 			break;
@@ -713,13 +748,43 @@ void OSFloaterExport::onClickSelectWearables()
 	}
 	for(item_iter = items.begin(); item_iter != items_end; ++item_iter)
 	{
-		if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_object.tga")
+		//<Mesh>
+		//if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_object.tga")
+		if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_object.tga" && ((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() != "inv_item_mesh.tga")
+		//</Mesh>
 		{
 			LLScrollListItem* item = (*item_iter);
 			item->getColumn(LIST_CHECKED)->setValue(new_value);
 		}
 	}
 }
+
+//<Mesh>
+//static
+void OSFloaterExport::onClickSelectMeshes()
+{
+	std::vector<LLScrollListItem*> items = mExportList->getAllData();
+	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
+	std::vector<LLScrollListItem*>::iterator items_end = items.end();
+	bool new_value = false;
+	for( ; item_iter != items_end; ++item_iter)
+	{
+		if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() == "inv_item_mesh.tga")
+		{
+			new_value = !((*item_iter)->getColumn(LIST_CHECKED)->getValue());
+			break;
+		}
+	}
+	for(item_iter = items.begin(); item_iter != items_end; ++item_iter)
+	{
+		if(((*item_iter)->getColumn(LIST_TYPE)->getValue()).asString() == "inv_item_mesh.tga")
+		{
+			LLScrollListItem* item = (*item_iter);
+			item->getColumn(LIST_CHECKED)->setValue(new_value);
+		}
+	}
+}
+//</Mesh>
 
 LLSD OSFloaterExport::getLLSD()
 {
@@ -870,6 +935,9 @@ void OSFloaterExport::onClickSaveAs()
 		int item_count = 0;
 		LLUUID avatarid = (*(items.begin()))->getColumn(LIST_AVATARID)->getValue().asUUID();
 		bool all_same_avatarid = true;
+		//<Mesh>
+		bool is_mesh = false;
+		//</Mesh>
 		std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
 		std::vector<LLScrollListItem*>::iterator items_end = items.end();
 		for( ; item_iter != items_end; ++item_iter)
@@ -878,7 +946,14 @@ void OSFloaterExport::onClickSaveAs()
 			if(item->getColumn(LIST_CHECKED)->getValue())
 			{
 				item_count++;
-				if(item->getColumn(LIST_AVATARID)->getValue().asUUID() != avatarid)
+				//<Mesh>
+				//if(item->getColumn(LIST_AVATARID)->getValue().asUUID() != avatarid)
+				if(item->getColumn(LIST_TYPE)->getValue().asString() == "inv_item_mesh.tga")
+				{
+					is_mesh = true;
+				}
+				else if(item->getColumn(LIST_AVATARID)->getValue().asUUID() != avatarid)
+				//</Mesh>
 				{
 					all_same_avatarid = false;
 				}

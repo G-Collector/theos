@@ -16,6 +16,14 @@
 #include "statemachine/aifilepicker.h"
 #include "llvoinventorylistener.h" //INV
 
+//<Mesh>
+struct MeshDetails
+{
+	LLUUID id;
+	std::string name;
+};
+//</Mesh>
+
 class LLScrollListCtrl;
 class OSExportable : public LLVOInventoryListener //INV
 {
@@ -60,6 +68,9 @@ public:
 	void onClickSelectAll();
 	void onClickSelectObjects();
 	void onClickSelectWearables();
+	//<Mesh>
+	void onClickSelectMeshes();
+	//</Mesh>
 	void onClickMakeCopy();
 	void onClickSaveAs();
 
@@ -107,6 +118,9 @@ public:
 	//void addToExportables(LLUUID id, LLSD data);
 	std::map<LLUUID, LLSD> mExportables;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
+	//<Mesh>
+	static std::map<LLUUID, MeshDetails> mMeshs;
+	//</Mesh>
 };
 
 #endif //OS_FLOATEREXPORT_H
