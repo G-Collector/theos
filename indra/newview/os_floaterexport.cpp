@@ -373,7 +373,7 @@ OSFloaterExport::OSFloaterExport(const LLSD&)
 {
 	mCommitCallbackRegistrar.add("Export.SelectAll",	boost::bind(&OSFloaterExport::onClickSelectAll, this));
 	mCommitCallbackRegistrar.add("Export.SelectObjects",	boost::bind(&OSFloaterExport::onClickSelectObjects, this));
-	mCommitCallbackRegistrar.add("Export.SelectWearales",	boost::bind(&OSFloaterExport::onClickSelectWearables, this));
+	mCommitCallbackRegistrar.add("Export.SelectWearables",	boost::bind(&OSFloaterExport::onClickSelectWearables, this));
 	//<Mesh>
 	mCommitCallbackRegistrar.add("Export.SelectMeshes", boost::bind(&OSFloaterExport::onClickSelectMeshes, this));
 	//</Mesh>

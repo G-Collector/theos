@@ -41,7 +41,7 @@
 	     mouse_opaque="true" name="select_wearables_btn"
 	     width="80" >
     <button.commit_callback
-		function="Export.SelectWearales" />
+		function="Export.SelectWearables" />
   </button>
 
   <check_box bottom="34" left="15" width="250" height="16" name="download_textures" label="Download Textures" initial_value="false"/>
