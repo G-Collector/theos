@@ -3605,9 +3605,14 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 	if (mDrawable->isState(LLDrawable::RIGGED))
 	{
 		static const LLCachedControl<bool> allow_mesh_picking("SGAllowRiggedMeshSelection");
-		if (allow_mesh_picking && (gFloaterTools->getVisible() || LLFloaterInspect::findInstance()))
+		//<os> - Allow Rigged Mesh Selection.
+		static const LLCachedControl<bool> allow_mesh_picking_others("SGAllowRiggedMeshSelectionOthers");
+		//if (allow_mesh_picking && (gFloaterTools->getVisible() || LLFloaterInspect::findInstance()))
+		if (allow_mesh_picking_others || allow_mesh_picking && gFloaterTools->getVisible() && getAvatar()->isSelf() || LLFloaterInspect::findInstance())
 		{
-			updateRiggedVolume();
+			//updateRiggedVolume();
+			updateRiggedVolume(true);
+		//</os>
 			//genBBoxes(FALSE);
 			volume = mRiggedVolume;
 			transform = false;
@@ -3787,7 +3792,10 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
 bool LLVOVolume::treatAsRigged()
 {
-	return (gFloaterTools->getVisible() || LLFloaterInspect::findInstance()) &&
+	//<os>
+	//return (gFloaterTools->getVisible() || LLFloaterInspect::findInstance()) &&
+	return isSelected() &&
+	//</os>	
 			isAttachment() && 
 			mDrawable.notNull() &&
 			mDrawable->isState(LLDrawable::RIGGED);
@@ -3807,12 +3815,16 @@ void LLVOVolume::clearRiggedVolume()
 	}
 }
 
-void LLVOVolume::updateRiggedVolume()
+//<os>
+//void LLVOVolume::updateRiggedVolume()
+void LLVOVolume::updateRiggedVolume(bool force_update)
 {
 	//Update mRiggedVolume to match current animation frame of avatar. 
 	//Also update position/size in octree.  
 
-	if (!treatAsRigged())
+	//if (!treatAsRigged())
+	if ((!force_update) && (!treatAsRigged()))
+//</os>
 	{
 		clearRiggedVolume();
 		

@@ -4397,7 +4397,12 @@ public:
 				if (vobj->isAvatar())
 				{
 					LLVOAvatar* avatar = (LLVOAvatar*) vobj;
-					if (gFloaterTools->getVisible() || LLFloaterInspect::findInstance())
+					//<os> - Allow Rigged Selection.
+					static const LLCachedControl<bool> allow_mesh_picking("SGAllowRiggedMeshSelection");
+					static const LLCachedControl<bool> allow_mesh_picking_others("SGAllowRiggedMeshSelectionOthers");
+					//if (gFloaterTools->getVisible() || LLFloaterInspect::findInstance())
+					if (allow_mesh_picking_others || allow_mesh_picking && avatar->isSelf() && gFloaterTools->getVisible() || LLFloaterInspect::findInstance())
+					//</os>
 					{
 						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mTangent);
 						if (hit)
