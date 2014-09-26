@@ -477,9 +477,10 @@ void LLFloaterCustomize::onBtnExport()
 		LLViewerInventoryItem* item = gInventory.getItem(old_wearable->getItemID());
 		if (item)
 		{
-			LLPermissions const& perm = item->getPermissions();
+			//LLPermissions const& perm = item->getPermissions();
 			// Modifiable means the user can see the sliders and type them over into a file anyway.
-			is_modifiable = perm.allowModifyBy(gAgent.getID(), gAgent.getGroupID());
+			//is_modifiable = perm.allowModifyBy(gAgent.getID(), gAgent.getGroupID());
+			is_modifiable = TRUE;
 		}
 	}
 

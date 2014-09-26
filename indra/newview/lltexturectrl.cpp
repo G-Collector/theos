@@ -378,8 +378,8 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 	if ((cargo_type == DAD_TEXTURE) || is_mesh)
 	{
 		LLInventoryItem *item = (LLInventoryItem *)cargo_data;
-
-		BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
+		//<os>
+		/*BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 		BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
 		BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
 															gAgent.getID());
@@ -390,14 +390,10 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 		if (xfer) item_perm_mask |= PERM_TRANSFER;
 		
 		//PermissionMask filter_perm_mask = getFilterPermMask();  Commented out due to no-copy texture loss.
-		//<os>
-		/*
 		PermissionMask filter_perm_mask = mDnDFilterPermMask;
 		if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
-		*/
-		if(1)
+		{*/
 		//</os>
-		{
 			if (drop)
 			{
 				// <FS:Ansariel> FIRE-8298: Apply now checkbox has no effect
@@ -408,11 +404,13 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 			}
 
 			*accept = ACCEPT_YES_SINGLE;
-		}
+		//<os>
+		/*}
 		else
 		{
 			*accept = ACCEPT_NO;
-		}
+		}*/
+		//</os>
 	}
 	else
 	{
@@ -1116,12 +1114,13 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 
 void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 {
-	//<edit>
-	//LLUUID inventory_item_id = findItemID(te.getID(), TRUE);
-	//if (inventory_item_id.notNull())
-	if (te.getID().notNull())
-	//</edit>
+//<os>
+/*
+	LLUUID inventory_item_id = findItemID(te.getID(), TRUE);
+	if (inventory_item_id.notNull())
 	{
+*/
+//</os>
 		LLToolPipette::getInstance()->setResult(TRUE, "");
 		// <FS:Ansariel> FIRE-8298: Apply now checkbox has no effect
 		setCanApply(true, true);
@@ -1143,14 +1142,18 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 			childSetValue("texture_uuid", inventory_item_id.asString());
 		}*/
 		childSetValue("texture_uuid", te.getID().asString());
-		//</edit>
+		//</os>
 		
 		commitIfImmediateSet();
+//<os>
+/*
 	}
 	else
 	{
 		LLToolPipette::getInstance()->setResult(FALSE, LLTrans::getString("InventoryNoTexture"));
 	}
+*/
+//</os>
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1757,6 +1760,8 @@ void LLTextureCtrl::draw()
 
 BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 {
+//<os>
+/*
 	BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 	BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
 	BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
@@ -1769,14 +1774,11 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	
 //	PermissionMask filter_perm_mask = mCanApplyImmediately ?			commented out due to no-copy texture loss.
 //			mImmediateFilterPermMask : mNonImmediateFilterPermMask;
-	// <os>
-	/*
 	PermissionMask filter_perm_mask = mImmediateFilterPermMask;
 	if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
-	*/
-	if(1)
-	// </os>
 	{
+*/
+//</os>
 		if(mDragCallback)
 		{
 			return mDragCallback(this, item);
@@ -1785,11 +1787,15 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 		{
 			return TRUE;
 		}
+//<os>
+/*
 	}
 	else
 	{
 		return FALSE;
 	}
+*/
+//</os>
 }
 
 BOOL LLTextureCtrl::doDrop(LLInventoryItem* item)
@@ -1820,7 +1826,12 @@ BOOL LLTextureCtrl::handleUnicodeCharHere(llwchar uni_char)
 
 void LLTextureCtrl::setValue( const LLSD& value )
 {
-	setImageAssetID(value.asUUID());
+	// <os>
+	//setImageAssetID(value.asUUID());
+	LLUUID uuid = value.asUUID();
+	setImageAssetID(uuid);
+	LLView::setEnabled( (uuid.notNull()) );
+	// </os>
 }
 
 LLSD LLTextureCtrl::getValue() const

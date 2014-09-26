@@ -722,8 +722,10 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 				}
 			}
 		}
-
-		if (mInsignia) mInsignia->setEnabled(can_change_ident);
+		// <os>
+		//if (mInsignia) mInsignia->setEnabled(can_change_ident);
+		if (mInsignia) mInsignia->setEnabled(TRUE);
+		// </os>
 		if (mEditCharter) mEditCharter->setEnabled(can_change_ident);
 	
 		if (mGroupName) mGroupName->setText(gdatap->mName);

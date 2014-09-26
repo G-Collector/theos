@@ -109,7 +109,10 @@ LLFloaterPay::LLFloaterPay(const std::string& name,
     childSetVisible("amount text", FALSE);	
 
 	std::string last_amount;
-	if(sLastAmount > 0)
+	// <edit>
+	//if(sLastAmount > 0)
+	if(1)
+	// </edit>
 	{
 		last_amount = llformat("%d", sLastAmount);
 	}
@@ -125,7 +128,10 @@ LLFloaterPay::LLFloaterPay(const std::string& name,
 	pay_btn->setClickedCallback(boost::bind(&LLFloaterPay::onGive,this,boost::ref(mDefaultValue)));
 	setDefaultBtn(pay_btn);
 	pay_btn->setVisible(false);
-	pay_btn->setEnabled(sLastAmount > 0);
+	// <edit>
+	//childSetEnabled("pay btn", (sLastAmount > 0));
+	childSetEnabled("pay btn", TRUE);
+	// </edit>
 
 	getChild<LLButton>("cancel btn")->setClickedCallback(boost::bind(&LLFloaterPay::onCancel,this));
 
@@ -160,9 +166,14 @@ void LLFloaterPay::processPayPriceReply(LLMessageSystem* msg, void **userdata)
 		
 		if (PAY_PRICE_HIDE == price)
 		{
-			self->childSetVisible("amount", FALSE);
-			self->childSetVisible("pay btn", FALSE);
-			self->childSetVisible("amount text", FALSE);
+			// <edit>
+			//self->childSetVisible("amount", FALSE);
+			//self->childSetVisible("pay btn", FALSE);
+			//self->childSetVisible("amount text", FALSE);
+			self->childSetVisible("amount", TRUE);
+			self->childSetVisible("pay btn", TRUE);
+			self->childSetVisible("amount text", TRUE);
+			// </edit>
 		}
 		else if (PAY_PRICE_DEFAULT == price)
 		{			
@@ -370,7 +381,10 @@ void LLFloaterPay::onKeystroke(LLLineEditor* caller)
 {
 	// enable the Pay button when amount is non-empty and positive, disable otherwise
 	std::string amtstr = caller->getValue().asString();
-	childSetEnabled("pay btn", !amtstr.empty() && atoi(amtstr.c_str()) > 0);
+		// <edit>
+		//childSetEnabled("pay btn", !amtstr.empty() && atoi(amtstr.c_str()) > 0);
+		childSetEnabled("pay btn", !amtstr.empty());
+		// </edit>
 }
 
 void LLFloaterPay::onGive(const S32& amount)
@@ -428,7 +442,14 @@ void LLFloaterPay::give(S32 amount)
 		else
 		{
 			// just transfer the L$
+			// <edit>
+			if(childGetText("description") == "")
+			// </edit>
 			mCallback(mTargetUUID, gAgent.getRegion(), amount, mTargetIsGroup, TRANS_GIFT, LLStringUtil::null);
+			// <edit>
+			else
+				mCallback(mTargetUUID, gAgent.getRegion(), amount, mTargetIsGroup, TRANS_OBJECT_SALE, childGetText("description"));
+			// </edit>
 
 			// check if the payee needs to be unmuted
 			LLMuteList::getInstance()->autoRemove(mTargetUUID, LLMuteList::AR_MONEY);

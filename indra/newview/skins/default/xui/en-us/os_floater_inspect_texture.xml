@@ -15,13 +15,20 @@
    name="timeStamp">
     [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
   </floater.string>
-  <texture_picker
-   follows="left|top"
-   bottom="124"
-   height="256"
-   width="256"
-   left="5"
-   name="imagette" />
+
+  <texture_picker 
+    allow_no_texture="true" 
+    bottom="124" 
+    can_apply_immediately="false"     
+    default_image_name="" 
+    enabled="true" 
+    follows="left|top" 
+    height="256"   
+    label="" 
+    left="5" 
+    mouse_opaque="true" 
+    name="imagette"
+    width="256" />
   <text_editor
     bottom="35"
     left="5"
