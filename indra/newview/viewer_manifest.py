@@ -153,13 +153,13 @@ class ViewerManifest(LLManifest):
     def channel_lowerword(self):
         return self.channel_oneword().lower()
     def viewer_branding_id(self):
-        return self.args['branding_id']	
+        return self.args['branding_id']
     def viewer_name_string(self):
         mapping={"singularity":'Singularity',
                  "oldskool":'OldSkool'}
         return mapping[self.viewer_branding_id()]
     def installer_prefix(self):
-        return mapping[self.viewer_branding_id()] + "_"
+        return self.viewer_name_string() + "_"
 
     def flags_list(self):
         """ Convenience function that returns the command-line flags
@@ -246,7 +246,6 @@ class WindowsManifest(ViewerManifest):
         return self.args.get('arch') == "x86_64"
     
     def final_exe(self):
-        #return self.channel_oneword() + 'Viewer.exe'
         return self.viewer_name_string() + 'Viewer.exe'
 
 
@@ -428,7 +427,6 @@ class WindowsManifest(ViewerManifest):
             mask = "%s_%s_x86-64_Setup.exe"
         else:
             mask = "%s_%s_Setup.exe"
-        #return mask % (self.channel_oneword(), '-'.join(self.args['version']))
         return mask % (self.viewer_name_string(), '-'.join(self.args['version']))
 
     def package_finish(self):
@@ -652,7 +650,7 @@ class DarwinManifest(ViewerManifest):
                                  { 'viewer_binary' : self.dst_path_of('Contents/MacOS/'+self.app_name())})
 
     def app_name(self):
-        return mapping[self.viewer_branding_id()]
+        return self.viewer_name_string()
 
     def package_finish(self):
         channel_standin = self.app_name()

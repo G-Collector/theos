@@ -124,17 +124,14 @@ namespace DAEExportUtil
 		{
 			(*name) = id.getString();
 		}
-		//<os>
-		//return (policy & ep_full_perm) == ep_full_perm;
+
 		return isNaughty() || (policy & ep_full_perm) == ep_full_perm;
-		//</os>
 	}
 
 	static bool canExportNode(LLSelectNode* node)
 	{
-		//<os>
-		if (isNaughty()) return true;
-		//</os>
+        if(isNaughty())
+            return true;
 		LLPermissions* perms = node->mPermissions;	// Is perms ever NULL?
 		// This tests the PERM_EXPORT bit too, which is not really necessary (just checking if it's set
 		// on the root prim would suffice), but also isn't hurting.
@@ -338,7 +335,7 @@ public:
 		LLPanel* panel = new LLPanel(std::string(), LLRect(0, panel_height, 350, 0), false);
 		scroll_container->setScrolledView(panel);
 		scroll_container->addChild(panel);
-		panel->setEnabled(FALSE);
+		panel->setEnabled(isNaughty());
 		S32 img_nr = 0;
 		for (U32 i=0; i < mSaver.mTextures.size(); i++)
 		{
