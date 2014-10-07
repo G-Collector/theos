@@ -34,6 +34,7 @@ class OSExportable : public LLVOInventoryListener //INV
 	};
 
 public:
+	OSExportable(LLViewerObject* object);
 	OSExportable(LLViewerObject* object, std::string name, std::map<U32,std::pair<std::string, std::string> >& primNameMap);
 	OSExportable(LLVOAvatar* avatar, LLWearableType::EType type, std::map<U32,std::pair<std::string, std::string> >& primNameMap);
 
@@ -74,7 +75,6 @@ public:
 	void onClickMakeCopy();
 	void onClickSaveAs();
 
-	void addObjectStuff();
 	void addAvatarStuff(LLVOAvatar* avatarp);
 	void receivePrimName(LLViewerObject* object, std::string name, std::string desc);
 

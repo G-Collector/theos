@@ -45,7 +45,7 @@
   </button>
 
   <check_box bottom="34" left="15" width="250" height="16" name="download_textures" label="Download Textures" initial_value="false"/>
-  <check_box bottom_delta="-16" left="15" width="250" height="20" name="export_inventory" label="Download Inventory" initial_value="false"/>
+  <check_box bottom_delta="-16" left="15" width="250" height="20" control_name="XmlExportInventory" label="Download Inventory" initial_value="false" name="export_inventory"/>
 
   <button bottom="8" follows="bottom|left" font="SansSerif" halign="center"
 	     height="20" label="Save As..." label_selected="All" left="139"

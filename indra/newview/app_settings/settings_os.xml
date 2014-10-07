@@ -511,7 +511,7 @@
       			<key>Value</key>
       			<integer>0</integer>
     		</map>
-    		<key>SGAllowRiggedMeshSelectionOthers</key>
+    <key>SGAllowRiggedMeshSelectionOthers</key>
     		<map>
       			<key>Comment</key>
       			<string>Allow selection of worn rigged meshes from others in build mode</string>
@@ -522,5 +522,16 @@
       			<key>Value</key>
       			<integer>1</integer>
     		</map>
+    <key>XmlExportInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>Download Object Inventory with xml exports.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   	</map>
 </llsd>
