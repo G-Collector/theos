@@ -1278,6 +1278,11 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 // 						mRawDiscardLevel, 
 // 						mRawImage->getWidth(), mRawImage->getHeight(),mRawImage->getDataSize())
 // 			<< mID.getString() << llendl;
+
+	// <os>
+	mDecodedComment = mRawImage->decodedComment;
+	// </os>
+
 	BOOL res = TRUE;
 	if (!gNoRender)
 	{

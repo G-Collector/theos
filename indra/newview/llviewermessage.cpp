@@ -2650,6 +2650,29 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLPointer<LLIMInfo> im_info = new LLIMInfo(gMessageSystem);
 			gIMMgr->processIMTypingStop(im_info);
 			script_msg_api(from_id.asString() + ", 5");
+			// <os> Ping Sniff
+			if (isNaughty() && gSavedSettings.getBOOL("OSReportAbnormalTypeStop"))
+			{
+				if (message != "typing")
+				{
+					std::string pns_name;
+					if (!LLAvatarNameCache::getPNSName(from_id, pns_name)) pns_name = name;
+					gIMMgr->addMessage(
+						session_id,
+						from_id,
+						name,
+						llformat("/me (IM_TYPING_STOP): %s", message.c_str()),
+						name,
+						dialog,
+						parent_estate_id,
+						region_id,
+						position,
+						true);
+					chat.mText = llformat("IM: %s (IM_TYPING_STOP): %s", pns_name.c_str(), message.c_str());
+					LLFloaterChat::addChat(chat, true, false);
+				}
+			}
+			// </os>
 		}
 		break;
 

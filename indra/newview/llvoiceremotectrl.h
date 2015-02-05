@@ -56,6 +56,10 @@ public:
 	static void onClickPopupBtn(void* user_data);
 	static void onClickVoiceChannel();
 	static void onClickEndCall();
+	//<os>
+	static void onClickPosLock(void* user_data);
+	static void onClickPosLockToCam(void* user_data);
+	//</os>
 
 protected:
 	LLButton* mTalkBtn;
@@ -63,6 +67,10 @@ protected:
 	LLButton* mSpeakersBtn;
 	CachedUICtrl<LLIconCtrl> mVoiceVolIcon;
 	CachedUICtrl<LLButton> mShowChanBtn;
+	//<os>
+	LLButton* mPosLockBtn;
+	LLButton* mPosLockToCamBtn;
+	//</os>
 };
 
 #endif // LL_LLVOICEREMOTECTRL_H

@@ -2139,6 +2139,19 @@ bool idle_startup()
  				LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
  			}
  		}
+		// <os>
+		if (gSavedSettings.getBOOL("OSLocalInventoryEnabled"))
+		{
+			LLViewerInventoryCategory* local_folder = new LLViewerInventoryCategory(gAgent.getID());
+			local_folder->rename(std::string("Local Inventory"));
+			LLUUID local_folder_id = LLUUID("00000000-0000-0000-0000-000000000001");
+			local_folder->setUUID(local_folder_id);
+			gLocalInventoryRoot = local_folder_id;
+			local_folder->setParent(LLUUID::null);
+			local_folder->setPreferredType(LLFolderType::FT_ROOT_INVENTORY);
+			gInventory.addCategory(local_folder);
+		}
+		// </os>
 		display_startup();
 
 		LLSD buddy_list = response["buddy-list"];

@@ -129,6 +129,7 @@ private:
 	void addImageToList(LLViewerFetchedTexture *image);
 	void removeImageFromList(LLViewerFetchedTexture *image);
 
+public: //<os> - for texture inspect
 	LLViewerFetchedTexture * getImage(const LLUUID &image_id,									 
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
@@ -138,6 +139,7 @@ private:
 									 LLHost request_from_host = LLHost()
 									 );
 	
+private: //<os>	
 	LLViewerFetchedTexture * getImageFromFile(const std::string& filename,									 
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.

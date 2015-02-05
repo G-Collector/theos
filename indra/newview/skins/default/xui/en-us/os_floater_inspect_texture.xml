@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ min_height="400"
+ min_width="730"
+ name="inspect_texture"
+ help_topic="inspect_texture"
+ save_rect="true"
+ title="Object Texture Inspect"
+ width="850">
+  <floater.string
+   name="timeStamp">
+    [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+  </floater.string>
+  <texture_picker
+   follows="left|top"
+   bottom="124"
+   height="256"
+   width="256"
+   left="5"
+   name="imagette" />
+  <text_editor
+    bottom="35"
+    left="5"
+    width="256"
+    height="100"
+    layout="topleft"
+    follows="left|top|bottom"
+    name="stats_text"
+    max_length="2048"
+    bg_visible="false"
+    border_visible="true"
+    allow_scroll="true"
+    h_pad="2"
+    v_pad="0"
+    read_only="true"
+    translate="false"
+    value="(loading...)"
+    word_wrap="true"/>
+   <scroll_list
+   bottom="35"
+   height="344"
+   column_padding="0"
+   draw_heading="true"
+   follows="all"
+   layout="topleft"
+   left="265"
+   name="object_list"
+   right="-10"
+   tool_tip="Select an object from this list to highlight it in-world">
+    <column
+     label="UUID Texture"
+     name="uuid_text"
+     dynamic_width="true" />
+    <column
+     width="53"
+     label="Height"
+     name="height" />
+    <column
+     width="53"
+     label="Width"
+     name="width" />
+    <column
+     width="70"
+     label="Channels"
+     name="alpha" />
+    <column
+     width="70"
+     label="Memory"
+     name="size" />
+    <column
+    width="70"
+    label="Effect"
+    name="effect" />
+    <column
+     width="100"
+     label="Type"
+     name="types" />
+    <column
+     width="1"
+     label=""
+     name="objid" />
+    <column
+     width="100"
+     label="Uploader"
+     name="uploader" />
+    <scroll_list.commit_callback
+     function="Inspect.SelectObject" />
+  </scroll_list>
+  <button
+   follows="left|bottom"
+   height="22"
+   label="Rip selected texture"
+   layout="topleft"
+   left="5"
+   name="button selection"
+   bottom="5"
+   width="129">
+    <button.commit_callback
+		function="Inspect.CpToInvSelected" />
+  </button>
+  <button
+   follows="left|bottom"
+   height="22"
+   label="Rip all textures"
+   layout="topleft"
+   left_delta="130"
+   name="button all"
+   bottom_delta="0"
+   width="129">
+    <button.commit_callback
+		function="Inspect.CpToInvAll" />
+  </button>
+  <button
+   follows="left|bottom"
+   height="22"
+   label="Rip selected particle script"
+   layout="topleft"
+   left_delta="130"
+   name="ripparticle"
+   bottom_delta="0"
+   width="200">
+    <button.commit_callback
+		function="Inspect.RipParticleScript" />
+  </button>
+  <button
+  follows="left|bottom"
+  height="22"
+  label="Rip selected anim script"
+  layout="topleft"
+  left_delta="200"
+  name="ripanim"
+  bottom_delta="0"
+  width="200">
+    <button.commit_callback
+		function="Inspect.RipAnimScript" />
+  </button>
+</floater>

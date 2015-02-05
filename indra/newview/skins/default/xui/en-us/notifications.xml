@@ -3103,6 +3103,20 @@ Your privilege to modify [NAME]&apos;s objects has been revoked
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="GrantedMapRights"
+   type="notify">
+    [NAME] has granted you the privilege of finding them on the world map [NAME].
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="RevokedMapRights"
+   type="notify">
+    Your privilege of finding [NAME] on the world map has been revoked.
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="FlushMapVisibilityCaches"
    type="alertmodal">
@@ -10417,6 +10431,21 @@ Would you like to enable announcing keys to objects in the sim?
      notext="No"
      canceltext="No, don't ask again!"/>
   </notification>
+
+<!--os-->
+  <notification
+    icon="alertmodal.tga"
+    name="ScriptRipFunction"
+    type="alertmodal">
+    Please choose where to copy your script.
+    <tag>Clipboard</tag>
+    <tag>Inventory</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Inventory"
+     yestext="Clipboard"/>
+  </notification>
+<!--/os-->   
 
   <notification
    icon="alertmodal.tga"

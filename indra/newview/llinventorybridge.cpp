@@ -90,6 +90,12 @@
 #include "rlvlocks.h"
 // [/RLVa:KB]
 
+// <os> System folder, local inventory
+#include "llappviewer.h"
+#include "os_floatertexteditor.h"
+#include "os_floaterhex.h"
+// </os>
+
 // Marketplace outbox current disabled
 #define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1
 #define ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU 1
@@ -375,6 +381,9 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 			move_ids.push_back(item->getUUID());
 			--update[item->getParentUUID()];
 			++update[trash_id];
+			//<os>
+			if (gInventory.isObjectDescendentOf(item->getUUID(), gLocalInventoryRoot)) continue;
+			//</os
 			if(start_new_message)
 			{
 				start_new_message = false;
@@ -448,12 +457,46 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	uuid_vec_t::iterator end = move_ids.end();
 	for(; it != end; ++it)
 	{
-		gInventory.moveObject((*it), trash_id);
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		if (item)
+	//<os>
+		//gInventory.moveObject((*it), trash_id);
+		if (gInventory.isObjectDescendentOf(*it, gLocalInventoryRoot))
 		{
-			model->updateItem(item);
+			//if it is a category, delete descendents
+			if (gInventory.getCategory(*it))
+			{
+				LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
+				cat->setDescendentCount(0);
+				LLInventoryModel::cat_array_t categories;
+				LLInventoryModel::item_array_t items;
+				gInventory.collectDescendents(cat->getUUID(),
+					categories,
+					items,
+					false); // Include trash?
+				S32 count = items.count();
+				S32 i;
+				for (i = 0; i < count; ++i)
+				{
+					gInventory.deleteObject(items.get(i)->getUUID());
+				}
+				count = categories.count();
+				for (i = 0; i < count; ++i)
+				{
+					gInventory.deleteObject(categories.get(i)->getUUID());
+				}
+			}
+			// delete it
+			gInventory.deleteObject(*it);
 		}
+		else
+		{
+			gInventory.moveObject((*it), trash_id);
+			LLViewerInventoryItem* item = gInventory.getItem(*it);
+			if (item)
+			{
+				model->updateItem(item);
+			}
+		}
+		//</os>
 	}
 
 	// notify inventory observers.
@@ -708,7 +751,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			if (show_asset_id)
 			{
 				items.push_back(std::string("Copy Asset UUID"));
-
+				//<os>
+				/*
 				bool is_asset_knowable = false;
 
 				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
@@ -722,6 +766,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				{
 					disabled_items.push_back(std::string("Copy Asset UUID"));
 				}
+				*/
+				//</os>
 			}
 			items.push_back(std::string("Copy Separator"));
 
@@ -747,6 +793,11 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 					disabled_items.push_back(std::string("Merchant Copy"));
 				}
 			}
+			//<os>
+			items.push_back(std::string("Open With..."));
+			items.push_back(std::string("Save As..."));
+			items.push_back(std::string("Save InvCache..."));
+			//</os>
 		}
 	}
 
@@ -1433,7 +1484,10 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		// Single item only
 		LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 		if(!item) return;
-		LLUUID asset_id = item->getProtectedAssetUUID();
+		//<os>
+		//LLUUID asset_id = item->getProtectedAssetUUID();
+		LLUUID asset_id = item->getAssetUUID();
+		//</os>
 		std::string buffer;
 		asset_id.toString(buffer);
 
@@ -1486,6 +1540,67 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		folder_view_itemp->getListener()->pasteLinkFromClipboard();
 		return;
 	}
+	// <os>
+	else if ("open hex" == action)
+	{
+		LLInventoryItem* item = model->getItem(mUUID);
+		if (!item) return;
+		DOFloaterHex::show(mUUID);
+	}
+	else if ("open text" == action)
+	{
+		LLInventoryItem* item = model->getItem(mUUID);
+		if (!item) return;
+		HGFloaterTextEditor::show(mUUID);
+	}
+	else if ("rez" == action)
+	{
+		LLInventoryItem* item = model->getItem(mUUID);
+		if (!item) return;
+		LLViewerRegion* regionp = gAgent.getRegion();
+		if (!regionp)
+		{
+			LL_WARNS("InventoryBridge") << "Couldn't find region to rez object" << LL_ENDL;
+			return;
+		}
+		make_ui_sound("UISndObjectRezIn");
+		if (regionp && (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
+		{
+			LLFirstUse::useSandbox();
+		}
+		BOOL remove_from_inventory = !item->getPermissions().allowCopyBy(gAgent.getID());
+		LLVector3 rezpos = gAgent.getPositionAgent() + (gAgent.getAtAxis() * 5.0f);
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_RezObject);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
+		msg->addUUIDFast(_PREHASH_SessionID, gAgentSessionID);
+		msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
+		msg->nextBlock("RezData");
+		// if it's being rezzed from task inventory, we need to enable
+		// saving it back into the task inventory.
+		// *FIX: We can probably compress this to a single byte, since I
+		// think folderid == mSourceID. This will be a later optimization.
+		// Currently this is a null key... maybe implement this?
+		msg->addUUIDFast(_PREHASH_FromTaskID, LLUUID::null);
+		msg->addU8Fast(_PREHASH_BypassRaycast, (U8)TRUE);
+		msg->addVector3Fast(_PREHASH_RayStart, rezpos);
+		msg->addVector3Fast(_PREHASH_RayEnd, rezpos);
+		msg->addUUIDFast(_PREHASH_RayTargetID, LLUUID::null);
+		msg->addBOOLFast(_PREHASH_RayEndIsIntersection, FALSE);
+		msg->addBOOLFast(_PREHASH_RezSelected, true);
+		msg->addBOOLFast(_PREHASH_RemoveItem, remove_from_inventory);
+
+		// deal with permissions slam logic
+		pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
+
+		LLUUID folder_id = item->getParentUUID();
+		msg->nextBlockFast(_PREHASH_InventoryData);
+		item->packMessage(msg);
+
+		msg->sendReliable(regionp->getHost());
+	}
+	// </os>
 	else if (isMarketplaceCopyAction(action))
 	{
 		llinfos << "Copy item to marketplace action!" << llendl;
@@ -1772,6 +1887,19 @@ BOOL LLItemBridge::removeItem()
 
 	// Already in trash
 	if (model->isObjectDescendentOf(mUUID, trash_id)) return FALSE;
+	// <os> The Trash Problem
+	else
+	{
+		if (gInventory.isObjectDescendentOf(mUUID, gLocalInventoryRoot))
+		{
+			LLInventoryModel::LLCategoryUpdate up(item->getParentUUID(), -1);
+			gInventory.deleteObject(mUUID);
+			gInventory.accountForUpdate(up);
+			gInventory.notifyObservers();
+			return TRUE;
+		}
+	}
+	// </os>
 
 	LLNotification::Params params("ConfirmItemDeleteHasLinks");
 	params.functor(boost::bind(&LLItemBridge::confirmRemoveItem, this, _1, _2));

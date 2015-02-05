@@ -111,6 +111,9 @@
 #include "lluictrlfactory.h"
 #include "llvelocitybar.h"
 #include "llviewerparcelmgr.h"
+//<os>
+#include "os_floaterinspecttexture.h"
+// </os>
 // [RLVa:LF]
 #include "rlvfloaters.h"
 // [/RLVa:LF]
@@ -201,6 +204,9 @@ struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
 		registerFloater("script errors", boost::bind(LLFloaterScriptDebug::show, LLUUID::null));
 		registerFloater("search", boost::bind(toggle_search_floater));
 		registerFloater("show inspect", boost::bind(LLFloaterInspect::showInstance, LLSD()));
+		//<os>
+		registerFloater("inspect textures", boost::bind(LLFloaterInspectTexture::showInstance, LLSD()));
+		//</os>
 		registerFloater("sit", boost::bind(toggle_sit));
 		registerFloater("snapshot", boost::bind(LLFloaterSnapshot::show, (void*)NULL));
 		registerFloater("sound_explorer", boost::bind(LLFloaterExploreSounds::toggle), boost::bind(LLFloaterExploreSounds::visible));

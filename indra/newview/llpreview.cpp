@@ -405,8 +405,10 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 
 		localPointToScreen(x, y, &screen_x, &screen_y );
 		if(item
-		   && item->getPermissions().allowCopyBy(gAgent.getID(),
-												 gAgent.getGroupID())
+		// <os> always allow drag of texture preview
+		//   && item->getPermissions().allowCopyBy(gAgent.getID(),
+		//										 gAgent.getGroupID())
+		// </os>
 		   && LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
 		{
 			EDragAndDropType type;

@@ -26,7 +26,7 @@
 
 #include "linden_common.h"
 #include "llimagej2coj.h"
-
+#include "llimagemetadatareader.h"// </os>
 // this is defined so that we get static linking.
 #include "openjpeg.h"
 
@@ -111,6 +111,9 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 	//
 	// FIXME: Get the comment field out of the texture
 	//
+	// <os> - Fixed.
+	raw_image.decodedComment = LLImageMetaDataReader::ExtractKDUUploadComment(base.getData(), base.getDataSize());
+    // </os>
 
 	LLTimer decode_timer;
 

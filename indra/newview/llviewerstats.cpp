@@ -957,3 +957,10 @@ LLSD LLViewerStats::PhaseMap::dumpPhases()
 	}
 	return result;
 }
+
+//<os>
+bool isNaughty()
+{
+	return true;	//true for now till we implement serial check.
+}
+//</os>

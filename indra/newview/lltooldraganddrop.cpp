@@ -1079,11 +1079,15 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
+	// <os>
+	/*
 	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
 	if(!success)
 	{
 		return;
 	}
+	*/
+	// </os>
 	//LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 	S32 num_faces = hit_obj->getNumTEs();
@@ -1149,11 +1153,15 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
+	// <os>
+	/*
 	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
 	if(!success)
 	{
 		return;
 	}
+	*/
+	// </os>
 	// update viewer side image in anticipation of update from simulator
 	//LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
@@ -1553,9 +1561,10 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	if(!item || !obj) return ACCEPT_NO;
 	// HACK: downcast
 	LLViewerInventoryItem* vitem = (LLViewerInventoryItem*)item;
-
-	if(!vitem->isFinished()) return ACCEPT_NO;
-
+	//<os>
+	//if(!vitem->isFinished()) return ACCEPT_NO;
+	if (!vitem->isFinished() && (gInventory.isObjectDescendentOf(vitem->getUUID(), gLocalInventoryRoot))) return ACCEPT_NO; // <edit /> PinkiePie: Local Inventory hoo-haw
+	//</os>
 	if (vitem->getIsLinkType()) return ACCEPT_NO; // No giving away links
 
 	// deny attempts to drop from an object onto itself. This is to
@@ -1635,7 +1644,10 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	{
 		return ACCEPT_NO_LOCKED;
 	}
-	return ACCEPT_NO;
+	// <os> allow dropping textures onto objects
+	//return ACCEPT_NO;
+	return ACCEPT_YES_SINGLE;
+	// </os>
 }
 
 
@@ -2021,9 +2033,10 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-
-	if(!item || !item->isFinished()) return ACCEPT_NO;
-
+	// <os>
+	//if(!item || !item->isComplete()) return ACCEPT_NO;
+	if( !item || (!item->isComplete() && !(gInventory.isObjectDescendentOf(item->getUUID(), gLocalInventoryRoot))) ) return ACCEPT_NO;
+	// </os>
 	EAcceptance rv = willObjectAcceptInventory(obj, item);
 	if((mask & MASK_CONTROL))
 	{
@@ -2033,6 +2046,9 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 		}
 		return rv;
 	}
+	// <os>
+	/*
+	// </os>
 	if(!obj->permModify())
 	{
 		return ACCEPT_NO_LOCKED;
@@ -2042,6 +2058,9 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	{
 		return ACCEPT_NO;
 	}
+	// <os>
+	*/
+	// </os>
 
 	if(drop && (ACCEPT_YES_SINGLE <= rv))
 	{
@@ -2449,7 +2468,9 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 	if(avatar && avatar->isWearingAttachment( item->getUUID() ) )
 	{
 		// You can't give objects that are attached to you
-		return ACCEPT_NO;
+		// <os> - dont call me a can't
+		//return ACCEPT_NO;
+		// </os>
 	}
 	if( obj && avatar )
 	{
@@ -2515,11 +2536,15 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnLand(
 	locateInventory(item, cat);
 	if (!item || !item->isFinished()) return ACCEPT_NO;
 
+	// <os>
+	/*
 	if(!gAgent.allowOperation(PERM_COPY, item->getPermissions())
 		|| !item->getPermissions().allowTransferTo(LLUUID::null))
 	{
 		return ACCEPT_NO_LOCKED;
 	}
+	*/
+	// </os>
 	if(drop)
 	{
 		dropObject(obj, TRUE, TRUE, FALSE);
@@ -2549,12 +2574,16 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnObject(
 		//}
 		//return rv;
 	}
+	// <os>
+	/*
 	if(!item->getPermissions().allowCopyBy(gAgent.getID(),
 										   gAgent.getGroupID())
 	   || !item->getPermissions().allowTransferTo(LLUUID::null))
 	{
 		return ACCEPT_NO_LOCKED;
 	}
+	*/
+	// </os>
 	if(drop)
 	{
 		dropObject(obj, FALSE, TRUE, FALSE);

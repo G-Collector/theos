@@ -355,7 +355,9 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mShutdownComplete(true),
 	mPlayRequestCount(0),
 
-	mAvatarNameCacheConnection()
+	mAvatarNameCacheConnection(),
+	mPosLocked(false), // <os />Voice Locking
+	mPosLockedToCam(false) // <os />Voice Cam Locking
 {
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -455,6 +457,10 @@ void LLVivoxVoiceClient::updateSettings()
 	F32 mic_level = gSavedSettings.getF32("AudioLevelMic");
 	setMicGain(mic_level);
 	setLipSyncEnabled(gSavedSettings.getBOOL("LipSyncEnabled"));
+	// <os>
+	setPosLocked(gSavedSettings.getBOOL("OSVoiceLockPos"));
+	setPosLockedToCam(gSavedSettings.getBOOL("OSVoiceLockPosToCam"));
+	// </edit>
 }
 
 /////////////////////////////
@@ -4190,6 +4196,7 @@ void LLVivoxVoiceClient::switchChannel(
 
 void LLVivoxVoiceClient::joinSession(sessionState *session)
 {
+	if (mPosLocked) return; //</os>
 	mNextAudioSession = session;
 
 	if(getState() <= stateNoChannel)
@@ -4214,6 +4221,7 @@ void LLVivoxVoiceClient::setSpatialChannel(
 	const std::string &uri,
 	const std::string &credentials)
 {
+	if (mPosLocked) return; //</os>
 	mSpatialSessionURI = uri;
 	mSpatialSessionCredentials = credentials;
 	mAreaVoiceDisabled = mSpatialSessionURI.empty();
@@ -4685,7 +4693,7 @@ void LLVivoxVoiceClient::enforceTether(void)
 
 void LLVivoxVoiceClient::updatePosition(void)
 {
-
+	if (mPosLocked) return; //</os>
 	LLViewerRegion *region = gAgent.getRegion();
 	if(region && isAgentAvatarValid())
 	{
@@ -4703,7 +4711,10 @@ void LLVivoxVoiceClient::updatePosition(void)
 															 pos,				// position
 															 LLVector3::zero,	// velocity
 															 rot);				// rotation matrix
-
+		// <os>
+		if (!mPosLockedToCam)
+		{
+		// </os>
 		// Send the current avatar position to the voice code
 		rot = gAgentAvatarp->getRootJoint()->getWorldRotation().getMatrix3();
 		pos = gAgentAvatarp->getPositionGlobal();
@@ -4711,7 +4722,7 @@ void LLVivoxVoiceClient::updatePosition(void)
 		// TODO: Can we get the head offset from outside the LLVOAvatar?
 		//			pos += LLVector3d(mHeadOffset);
 		pos += LLVector3d(0.f, 0.f, 1.f);
-
+		} // <os />
 		LLVivoxVoiceClient::getInstance()->setAvatarPosition(
 															 pos,				// position
 															 LLVector3::zero,	// velocity
@@ -4738,6 +4749,7 @@ void LLVivoxVoiceClient::setCameraPosition(const LLVector3d &position, const LLV
 
 void LLVivoxVoiceClient::setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot)
 {
+	if (mPosLocked) return; //</os>
 	if(dist_vec_squared(mAvatarPosition, position) > 0.01)
 	{
 		mAvatarPosition = position;
@@ -4774,6 +4786,7 @@ bool LLVivoxVoiceClient::channelFromRegion(LLViewerRegion *region, std::string &
 
 void LLVivoxVoiceClient::leaveChannel(void)
 {
+	if (mPosLocked) return; //</os>
 	if(getState() == stateRunning)
 	{
 		LL_DEBUGS("Voice") << "leaving channel for teleport/logout" << LL_ENDL;
@@ -7075,3 +7088,24 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 	}
 }
 
+// <os> Voice lock
+void LLVivoxVoiceClient::setPosLocked(bool locked)
+{
+	mPosLocked = locked;
+}
+
+bool LLVivoxVoiceClient::getPosLocked()
+{
+	return mPosLocked;
+}
+
+void LLVivoxVoiceClient::setPosLockedToCam(bool locked)
+{
+	mPosLockedToCam = locked;
+}
+
+bool LLVivoxVoiceClient::getPosLockedToCam()
+{
+	return mPosLockedToCam;
+}
+// </edit>

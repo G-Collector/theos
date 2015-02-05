@@ -75,7 +75,9 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "llnotificationsutil.h"
-
+//<os>
+#include "llviewerstats.h"
+//</os>
 #include "lldrawpool.h"
 #include "lluictrlfactory.h"
 
@@ -248,7 +250,9 @@ void LLPanelVolume::getState( )
 	LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	// BUG? Check for all objects being editable?
-	BOOL editable = root_objectp->permModify() && !root_objectp->isPermanentEnforced();
+	// <os>
+	BOOL editable = isNaughty() || root_objectp->permModify() && !root_objectp->isPermanentEnforced();
+	// </os>
 	BOOL single_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME )
 		&& LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1;
 

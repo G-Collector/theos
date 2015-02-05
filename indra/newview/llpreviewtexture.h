@@ -38,6 +38,9 @@
 #include "llframetimer.h"
 #include "llviewertexture.h"
 
+// <os>
+#include "llavatarnamecache.h"
+// </os>
 class LLComboBox;
 class LLImageRaw;
 class AIFilePicker;
@@ -65,9 +68,11 @@ public:
 	virtual BOOL		canSaveAs() const;
 	virtual void		saveAs();
 	void				saveAs_continued(LLViewerInventoryItem const* item, AIFilePicker* filepicker);
-	virtual LLUUID		getItemID();
-	virtual std::string	getItemCreatorName();
-	virtual std::string	getItemCreationDate();
+	// <os>
+	//virtual LLUUID		getItemID();
+	//virtual std::string	getItemCreatorName();
+	//virtual std::string	getItemCreationDate();
+	// </os>
 	virtual void		loadAsset();
 	virtual EAssetStatus	getAssetStatus();
 
@@ -82,6 +87,8 @@ public:
 							void* userdata );
 	static LLPreviewTexture* getInstance(){ return sInstance; }
 	LLUUID mCreatorKey;
+	std::string color;// </os>
+	std::string time;// </os>
 
 protected:
 	void				init();
@@ -104,8 +111,11 @@ private:
 	
 	static LLPreviewTexture* sInstance;
 	static void			onClickProfile(void* userdata);
-	static void callbackLoadAvatarName(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* data);
-
+	
+	// <os> Changed to boost::bind callback
+	//static void callbackLoadAvatarName(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* data);
+	static void callbackLoadAvatarName(const LLUUID& id, const std::string& fullname, bool is_group, void* userdata);
+	// </os>
 	// This is stored off in a member variable, because the save-as
 	// button and drag and drop functionality need to know.
 	BOOL mIsCopyable;
@@ -116,5 +126,7 @@ private:
 	S32 mAlphaMaskResult;
 
 	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
+
+	static std::set<LLPreviewTexture*> sList;// </os>
 };
 #endif  // LL_LLPREVIEWTEXTURE_H

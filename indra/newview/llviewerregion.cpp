@@ -85,6 +85,9 @@
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
 #endif
+// <edit>
+#include "os_circuits.h"
+// </edit>
 
 class AIHTTPTimeoutPolicy;
 extern AIHTTPTimeoutPolicy baseCapabilitiesComplete_timeout;
@@ -1578,6 +1581,9 @@ void LLViewerRegion::unpackRegionHandshake()
 	F32 billable_factor;
 	LLUUID cache_id;
 
+	// <os>
+	BOOL needs_notify = getName().empty() ? TRUE : FALSE;
+	// </os>
 	msg->getU8		("RegionInfo", "SimAccess", sim_access);
 	msg->getString	("RegionInfo", "SimName", sim_name);
 	msg->getUUID	("RegionInfo", "SimOwner", sim_owner);
@@ -1707,6 +1713,12 @@ void LLViewerRegion::unpackRegionHandshake()
 
 	msg->addU32("Flags", flags );
 	msg->sendReliable(host);
+	// <os>
+	if (needs_notify)
+	{
+		OSCircuits::getInstance()->notifyEnabled(this);
+	}
+	// </os>
 }
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)

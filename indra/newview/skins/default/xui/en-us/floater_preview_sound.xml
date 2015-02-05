@@ -14,14 +14,24 @@
 		Description:
 	</text>
 	<button bottom="-70" enabled="true" font="SansSerif" halign="center" height="19"
-	     label="Play Locally" label_selected="Play Locally" left="168"
+	     label="Local" label_selected="Local" left="15"
 	     mouse_opaque="true" name="Sound audition btn" scale_image="true"
 	     sound_flags="0" tool_tip="Play this sound so that only you can hear it."
-	     width="120" />
+	     width="55" />
 	<button bottom_delta="0" enabled="true" font="SansSerif" halign="center" height="19"
-	     label="Play in World" label_selected="Play in World" left_delta="-126"
+	     label="World" label_selected="World" left_delta="65"
 	     mouse_opaque="true" name="Sound play btn" scale_image="true"
 	     sound_flags="0" tool_tip="Play this sound so that others can hear it."
-	     width="120" />
+	     width="55" />
+  <button bottom_delta="0" enabled="true" font="SansSerif" halign="center" height="19"
+	     label="Ambient" label_selected="Ambient" left_delta="65"
+	     mouse_opaque="true" name="play_ambient_btn" scale_image="true"
+	     sound_flags="0" tool_tip="Play this sound so that it seems to be triggering from an agent's view-port."
+	     width="75" />
+  <button bottom_delta="0" enabled="true" font="SansSerif" halign="center" height="19"
+	     label="UUID" label_selected="UUID" left_delta="85"
+	     mouse_opaque="true" name="copy_uuid_btn" scale_image="true"
+	     sound_flags="0" tool_tip="Copy the UUID of the sound."
+	     width="55" />
 	 <string name="Sound: ">Sound: </string>
 </floater>

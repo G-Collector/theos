@@ -79,6 +79,19 @@ include_directories(
     )
 
 set(viewer_SOURCE_FILES
+    os_assetconverter.cpp
+    os_circuits.cpp
+    os_floaterhex.cpp
+	os_floaterinspecttexture.cpp
+    os_floaterkeytool.cpp
+    os_floatertexteditor.cpp
+    os_floatervfs.cpp
+    os_floatervfsexplorer.cpp
+    os_hexeditor.cpp
+    os_inventorybackup.cpp
+    os_invtools.cpp
+    os_keytool.cpp
+    os_panelpreferences.cpp
     NACLantispam.cpp
     aihttpview.cpp
     aixmllindengenepool.cpp
@@ -607,7 +620,19 @@ set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
-
+    os_assetconverter.h
+    os_circuits.h
+    os_floaterhex.h
+	os_floaterinspecttexture.h
+    os_floaterkeytool.h
+    os_floatertexteditor.h
+    os_floatervfs.h
+    os_floatervfsexplorer.h
+    os_hexeditor.h
+    os_inventorybackup.h
+    os_invtools.h
+    os_keytool.h
+    os_panelpreferences.h
     NACLantispam.h
     aihttpview.h
     aixmllindengenepool.h

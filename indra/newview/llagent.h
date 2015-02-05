@@ -1003,4 +1003,8 @@ extern LLAgentQueryManager gAgentQueryManager;
 extern std::string gAuthString;
 
 void update_group_floaters(const LLUUID& group_id);
+// <os>
+extern LLUUID gReSitTargetID;
+extern LLVector3 gReSitOffset;
+// </os>
 #endif

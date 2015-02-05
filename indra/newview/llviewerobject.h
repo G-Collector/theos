@@ -814,6 +814,9 @@ private:
 public:
 // <edit>
 	std::string getAttachmentPointName();
+	//<os>
+	S32 getAttachmentPointNumber();
+	//</os>
 // </edit>
 	const LLUUID &getAttachmentItemID() const;
 	void setAttachmentItemID(const LLUUID &id);

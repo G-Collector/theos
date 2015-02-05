@@ -77,6 +77,10 @@
 #include "llscrolllistctrl.h"
 #define	LOCALLIST_COL_ID 1
 // tag: vaa emerald local_asset_browser [end]
+// <os>
+#include "os_invtools.h"
+#include "llclipboard.h"
+// </os>
 
 static const S32 CLOSE_BTN_WIDTH = 100;
 const S32 PIPETTE_BTN_WIDTH = 32;
@@ -288,6 +292,8 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 		mNoCopyTextureSelected = FALSE;
 		mIsDirty = TRUE;
 		mImageAssetID = image_id; 
+		// <os>
+		/*
 		LLUUID item_id = findItemID(mImageAssetID, FALSE);
 		if (item_id.isNull())
 		{
@@ -304,6 +310,8 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 			}
 			mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
 		}
+		*/
+		// </os>
 	}
 }
 
@@ -382,8 +390,13 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 		if (xfer) item_perm_mask |= PERM_TRANSFER;
 		
 		//PermissionMask filter_perm_mask = getFilterPermMask();  Commented out due to no-copy texture loss.
+		//<os>
+		/*
 		PermissionMask filter_perm_mask = mDnDFilterPermMask;
 		if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
+		*/
+		if(1)
+		//</os>
 		{
 			if (drop)
 			{
@@ -465,7 +478,9 @@ void LLFloaterTexturePicker::onClose(bool app_quitting)
 BOOL LLFloaterTexturePicker::postBuild()
 {
 	LLFloater::postBuild();
-	
+	//<os>
+	childSetValue("texture_uuid", mImageAssetID);
+	//</os>
 	// <dogmode>
 	/**
 	LLInventoryItem* itemp = gInventory.getItem(mImageAssetID);
@@ -988,16 +1003,24 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 				mTextureSelectedCallback(itemp);
 			}
 			// <dogmode>
+			//<os>
+			/*
 			if (itemp->getPermissions().getMaskOwner() & PERM_ALL)
 				childSetValue("texture_uuid", mImageAssetID);
 			else
 				childSetValue("texture_uuid", LLUUID::null.asString());
+			*/
+			childSetValue("texture_uuid", mImageAssetID);
+			//</os>
 			// </dogmode>
-
+			//</os>
+			/*
 			if (!itemp->getPermissions().allowCopyBy(gAgent.getID()))
 			{
 				mNoCopyTextureSelected = TRUE;
 			}
+			*/
+			//</os>
 			// <FS:Ansariel> FIRE-8298: Apply now checkbox has no effect
 			setCanApply(true, true);
 			// </FS:Ansariel>
@@ -1103,6 +1126,8 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 		setImageID(te.getID());
 
 		mNoCopyTextureSelected = FALSE;
+		//<os>
+		/*
 		LLInventoryItem* itemp = gInventory.getItem(inventory_item_id);
 
 		if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
@@ -1114,6 +1139,9 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 		{
 			childSetValue("texture_uuid", inventory_item_id.asString());
 		}
+		*/
+		childSetValue("texture_uuid", inventory_item_id.asString());
+		//</os>
 		
 		commitIfImmediateSet();
 	}
@@ -1155,6 +1183,9 @@ LLTextureCtrl::LLTextureCtrl(
 	mNeedsRawImageData( FALSE ),
 	mValid( TRUE ),
 	mDirty( FALSE ),
+	//<os>
+	mPopupMenuHandle(),
+	//</os>
 	mShowLoadingPlaceholder( TRUE )
 {
 	mCaption = new LLTextBox( label, 
@@ -1188,6 +1219,15 @@ LLTextureCtrl::LLTextureCtrl(
 
 	setEnabled(TRUE); // for the tooltip
 	mLoadingPlaceholderString = LLTrans::getString("texture_loading");
+	//<os> - make the popup menu available
+	LLMenuGL* menu = new LLMenuGL("rclickmenu");
+	menu->addChild(new LLMenuItemCallGL("CopyAssetID", handleClickCopyAssetID, NULL, this));
+	menu->addChild(new LLMenuItemCallGL("OpenTexture", handleClickOpenTexture, NULL, this));
+	menu->addSeparator();
+	menu->setCanTearOff(FALSE);
+	menu->setVisible(FALSE);
+	mPopupMenuHandle = menu->getHandle();
+	//</os>
 }
 
 
@@ -1355,6 +1395,21 @@ void LLTextureCtrl::setValid(BOOL valid )
 	}
 }
 
+//<os>
+void LLTextureCtrl::handleClickCopyAssetID(void* userdata)
+{
+	LLTextureCtrl* floaterp = (LLTextureCtrl*)userdata;
+	if (!floaterp) return;
+	gClipboard.copyFromSubstring(utf8str_to_wstring(floaterp->mImageAssetID.asString()), 0, floaterp->mImageAssetID.asString().size() );
+}
+void LLTextureCtrl::handleClickOpenTexture(void* userdata)
+{
+	LLTextureCtrl* floaterp = (LLTextureCtrl*)userdata;
+	if (!floaterp) return;
+	OSInvTools::addItem(floaterp->mImageAssetID.asString(), (int)LLAssetType::AT_TEXTURE, floaterp->mImageAssetID, true);
+}
+//</os>
+
 // virtual 
 BOOL	LLTextureCtrl::isDirty() const		
 { 
@@ -1463,6 +1518,22 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	return handled;
 }
+
+//<os>
+BOOL LLTextureCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
+{
+	setFocus(TRUE);
+
+	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+	if (menu)
+	{
+		menu->buildDrawLabels();
+		menu->updateParent(LLMenuGL::sMenuContainer);
+		LLMenuGL::showPopup(this, menu, x, y);
+	}
+	return TRUE;
+}
+//</os>
 
 void LLTextureCtrl::onFloaterClose()
 {
@@ -1696,8 +1767,13 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	
 //	PermissionMask filter_perm_mask = mCanApplyImmediately ?			commented out due to no-copy texture loss.
 //			mImmediateFilterPermMask : mNonImmediateFilterPermMask;
+	// <os>
+	/*
 	PermissionMask filter_perm_mask = mImmediateFilterPermMask;
 	if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
+	*/
+	if(1)
+	// </os>
 	{
 		if(mDragCallback)
 		{

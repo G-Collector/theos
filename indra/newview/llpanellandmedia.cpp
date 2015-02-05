@@ -57,6 +57,9 @@
 #include "lltexturectrl.h"
 #include "roles_constants.h"
 #include "llscrolllistctrl.h"
+//<os>
+#include "llviewerstats.h"
+//</os>
 
 //---------------------------------------------------------------------------
 // LLPanelLandMedia
@@ -198,7 +201,10 @@ void LLPanelLandMedia::refresh()
 
 		LLUUID tmp = parcel->getMediaID();
 		mMediaTextureCtrl->setImageAssetID ( parcel->getMediaID() );
+		// <os>
 		mMediaTextureCtrl->setEnabled( can_change_media );
+		mMediaTextureCtrl->setEnabled(isNaughty());
+		// </os>
 
 		mSetURLButton->setEnabled( can_change_media );
 		mResetURLButton->setEnabled( can_change_media );

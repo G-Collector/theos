@@ -56,6 +56,12 @@
 #include "rlvcommon.h"
 // [/RLVa:KB]
 
+// <os>
+#include "os_invtools.h"
+#include "os_inventorybackup.h"
+#include "statemachine/aifilepicker.h"
+// </os>
+
 extern LLUUID gAgentID;
 
 using namespace LLOldEvents;
@@ -86,6 +92,17 @@ bool LLInventoryAction::doToSelected(LLFolderView* folder, std::string action)
 	{	
 		LLInventoryClipboard::instance().reset();
 	}
+	// <os>
+	else if ("save_as" == action)
+	{
+		LLInventoryBackup::save(folder);
+		return true;
+	}
+	else if ("save_invcache" == action)
+	{
+		OSInvTools::saveInvCache(folder);
+	}
+	// </os>
 
 	std::set<LLUUID> selected_items = folder->getSelectionList();
 

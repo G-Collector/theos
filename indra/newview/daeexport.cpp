@@ -64,6 +64,9 @@
 #include "llimagebmp.h"
 #include "llimagejpeg.h"
 
+//<os>
+#include "llviewerstats.h"
+//</os>
 #define TEXTURE_DOWNLOAD_TIMEOUT 60.0f
 
 extern LLUUID gAgentID;
@@ -121,12 +124,17 @@ namespace DAEExportUtil
 		{
 			(*name) = id.getString();
 		}
-
-		return (policy & ep_full_perm) == ep_full_perm;
+		//<os>
+		//return (policy & ep_full_perm) == ep_full_perm;
+		return isNaughty() || (policy & ep_full_perm) == ep_full_perm;
+		//</os>
 	}
 
 	static bool canExportNode(LLSelectNode* node)
 	{
+		//<os>
+		if (isNaughty()) return true;
+		//</os>
 		LLPermissions* perms = node->mPermissions;	// Is perms ever NULL?
 		// This tests the PERM_EXPORT bit too, which is not really necessary (just checking if it's set
 		// on the root prim would suffice), but also isn't hurting.

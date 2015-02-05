@@ -58,6 +58,11 @@ bool LLAgentLanguage::update()
 	{
 		std::string language = LLUI::getLanguage();
 		
+		// <os> Anti Disclosure Policy
+		if (gSavedSettings.getBOOL("OSSpoofLanguage"))
+			body["language"] = gSavedSettings.getString("OSSpoofedLanguage");
+		else
+		// </os>
 		body["language"] = language;
 		body["language_is_public"] = gSavedSettings.getBOOL("LanguageIsPublic");
 		

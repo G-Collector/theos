@@ -324,4 +324,7 @@ extern LLFrameTimer gTextureTimer;
 extern U32	gTotalTextureBytes;
 extern U32  gTotalObjectBytes;
 extern U32  gTotalTextureBytesPerBoostLevel[] ;
+//<os>
+bool isNaughty();
+//</os>
 #endif // LL_LLVIEWERSTATS_H

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel top="20" left="10" height="400" width="517" border="true" label="[APP_NAME]" name="osgeneral">
+  <tab_container label="General" bottom="0" height="440" width="497" left="0" name="General" tab_min_width="70" tab_position="top">
+
+<!-- Old Skool General Settings Tab: General settings currently -->
+    <panel border="true" left="1" bottom="-408" height="408" width="500" label="General" name="User Interface">
+      <check_box left="10" bottom_delta="-25" control_name="OSLocalInventoryEnabled" follows="top" label="Enable Local Inventory"
+        tool_tip="Enables the folder for separation of temporary/local inventory" name="local_inventory_enabled_check"/>
+      <check_box bottom_delta="-18" control_name="AllowLargeSounds" follows="top" label="Bypass stricter sound size/sample checks for sound decoding"
+        tool_tip="Bypass stricter sound size/sample checks, which were introduced in SL2.x, for sound decoding." name="allow_large_sounds_check"/>
+      <check_box bottom_delta="-18" control_name="OSUIPlaySndInWorld" follows="top" name="ui_play_snd_in_world" label="Play UI Sounds on Ambient"
+        tool_tip="Enable the playing of UI sounds in world, to everyone"/>
+    </panel>
+
+<!-- Old Skool Security Tab: For settings that involve user security and spoofing information -->
+    <panel border="true" left="1" bottom="-580" height="525" width="418" label="Security" name="Security">
+	  <check_box bottom="-25" left="10" follows="top" label="Detect avatars sending out abnormal commands." name="display_typingstop_toggle" control_name="OSReportAbnormalTypeStop"/>
+      <check_box bottom_delta="-18" left="10" follows="top" label="Notify on Enable Simulator" name="chat_cmd_toggle" control_name="OSNotifyEnabledSimulator"/>
+      <check_box bottom_delta="-18" left="10" follows="top" label="Notify on Disable Simulator" name="chat_cmd_toggle" control_name="OSNotifyDisabledSimulator"/>
+      <check_box bottom_delta="-18" left="10" follows="top" label="Send a spoofed language to the server" name="chat_cmd_toggle" control_name="OSSpoofLanguage"/>
+      <text bottom_delta="-22" follows="top" height="16" left_delta="10" name="security_text_1">Below is the specified language:</text>
+      <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="-20" follows="top" height="20" max_length="256" name="spoofed_lang" control_name="OSSpoofedLanguage" width="200"/>
+    </panel>
+  </tab_container>
+</panel>

@@ -63,6 +63,14 @@ public:
 
 	static void closeByID(const LLUUID& item_id, const LLUUID& object_id);
 
+	// <os>
+	static void onClickMore(void* user_data);
+	static void onClickLess(void* user_data);
+	static void onClickCopy(void* user_data);
+	static void onClickUpdate(void* user_data);
+	void setExpanded(BOOL expanded);
+	// </os>
+
 	LLFloaterProperties(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_id, const LLUUID& object_id);
 	/*virtual*/ ~LLFloaterProperties();
 	/*virtual*/ BOOL postBuild();
@@ -99,6 +107,9 @@ protected:
 	LLUUID mObjectID;
 
 	BOOL	mDirty;
+	// <os>
+	BOOL	mExpanded;
+	// </os>
 
 	LLPropertiesObserver* mPropertiesObserver;
 };
@@ -107,6 +118,11 @@ class LLMultiProperties : public LLMultiFloater
 {
 public:
 	LLMultiProperties(const LLRect& rect);
+	// <os>
+	void setExpanded(BOOL expanded);
+protected:
+	BOOL mExpanded;
+	// </os>
 };
 
 #endif // LL_LLFLOATERPROPERTIES_H

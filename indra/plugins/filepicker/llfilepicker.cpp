@@ -49,7 +49,10 @@ LLFilePicker LLFilePicker::sInstance;
 #define AO_FILTER L"Animation Override (*.ao)\0*.ao\0"
 #define BLACKLIST_FILTER L"Asset Blacklist (*.blacklist)\0*.blacklist\0"
 // </edit>
-#define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
+//<os>
+//#define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
+#define ANIM_FILTER L"Animations (*.bvh; *.anim; *.animatn)\0*.bvh\0;*.anim\0;*.animatn\0"
+//</os>
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #ifdef _CORY_TESTING
 #define GEOMETRY_FILTER L"SL Geometry (*.slg)\0*.slg\0"
@@ -785,9 +788,17 @@ Boolean LLFilePickerBase::navOpenFilterProc(AEDesc *theItem, void *info, void *c
 						}
 						else if (filter == FFLOAD_ANIM)
 						{
+							//<os>
+							/*
 							if (fileInfo.filetype != 'BVH ' &&  fileInfo.filetype != 'ANIM' &&
 								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("bvh"), kCFCompareCaseInsensitive) != kCFCompareEqualTo) &&
 								 CFStringCompare(fileInfo.extension, CFSTR("anim"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
+							*/
+							if (fileInfo.filetype != 'BVH ' && fileInfo.filetype != 'ANIM ' && fileInfo.filetype != 'ANIMATN ' &&
+								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("bvh"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
+								CFStringCompare(fileInfo.extension, CFSTR("anim"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
+								CFStringCompare(fileInfo.extension, CFSTR("animatn"), kCFCompareCaseInsensitive) != kCFCompareEqualTo)))
+							//</os>
 							{
 								result = false;
 							}

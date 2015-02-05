@@ -386,6 +386,10 @@ public:
 	void        forceToDeleteRequest();
 	void		forceRefetch();
 
+	// <os>
+	std::map<std::string,std::string> mDecodedComment;
+	// </os>
+	
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;

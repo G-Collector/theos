@@ -5316,8 +5316,11 @@ BOOL LLViewerObject::permYouOwner() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLViewerLogin::getInstance()->isInProductionGrid()
-            && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		//<os>
+		//if (!LLViewerLogin::getInstance()->isInProductionGrid()
+         //   && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		if (gAgent.getGodLevel() >= GOD_MAINTENANCE)
+		//</os>
 		{
 			return TRUE;
 		}
@@ -5353,8 +5356,11 @@ BOOL LLViewerObject::permOwnerModify() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLViewerLogin::getInstance()->isInProductionGrid()
-            && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		//<os>
+		//if (!LLViewerLogin::getInstance()->isInProductionGrid()
+        //    && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		if (gAgent.getGodLevel() >= GOD_MAINTENANCE)
+		//</os>
 	{
 			return TRUE;
 	}
@@ -5377,8 +5383,11 @@ BOOL LLViewerObject::permModify() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLViewerLogin::getInstance()->isInProductionGrid()
-            && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		//<so>
+		//if (!LLViewerLogin::getInstance()->isInProductionGrid()
+        //   && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		if (gAgent.getGodLevel() >= GOD_MAINTENANCE)
+		//</so>
 	{
 			return TRUE;
 	}
@@ -5401,8 +5410,11 @@ BOOL LLViewerObject::permCopy() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLViewerLogin::getInstance()->isInProductionGrid()
-            && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		//<os>
+		//if (!LLViewerLogin::getInstance()->isInProductionGrid()
+        //    && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		if (gAgent.getGodLevel() >= GOD_MAINTENANCE)
+		//</os>
 		{
 			return TRUE;
 		}
@@ -5425,8 +5437,11 @@ BOOL LLViewerObject::permMove() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLViewerLogin::getInstance()->isInProductionGrid()
-            && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		//<so>
+		//if (!LLViewerLogin::getInstance()->isInProductionGrid()
+         //   && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		if (gAgent.getGodLevel() >= GOD_MAINTENANCE)
+		//</so>
 		{
 			return TRUE;
 		}
@@ -5449,8 +5464,11 @@ BOOL LLViewerObject::permTransfer() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLViewerLogin::getInstance()->isInProductionGrid()
-            && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		//<so>
+		//if (!LLViewerLogin::getInstance()->isInProductionGrid()
+        //    && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
+		if (gAgent.getGodLevel() >= GOD_MAINTENANCE)
+		//</so>
 		{
 			return TRUE;
 		}
@@ -5909,7 +5927,13 @@ std::string LLViewerObject::getAttachmentPointName()
 	}
 	return llformat("unsupported point %d", point);
 }
-// </edit>
+//<os>
+S32 LLViewerObject::getAttachmentPointNumber()
+{
+	S32 point = ATTACHMENT_ID_FROM_STATE(mState);
+	return point;
+}
+//</os>
 
 const LLUUID &LLViewerObject::getAttachmentItemID() const
 {

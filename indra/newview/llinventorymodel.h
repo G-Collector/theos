@@ -523,6 +523,9 @@ public:
 	// File I/O
 	//--------------------------------------------------------------------
 protected:
+	//<os>
+	friend class OSInvTools;
+	//</os>
 	static bool loadFromFile(const std::string& filename,
 							 cat_array_t& categories,
 							 item_array_t& items,

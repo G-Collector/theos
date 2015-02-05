@@ -730,9 +730,14 @@ void LLPanelFace::updateUI()
 
 	if( objectp
 		&& objectp->getPCode() == LL_PCODE_VOLUME
-		&& objectp->permModify())
+		// <os>
+		//&& objectp->permModify())
+		)
+		// </os>
 	{
-		BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
+		// <os>
+		BOOL editable = isNaughty() || objectp->permModify() && !objectp->isPermanentEnforced();
+		// </os>
 
 		// only turn on auto-adjust button if there is a media renderer and the media is loaded
 		mCtrlAlign->setEnabled(editable);

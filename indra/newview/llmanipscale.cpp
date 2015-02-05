@@ -2105,8 +2105,8 @@ BOOL LLManipScale::canAffectSelection()
 			{
 				LLViewerObject *root_object = (objectp == NULL) ? NULL : objectp->getRootEdit();
 				return objectp->permModify() && objectp->permMove() && !objectp->isPermanentEnforced() &&
-					((root_object == NULL) || !root_object->isPermanentEnforced()) &&
-					!objectp->isSeat();
+					((root_object == NULL) || !root_object->isPermanentEnforced()) ;/*&&
+					!objectp->isSeat();*/ // <os>
 			}
 		} func;
 		can_scale = mObjectSelection->applyToObjects(&func);

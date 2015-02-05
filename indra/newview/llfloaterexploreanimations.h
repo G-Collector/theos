@@ -42,6 +42,11 @@ private:
 
 public:
 	void onSelectAnimation();
+	// <os>
+	void onClickCopyUUID();
+	void onClickOpen();
+	void onClickJellyRoll();
+	// </os>
 
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
@@ -63,6 +68,10 @@ protected:
 	LLRect				mPreviewRect;
 	S32					mLastMouseX;
 	S32					mLastMouseY;
+//<os>
+private:
+	LLUUID	mID;
+//</os>
 };
 
 #endif

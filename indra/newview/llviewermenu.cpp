@@ -42,6 +42,7 @@
 #include "llfeaturemanager.h"
 #include "llsecondlifeurls.h"
 // <edit>
+#include "llfloaterexploreanimations.h"	// </os>
 #include "llfloaterblacklist.h"
 // </edit>
 #include "statemachine/aifilepicker.h"
@@ -145,6 +146,15 @@
 #include "hippogridmanager.h"
 #include "wlfPanel_AdvSettings.h"
 
+// <os>
+#include "llviewercontrol.h" // gHackGodmode
+#include "llclipboard.h"
+#include "os_floaterkeytool.h"
+#include "os_floatervfs.h"
+#include "os_floatervfsexplorer.h"
+#include "os_invtools.h"
+#include "os_floaterinspecttexture.h"
+// </os>
 using namespace LLOldEvents;
 using namespace LLAvatarAppearanceDefines;
 void init_client_menu(LLMenuGL* menu);
@@ -892,17 +902,23 @@ void init_client_menu(LLMenuGL* menu)
 	
 
 
-// <dogmode> 
-#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLViewerLogin::getInstance()->isInProductionGrid())
+// <dogmode>
+//<os>
+//#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
+
+	//if (!LLViewerLogin::getInstance()->isInProductionGrid())
+	if (isNaughty())
+//</os>
 	{
 		menu->addChild(new LLMenuItemCheckGL("Hacked Godmode",
 										   &handle_toggle_hacked_godmode,
 										   NULL,
 										   &check_toggle_hacked_godmode,
-										   (void*)"HackedGodmode"));
+										   (void*)"HackedGodmode", 'G', MASK_ALT | MASK_CONTROL));
 	}
-#endif
+//<os>
+//#endif
+//</os>
 // </dogmode>
 	menu->addChild(new LLMenuItemCallGL("Clear Group Cache", 
 									  LLGroupMgr::debugClearAllGroups));
@@ -1007,7 +1023,7 @@ void init_client_menu(LLMenuGL* menu)
 		sub = new LLMenuGL("Media");
 		sub->setCanTearOff(TRUE);
 		sub->addChild(new LLMenuItemCallGL("Reload MIME types", &LLMIMETypes::reload));
-		sub->addChild(new LLMenuItemCallGL("Web Browser Test", &handle_web_browser_test, NULL, NULL, KEY_F1));
+		sub->addChild(new LLMenuItemCallGL("Web Browser Test", &handle_web_browser_test, NULL, NULL)); // <os /> Pinching , KEY_F1 key mask for debug settings
 		menu->addChild( sub );
 		sub->createJumpKeys();
 	}
@@ -1083,11 +1099,11 @@ void init_client_menu(LLMenuGL* menu)
 										&menu_check_control,
 										(void*)"SaveMinidump"));
 
-	menu->addChild(new LLMenuItemCallGL("Debug Settings...", handle_singleton_toggle<LLFloaterSettingsDebug>, NULL, NULL));
+	menu->addChild(new LLMenuItemCallGL("Debug Settings...", handle_singleton_toggle<LLFloaterSettingsDebug>, NULL, NULL, KEY_F1)); // <os /> , KEY_F1 from brwser test
 	menu->addChild(new LLMenuItemCheckGL("View Admin Options", &handle_admin_override_toggle, NULL, &check_admin_override, NULL, 'V', MASK_CONTROL | MASK_ALT));
 
 	menu->addChild(new LLMenuItemCallGL("Request Admin Status", 
-		&handle_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_CONTROL));
+		&handle_god_mode, NULL, NULL));//'G', MASK_ALT | MASK_CONTROL));//</os> pinching this for hacked godmode above
 
 	menu->addChild(new LLMenuItemCallGL("Leave Admin Status", 
 		&handle_leave_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
@@ -2880,6 +2896,13 @@ class LLObjectEnableExport : public view_listener_t
 		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 		for (LLObjectSelection::iterator node = selection->begin(); node != selection->end(); ++node)
 		{
+			//<os>
+			if (isNaughty())
+			{
+				can_export_any = true;
+				break;
+			}
+			//</os>
 			if ((*node)->mPermissions->allowExportBy(gAgent.getID(), export_policy))
 			{
 				can_export_any = true;
@@ -3878,7 +3901,10 @@ void handle_object_sit_or_stand()
 			gRlvHandler.setSitSource(gAgent.getPositionGlobal());
 		}
 // [/RLVa:KB]
-
+		// <os>
+		gReSitTargetID = object->mID;
+		gReSitOffset = pick.mObjectOffset;
+		// </os>
 		gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
 		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -4844,8 +4870,9 @@ BOOL enable_take()
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLViewerLogin::getInstance()->isInProductionGrid() 
-            && gAgent.isGodlike())
+		//if (!LLViewerLogin::getInstance()->isInProductionGrid() 
+         //   && gAgent.isGodlike())
+		if (gAgent.isGodlike())
 		{
 			return TRUE;
 		}
@@ -5520,8 +5547,11 @@ bool enable_object_delete()
 	TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	(!LLViewerLogin::getInstance()->isInProductionGrid()
-     && gAgent.isGodlike()) ||
+	//<os>
+	//(!LLViewerLogin::getInstance()->isInProductionGrid()
+     //&& gAgent.isGodlike()) ||
+	 (gAgent.isGodlike()) ||
+	 //<os>
 # endif
 		LLSelectMgr::getInstance()->canDoDelete();
 #endif
@@ -7205,14 +7235,21 @@ void handle_selected_texture_info(void*)
 		map_t::iterator it;
 		for (it = faces_per_texture.begin(); it != faces_per_texture.end(); ++it)
 		{
+			// <os>
+			LLUUID image_id = it->first;
+			std::string uuid_str;
+			image_id.toString(uuid_str);
+			// </os>
 			U8 te = it->second[0];
 			LLViewerTexture* img = node->getObject()->getTEImage(te);
 			S32 height = img->getHeight();
 			S32 width = img->getWidth();
 			S32 components = img->getComponents();
-			// <edit>
+			// <os>
 			//msg = llformat("%dx%d %s on face ",
-			msg = llformat("%dx%d %s on face ",
+			msg = llformat("%s, %dx%d %s on face ",
+								uuid_str.c_str(),
+			// </os>
 								width,
 								height,
 								(components == 4 ? "alpha" : "opaque"));
@@ -7223,7 +7260,40 @@ void handle_selected_texture_info(void*)
 			LLChat chat(msg);
 			LLFloaterChat::addChat(chat);
 		}
+		// <os>
+		if (node->getObject()->isSculpted())
+		{
+			LLSculptParams *sculpt_params = (LLSculptParams *)(node->getObject()->getParameterEntry(LLNetworkData::PARAMS_SCULPT));
+			LLUUID sculpt_id = sculpt_params->getSculptTexture();
+			std::string uuid_str;
+			sculpt_id.toString(uuid_str);
+			msg.assign("Sculpt texture: ");
+			msg.append(uuid_str.c_str());
+			LLChat chat(msg);
+			LLFloaterChat::addChat(chat);
+			unique_textures[sculpt_id] = true;
+		}
+		if (node->getObject()->isParticleSource())
+		{
+			LLUUID particle_id = node->getObject()->mPartSourcep->getImage()->getID();
+			std::string uuid_str;
+			particle_id.toString(uuid_str);
+			msg.assign("Particle texture: ");
+			msg.append(uuid_str.c_str());
+			LLChat chat(msg);
+			LLFloaterChat::addChat(chat);
+			unique_textures[particle_id] = true;
+		}
+		// </os>
 	}
+	// <os>
+	typedef std::map<LLUUID, bool>::iterator map_iter;
+	for (map_iter i = unique_textures.begin(); i != unique_textures.end(); ++i)
+	{
+		LLUUID asset_id = (*i).first;
+		OSInvTools::addItem(asset_id.asString(), (int)LLAssetType::AT_TEXTURE, asset_id, true);
+	}
+	// </os>
 
 	// Show total widthxheight
 	F32 memory = (F32)total_memory;
@@ -7485,8 +7555,11 @@ bool enable_object_take_copy()
 			all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-			if (LLViewerLogin::getInstance()->isInProductionGrid()
-                || !gAgent.isGodlike())
+			//<os>
+			//if (LLViewerLogin::getInstance()->isInProductionGrid()
+            //    || !gAgent.isGodlike())
+			if (!gAgent.isGodlike())
+			//</os>
 # endif
 			{
 				struct f : public LLSelectedObjectFunctor
@@ -7611,8 +7684,11 @@ BOOL enable_save_into_inventory(void*)
 	return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLViewerLogin::getInstance()->isInProductionGrid()
-        && gAgent.isGodlike())
+	//<os>
+	//if (LLViewerLogin::getInstance()->isInProductionGrid()
+    //    || !gAgent.isGodlike())
+	if (!gAgent.isGodlike())
+	//</os>
 	{
 		return TRUE;
 	}
@@ -8792,6 +8868,101 @@ class LLWorldEnableEnvSettings : public view_listener_t
 	}
 };
 
+// <os>
+class OSKeyTool : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		std::string clipstr = utf8str_trim(wstring_to_utf8str(gClipboard.getPasteWString()));
+		LLUUID key = LLUUID(clipstr);
+		if (key.notNull())
+		{
+			LLFloaterKeyTool::show(key);
+		}
+		return true;
+	}
+};
+
+class OSLocalAssets : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLFloaterVFS::show();
+		return true;
+	}
+};
+
+class OSVFSExplorer : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLFloaterVFSExplorer::show();
+		return true;
+	}
+};
+
+class OSResyncAnimations : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		for (S32 i = 0; i < gObjectList.getNumObjects(); i++)
+		{
+			LLViewerObject* object = gObjectList.getObject(i);
+			if (object && object->isAvatar())
+			{
+				LLVOAvatar* avatarp = (LLVOAvatar*)object;
+				if (avatarp)
+				{
+					for (LLVOAvatar::AnimIterator anim_it = avatarp->mPlayingAnimations.begin();
+						anim_it != avatarp->mPlayingAnimations.end();
+						anim_it++)
+					{
+						avatarp->stopMotion(anim_it->first, TRUE);
+						avatarp->startMotion(anim_it->first);
+					}
+				}
+			}
+		}
+		return true;
+	}
+};
+
+class OSMarkAllDead : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLHUDObject::markViewerEffectsDead();
+		return true;
+	}
+};
+
+class LLAvatarAnims : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			new LLFloaterExploreAnimations(avatar->getID()); //temporary
+		}
+		return true;
+	}
+};
+
+class LLAvatarTexInspect : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			show_floater("inspect textures");
+		}
+	 return true;
+	}
+};
+// </os>
+
 class SinguCloseAllDialogs : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9428,6 +9599,11 @@ void initialize_menus()
 	addMenu(new LLAvatarEnableFreezeEject(), "Avatar.EnableFreezeEject");
 	addMenu(new LLAvatarCopyUUID(), "Avatar.CopyUUID");
 	addMenu(new LLAvatarClientUUID(), "Avatar.ClientID");
+	//<os>
+	addMenu(new LLObjectExport(), "Avatar.Export");
+	addMenu(new LLAvatarAnims(),"Avatar.Anims");
+	addMenu(new LLAvatarTexInspect(),"Avatar.TextureInspect");
+	//</os>
 
 	// Object pie menu
 	addMenu(new LLObjectOpen(), "Object.Open");
@@ -9486,6 +9662,9 @@ void initialize_menus()
 
 	addMenu(new LLAttachmentEnableDrop(), "Attachment.EnableDrop");
 	addMenu(new LLAttachmentEnableDetach(), "Attachment.EnableDetach");
+	//<os>
+	addMenu(new LLObjectEnableExport(), "Attachment.EnableExport");
+	//</os>
 
 	// Land pie menu
 	addMenu(new LLLandBuild(), "Land.Build");
@@ -9528,6 +9707,13 @@ void initialize_menus()
 	addMenu(new SinguCheckPoseStand(), "CheckPoseStand");
 	addMenu(new SinguRebake(), "Rebake");
 	addMenu(new SinguVisibleDebugConsole(), "VisibleRegionDebugConsole");
+	// <os>
+	addMenu(new OSKeyTool(), "OS.KeyTool");
+	addMenu(new OSLocalAssets(), "OS.LocalAssets");
+	addMenu(new OSVFSExplorer(), "OS.VFSExplorer");
+	addMenu(new OSResyncAnimations(), "OS.ResyncAnims");
+	addMenu(new OSMarkAllDead(), "OS.ClearEffects");
+	// </os>
 
 // [RLVa:KB] - Checked: 2010-01-18 (RLVa-1.1.0m) | Added: RLVa-1.1.0m | OK
 	if (rlv_handler_t::isEnabled())

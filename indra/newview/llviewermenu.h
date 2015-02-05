@@ -127,7 +127,10 @@ bool anyone_copy_selection(LLSelectNode* nodep);
 // Is this selected object for sale?
 // *TODO: Move to separate file
 bool for_sale_selection(LLSelectNode* nodep);
-
+//<os>
+void handle_selected_texture_info(void*);
+void handle_object_edit();
+//</os>
 void handle_save_snapshot(void *);
 void handle_toggle_flycam();
 void handle_fake_away_status(void*);

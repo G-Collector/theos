@@ -135,6 +135,11 @@ const F32 MAX_FIDGET_TIME = 20.f; // seconds
 LLAgent gAgent;
 std::string gAuthString;
 
+// <os>
+LLUUID gReSitTargetID;
+LLVector3 gReSitOffset;
+// </os>
+
 void camera_reset_on_motion()
 {
 	static const LLCachedControl<bool> motion_resets_cam("SinguMotionResetsCamera");
