@@ -31,7 +31,10 @@
 #include "message.h" // TODO: babbage: Remove...
 #include "llstat.h"
 #include "llstl.h"
-
+//<os>
+#include <boost/signals2.hpp>
+using namespace boost::signals2::keywords;
+//< /os>
 class LLMsgVarData
 {
 public:
@@ -284,9 +287,13 @@ public:
 		mTotalDecodeTime(0.f),
 		mMaxDecodeTimePerMsg(0.f),
 		mBanFromTrusted(false),
-		mBanFromUntrusted(false),
+		//<os>
+		mBanFromUntrusted(false)//,
+		/*
 		mHandlerFunc(NULL), 
 		mUserData(NULL)
+		*/
+		//< /os>
 	{ 
 		mName = LLMessageStringTable::getInstance()->getString(name);
 	}
@@ -354,17 +361,47 @@ public:
 		return mDeprecation;
 	}
 	
-	void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+	//<os>
+	//void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+	boost::signals2::connection setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+	//< /os>
 	{
-		mHandlerFunc = handler_func;
-		mUserData = user_data;
+		//<os>
+		//mHandlerFunc = handler_func;
+		//mUserData = user_data;
+		disconnectAllSlots();
+		if(handler_func)
+			return addHandlerFunc(boost::bind(handler_func,_1,user_data));
+		else //keep behavior of NULL handler_func clear callbacks
+			return boost::signals2::connection();
+		//< /os>
 	}
 
+//<os>
+	boost::signals2::connection addHandlerFunc(boost::function<void (LLMessageSystem *msgsystem)> handler_slot)
+	{
+		return mMessageSignal.connect(handler_slot);
+	}
+
+	void disconnectAllSlots()
+	{
+		//if mMessageSignal is not empty clear it out.
+		if(!mMessageSignal.empty())
+			mMessageSignal.disconnect_all_slots();
+	}
+//< /os>
 	BOOL callHandlerFunc(LLMessageSystem *msgsystem) const
 	{
-		if (mHandlerFunc)
+	//<os>
+	//	if (mHandlerFunc)
+	if (!mMessageSignal.empty())
+	//< /os>
 		{
-			mHandlerFunc(msgsystem, mUserData);
+			//<os>
+			//mHandlerFunc(msgsystem, mUserData);
+			//fire and forget
+			mMessageSignal(msgsystem);
+			//< /os>
 			return TRUE;
 		}
 		return FALSE;
@@ -413,8 +450,12 @@ public:
 
 private:
 	// message handler function (this is set by each application)
-	void									(*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
-	void									**mUserData;
+	//<os>
+	//void									(*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
+	//void									**mUserData;
+	typedef boost::signals2::signal_type<void (LLMessageSystem*), mutex_type<boost::signals2::dummy_mutex> >::type message_signal_t;
+	message_signal_t						mMessageSignal;
+	//< /os>
 };
 
 #endif // LL_LLMESSAGETEMPLATE_H
