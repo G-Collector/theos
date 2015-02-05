@@ -2656,7 +2656,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				if (message != "typing")
 				{
 					std::string pns_name;
-					if (!LLAvatarNameCache::getPNSName(from_id, pns_name)) pns_name = name;
+					if (!LLAvatarNameCache::getNSName(from_id, pns_name)) pns_name = name;
 					gIMMgr->addMessage(
 						session_id,
 						from_id,
