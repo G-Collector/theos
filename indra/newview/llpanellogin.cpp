@@ -455,7 +455,7 @@ void LLPanelLogin::mungePassword(const std::string& password)
 		}
 		else
 		{
-			self->mMungedPassword = password;
+			mMungedPassword = password;
 		}
 		// </os>
 	}

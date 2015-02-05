@@ -1001,7 +1001,7 @@ void LLVOAvatarSelf::idleUpdateTractorBeam()
 	    }
 		
 		// This is only done for yourself (maybe it should be in the agent?)
-		if (!needsRenderBeam() || !isBuilt)
+		if (!needsRenderBeam() || !mIsBuilt)
 		{
 			int a;
 			for(a=0;a<32;a+=1)
@@ -1264,9 +1264,10 @@ void LLVOAvatarSelf::idleUpdateTractorBeam()
 		for(a=0;a<32;a+=1)mBeama[a] = NULL;
 
 		LLColor4U rgb = gLggBeamMaps.getCurrentColor(LLColor4U(gAgent.getEffectColor()));
-	// This is only done for yourself (maybe it should be in the agent?)
-	if (!needsRenderBeam() || !isBuilt())
-	{
+	
+		// This is only done for yourself (maybe it should be in the agent?)
+		if (!needsRenderBeam() || !mIsBuilt)
+		{
 			mBeam = NULL;
 			if(gSavedSettings.getBOOL("OSParticleChat"))
 			{
