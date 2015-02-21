@@ -123,6 +123,14 @@ enum {
 	MI_HOLE_COUNT
 };
 
+//<os>
+struct OSDuplicateData
+{
+	LLVector3	offset;
+	U32			flags;
+};
+//</os>
+
 // *TODO:translate (deprecated, so very low priority)
 static const std::string LEGACY_FULLBRIGHT_DESC("Fullbright (Legacy)");
 
@@ -198,7 +206,12 @@ BOOL	LLPanelObject::postBuild()
 	childSetAction("link_obj",onLinkObj, this);
 	mBtnUnlinkObj = getChild<LLButton>("unlink_obj");
 	childSetAction("unlink_obj",onUnlinkObj, this);
-
+	// <os>
+	mBtnDuplicateObj = getChild<LLButton>("duplicate_obj");
+	mBtnDuplicateObj->setClickedCallback(boost::bind(&LLPanelObject::onClickDuplicate, this));
+	mBtnBlink = getChild<LLButton>("blink_btn");
+	mBtnBlink->setClickedCallback(boost::bind(&LLPanelObject::onClickBlink, this));
+	// </os>
 	mBtnCopyPos = getChild<LLButton>("copypos");
 	childSetAction("copypos",onCopyPos, this);
 	mBtnPastePos = getChild<LLButton>("pastepos");
@@ -526,7 +539,10 @@ void LLPanelObject::getState( )
 	mBtnCopyPos->setEnabled(enable_move);
 	mBtnPastePos->setEnabled(enable_move);
 	mBtnPastePosClip->setEnabled(enable_move);
-
+	// <os>
+	mBtnDuplicateObj->setEnabled(LLSelectMgr::getInstance()->canDuplicate());
+	mBtnBlink->setEnabled(enable_move);
+	// </os>
 	if (enable_scale)
 	{
 		vec = objectp->getScale();
@@ -2489,12 +2505,17 @@ namespace
 {
 	bool texturePermsCheck(const LLUUID& id)
 	{
+		// <os>
+		/*
 		return (id.notNull() && !gInventory.isObjectDescendentOf(id, gInventory.getLibraryRootFolderID())
 			&& id != LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
 			&& id != LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
 			&& id != LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
 			&& id != LLUUID(std::string("8dcd4a48-2d37-4909-9f78-f7a9eb4ef903")) // alpha
 			&& LLPanelObject::findItemID(id).isNull());
+		*/
+		return true;
+		//</os>
 	}
 }
 
@@ -2567,6 +2588,38 @@ void LLPanelObject::onUnlinkObj(void* user_data)
 	llinfos << "Attempting unlink." << llendl;
 	LLSelectMgr::getInstance()->unlinkObjects();
 }
+
+// <os>
+void LLPanelObject::onClickDuplicate()
+{
+	LLVector3 offset = LLVector3(0.0f, 0.0f, mCtrlScaleZ->get());
+	OSDuplicateData	data;
+	data.offset = offset;
+	data.flags = FLAGS_CREATE_SELECTED;
+	LLSelectMgr::getInstance()->sendListToRegions("ObjectDuplicate", LLSelectMgr::getInstance()->packDuplicateHeader, LLSelectMgr::getInstance()->packDuplicate, &data, SEND_ONLY_ROOTS);
+	// the new copy will be coming in selected
+	LLSelectMgr::getInstance()->deselectAll();
+}
+
+void LLPanelObject::onClickBlink()
+{
+	// move current selection based on delta from position and update z position
+	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
+		iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+	{
+		LLSelectNode* node = *iter;
+		if (node)
+		{
+			LLVector3d cur_pos = node->getObject()->getPositionGlobal();
+			LLVector3d new_pos = cur_pos.mdV[VZ] = 340282346638528859811704183484516925440.0f;
+			node->mDuplicatePos = node->getObject()->getPositionGlobal();
+			node->getObject()->setPositionGlobal(new_pos);
+		}
+	}
+
+	LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
+}
+// </os>
 
 void LLPanelObject::onPastePos(void* user_data)
 {

@@ -722,13 +722,13 @@ private:
 	void addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to_end = FALSE);
 	void generateSilhouette(LLSelectNode *nodep, const LLVector3& view_point);
 	void updateSelectionSilhouette(LLObjectSelectionHandle object_handle, S32& num_sils_genned, std::vector<LLViewerObject*>& changed_objects);
+public: //<os> 
 	// Send one message to each region containing an object on selection list.
 	void sendListToRegions(	const std::string& message_name,
 							void (*pack_header)(void *user_data), 
 							void (*pack_body)(LLSelectNode* node, void *user_data), 
 							void *user_data,
 							ESendType send_type);
-
 
 	static void packAgentID(	void *);
 	static void packAgentAndSessionID(void* user_data);
@@ -761,6 +761,7 @@ private:
 	static void packHingeHead(void *user_data);
 	static void packPermissionsHead(void* user_data);
 	static void packGodlikeHead(void* user_data);
+private: //</os>
 	static bool confirmDelete(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle);
 
 public:

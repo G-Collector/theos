@@ -66,6 +66,10 @@ public:
 	virtual void 	clearCtrls();
 
 	void			refresh();
+	// <os>
+	void			onClickDuplicate();
+	void			onClickBlink();
+	// </os>
 
 	static bool		precommitValidate(const LLSD& data);
 
@@ -193,6 +197,10 @@ protected:
 
 	LLButton		*mBtnLinkObj;
 	LLButton		*mBtnUnlinkObj;
+	// <os>
+	LLButton		*mBtnDuplicateObj;
+	LLButton		*mBtnBlink;
+	// </os>
 
 	LLButton		*mBtnCopyPos;
 	LLButton		*mBtnPastePos;
