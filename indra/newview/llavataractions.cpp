@@ -68,6 +68,7 @@
 #include "llwindow.h"
 // <os>
 #include "llparcel.h"
+#include "llfirstuse.h"
 #include "llviewerparcelmgr.h"
 #include "llworld.h" //land height
 #include "llagentcamera.h"//for rezplat
@@ -1375,5 +1376,52 @@ void LLAvatarActions::goToPanic()
 		gAgent.teleportViaLocation(pos_global);
 	}
 	gAgentCamera.resetCamera();
+}
+
+void LLAvatarActions::rezInvObject(LLInventoryItem* item, LLVector3 rezpos)
+{
+	if (!item) return;
+	LLViewerRegion* regionp = gAgent.getRegion();
+	if (!regionp)
+	{
+		LL_WARNS("InventoryBridge") << "Couldn't find region to rez object" << LL_ENDL;
+		return;
+	}
+	make_ui_sound("UISndObjectRezIn");
+	if (regionp && (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
+	{
+		LLFirstUse::useSandbox();
+	}
+	BOOL remove_from_inventory = !item->getPermissions().allowCopyBy(gAgent.getID());
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_RezObject);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
+	msg->addUUIDFast(_PREHASH_SessionID, gAgentSessionID);
+	msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
+	msg->nextBlock("RezData");
+	// if it's being rezzed from task inventory, we need to enable
+	// saving it back into the task inventory.
+	// *FIX: We can probably compress this to a single byte, since I
+	// think folderid == mSourceID. This will be a later optimization.
+	// Currently this is a null key... maybe implement this?
+	msg->addUUIDFast(_PREHASH_FromTaskID, LLUUID::null);
+	msg->addU8Fast(_PREHASH_BypassRaycast, (U8)TRUE);
+	msg->addVector3Fast(_PREHASH_RayStart, rezpos);
+	msg->addVector3Fast(_PREHASH_RayEnd, rezpos);
+	msg->addUUIDFast(_PREHASH_RayTargetID, LLUUID::null);
+	msg->addBOOLFast(_PREHASH_RayEndIsIntersection, FALSE);
+	msg->addBOOLFast(_PREHASH_RezSelected, true);
+	msg->addBOOLFast(_PREHASH_RemoveItem, remove_from_inventory);
+
+	// deal with permissions slam logic
+	pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
+
+	LLUUID folder_id = item->getParentUUID();
+	msg->nextBlockFast(_PREHASH_InventoryData);
+	item->packMessage(msg);
+
+	msg->sendReliable(regionp->getHost());
+
 }
 // </os>

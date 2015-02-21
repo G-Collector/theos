@@ -30,6 +30,11 @@
         <button.commit_callback function="ShowFloater" parameter="friends"/>
       </button>
     </layout_panel>
+	   <layout_panel name="panelgriefer" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleGriefer">
+      <button bottom="0" height="24" label="OS Griefer Tools" name="osgriefer_btn" image_overlay="icn_toolbar_quit.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" width="50" follows="left|right">
+        <button.commit_callback function="ShowFloater" parameter="os_tools"/>
+      </button>
+    </layout_panel>
     <layout_panel name="panelgroups" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleGroups">
       <button bottom="0" height="24" label="Groups" image_overlay="icn_toolbar_groups.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="groups_btn" tool_tip="Open your Groups List. (Ctrl-Shift-G)" width="50" follows="left|right">
         <button.commit_callback function="ShowFloater" parameter="groups"/>

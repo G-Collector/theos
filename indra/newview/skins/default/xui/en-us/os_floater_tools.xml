@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+	name="os_tools"
+	title="OS Griefer Tools"
+	can_resize="false"
+	can_minimize="true"
+	can_close="true"
+	can_drag_on_left="false"
+	rect_control="LLToolboxRect"
+	min_width="270"
+	min_height="525"
+	width="270"
+	height="525"
+	>
+
+  <tab_container border="false" bottom="0" height="493" width="270" left="0" mouse_opaque="false"
+			   name="greifers_tab_container" tab_position="top" follows="top|left">
+
+    <panel border="true" bottom_delta="0" follows="left|top|right|bottom" height="500"
+			   label="Spam" left="1" mouse_opaque="true" name="actions_tab" width="268">
+
+      <text bottom="-25" height="16" left="7" name="baked_label" width="268">
+        Set Your Target Avatar
+      </text>
+      <button bottom_delta="0" follows="left|top" font="SansSerif" halign="center"
+             height="20" label="Set Target" label_selected="Set Target" left_delta="150"
+             mouse_opaque="true" name="set_target_btn"
+             tool_tip="Set the target avatar" width="110" />
+      <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="-25"
+           label="(no target)" enabled="false" follows="left|top" font="SansSerif"
+           handle_edit_keys_directly="false" height="18" left="5" max_length="36"
+           mouse_opaque="true" name="target_avatar_name" select_all_on_focus_received="false"
+           select_on_focus="false" width="260" />
+      <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="-25"
+           label="(no target)" enabled="false" follows="left|top" font="SansSerif"
+           handle_edit_keys_directly="false" height="18" left_delta="0" max_length="36"
+           mouse_opaque="true" name="target_avatar_UUID" select_all_on_focus_received="false"
+           select_on_focus="false" width="260" />
+      <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+          bottom_delta="-35" drop_shadow_visible="false" follows="left|top"
+          font="SansSerifSmall" h_pad="0" halign="left" height="24" left_delta="0"
+          mouse_opaque="true" name="online_yes" v_pad="0" width="121">
+        Currently Online
+      </text>
+      <button bottom_delta="5" follows="left|top" font="SansSerif" halign="center"
+           height="20" label="Profile" label_selected="Profile" left_delta="150"
+           mouse_opaque="true" name="profile_btn"
+           width="110" />
+      <text bottom_delta="-35" height="16" left="5" name="lol1" width="260">
+        _______________________________________________________
+      </text>
+      <line_editor bevel_style="in" border_style="line" border_thickness="1" follows="left|top" height="20"
+        label="Type your message to send with packet."  enabled="true" left_delta="-3" max_length="999" bottom_delta="2"
+        font="SansSerif" name="text_editor"
+        tool_tip="Type Your Spam Message packets ready to send" select_all_on_focus_received="false"
+        select_on_focus="false" width="262" />
+      <text bottom_delta="-45" height="16" left="7" name="baked_label" width="250">
+        Set Packet Type:
+      </text>
+
+      <combo_box name="function_combobox" bottom_delta="7" left_delta="-3" follows="left|top" height="18" width="258"
+        max_chars="128" mouse_opaque="true" allow_text_entry="true"
+            tool_tip="Choose what packet type to send." />
+
+      <spinner decimal_digits="0" follows="left|top" height="18" increment="1"
+           label="How Many Packets To Send:" label_width="140" left_delta="5" bottom="-200" max_val="999999999999" min_val="1"
+           control_name="OSToolNumPackets"
+           tool_tip="How many packets to send:"
+           width="253" />
+      <check_box bottom_delta="-22" enabled="true" follows="left|top" font="SansSerifSmall"
+              height="17" initial_value="false" label="Loop the Delivery" left_delta="139"
+              name="loop_chk" radio_style="false" width="50" tool_tip="Spams target with item Inventory Requests." />
+      <button bottom_delta="-25" font="SansSerif" follows="left|top" height="20" label="Send Packet"
+              left_delta="0" mouse_opaque="true" name="send_packet_btn"
+              scale_image="TRUE" width="110" />
+      <slider bottom_delta="-42" can_edit_text="true"
+              decimal_digits="0" enabled="true" height="16" increment="1"
+              initial_val="0" left="5" max_val="9999" min_val="0" mouse_opaque="true"
+              name="loop" show_text="true" value="1" width="250" />
+      <text bottom_delta="-18" height="16" left="190" name="baked_label" width="255">
+        Loop Throttle
+      </text>
+      <text name="counter"
+		height="15" width="220" left="9" bottom_delta="90" follows="left|top">
+        Packets Sent:
+      </text>
+	  
+	  <check_box bottom="198" left="4" follows="top" label="Detect avatars sending you abnormal commands." name="display_typingstop_toggle" control_name="OSReportAbnormalTypeStop"/>
+      <text bottom_delta="-35" height="16" left="7" name="baked_label" width="255">
+        _______________________________________________________
+      </text>
+      
+      <text bottom_delta="-18" height="16" left="7" name="baked_label" width="268">
+        Open UUID/Play sound UUID At Targeted AV
+      </text>
+      <combo_box name="sound_combobox" bottom_delta="1" left="5" follows="left|top" height="18" width="258"
+        max_chars="128" mouse_opaque="true" allow_text_entry="true"
+            tool_tip="Choose what packet type to send." />
+      <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="-20"
+           label="UUID input here" enabled="true" follows="left|top" font="SansSerif"
+           handle_edit_keys_directly="false" height="18" left="5" max_length="36"
+           mouse_opaque="true" name="sound_asset_id" select_all_on_focus_received="false"
+           select_on_focus="false" width="260" />
+      <button bottom_delta="-20" font="SansSerif" follows="left|top" halign="center" height="18" label="Open"
+          left_delta="0" mouse_opaque="true" name="open_asset_button"
+          scale_image="TRUE" width="70" />
+      <button bottom_delta="0" font="SansSerif" follows="left|top" halign="center" height="18" label="Play Sound"
+          left_delta="80" mouse_opaque="true" name="play_sound_button"
+          scale_image="TRUE" width="100" />
+      <spinner decimal_digits="0" follows="left|top" height="18" increment="1"
+           label="" label_width="10" left_delta="100" bottom_delta="0" max_val="999" min_val="1"
+		   initial_val="1"
+           name="sound_amount"
+           tool_tip="Volume to play sound at"
+           width="56" />
+      <check_box bottom_delta="0" enabled="true" follows="left|top" font="SansSerifSmall"
+             height="20" initial_value="false" label="" left_delta="59"
+             name="snd_loop" tool_tip="If Checked spams sound on a loop." radio_style="false" width="40" />
+      <check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall"
+           height="20" initial_value="false" label="List Sounds Played By Avatars In Simulator" left="5"
+           name="sound_checkbox" tool_tip="Displays a list of sound uuids that have been played in the current region." radio_style="false" width="100" />
+       <check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall"
+           height="20" initial_value="false" label="Echo Sounds Played By Avatars In Simulator" left="5"
+           name="echo_checkbox" tool_tip="Echo All Sounds Played Played in the current region." radio_style="false" width="100" />
+		   <check_box bottom_delta="-18" control_name="AllowLargeSounds" follows="top" label="Bypass strict sound size/sample checks."
+        tool_tip="Bypass stricter sound size/sample checks, which were introduced in SL2.x, for sound decoding." name="allow_large_sounds_check"/>
+      <check_box bottom_delta="-18" control_name="OSUIPlaySndInWorld" follows="top" name="ui_play_snd_in_world" label="Play UI Sounds on Ambient"
+        tool_tip="Enable the playing of UI sounds in world, to everyone"/>
+      <text bottom_delta="-30" height="16" left="7" name="lol0" width="260">
+        ________________________________________________________
+      </text>
+
+    </panel>
+	<!--
+    <panel border="true" bottom_delta="0" follows="left|top|right|bottom" height="500"
+			 label="Client" left="1" mouse_opaque="true" name="actions_tab2" width="450">
+
+      <text bottom="-20" height="16" left="7" name="baked_label" width="268">
+        client
+      </text>
+    </panel>
+	-->
+    <panel border="true" bottom_delta="0" follows="left|top|right|bottom" height="500"
+			 label="Objects" left="1" mouse_opaque="true" name="actions_tab3" width="450">
+
+      <text bottom="-20" height="16" left="7" name="baked_label" width="268">
+        Object Functions/for current simulator
+      </text>
+	  <text follows="top|left" left="5" bottom_delta="-20" name="hide_columns">OS Rezzer:</text>
+      <text follows="top|left" left_delta="85" bottom_delta="0" name="hide_columns">Pos:</text>
+      <spinner bottom_delta="-5" left_delta="25" decimal_digits="0" follows="top|left" height="16"
+       increment="1" initial_val="128" left="30" max_val="258" min_val="0"
+       mouse_opaque="true" name="X"
+       tool_tip="X coordinate of location to show on map" width="48" />
+      <spinner bottom_delta="0" decimal_digits="0" follows="top|left" height="16"
+           increment="1" initial_val="128" left_delta="50" max_val="258" min_val="0"
+           mouse_opaque="true" name="Y"
+           tool_tip="Y coordinate of location to show on map" width="48" />
+      <spinner bottom_delta="0" decimal_digits="0" follows="top|left" height="16"
+           increment="1" initial_val="0" left_delta="50" max_val="4096" min_val="0"
+           mouse_opaque="true" name="Z"
+           tool_tip="Z coordinate of location to show on map" width="48" />
+      
+      <drop_target control_name="RadarRezItem" follows="top|left" bottom_delta="-21" height="17" left="5" width="260" fill_parent="false" name="radar_object" label="Drop inventory Rez item here." tool_tip="Drop inventory items here to use as the Rez item."/>
+
+      <button bottom_delta="-45" font="SansSerif" halign="center" height="18" label="Set Megaprim"
+           left="5" mouse_opaque="true" name="megaprim_button"
+           tool_tip="Set mega prim as multirez item"
+           scale_image="TRUE" width="100" enabled="true"/>
+      <button bottom_delta="0" font="SansSerif" halign="center" height="18" label="Duplicate"
+           left_delta="160" mouse_opaque="true" name="duplicate_button"
+           tool_tip="Edit a Item then set the repetitions using Amount to rez and duplicate x times"
+           scale_image="TRUE" width="100" enabled="true"/>
+
+      <button bottom_delta="-30" font="SansSerif" halign="center" height="50" label="Rez"
+           left="105" mouse_opaque="true" name="rez_button"
+           tool_tip="Set mega prim as multirez item"
+           scale_image="TRUE" width="60" enabled="true"/>
+      <spinner decimal_digits="0" follows="left|top" height="18" increment="1" initial_val="1"
+			   label="Amount" label_width="40" left="170" bottom_delta="35" max_val="9999999999999" min_val="0"
+			   name="Amount"
+			   tool_tip="Amount to Rez."
+			   width="90" />
+	    <check_box bottom_delta="0" enabled="true" follows="left|top" font="SansSerifSmall"
+             height="20" initial_value="false" label="Random Pos" left="10"
+             name="rdm_pos" radio_style="false" width="50" tool_tip="Set a random Pos instead of Targeted Avatar" />
+			   
+      <spinner decimal_digits="0" follows="left|top" height="18" increment="1" initial_val="0"
+           label="Loop speed." label_width="60" left="10" bottom_delta="-30" max_val="9999999999999" min_val="0"
+           name="LoopSpeed"
+           tool_tip="Controls the MultiRez Loop speed."
+           width="120" />
+
+      <check_box bottom_delta="0" enabled="true" follows="left|top" font="SansSerifSmall"
+             height="20" initial_value="false" label="Start Rez Looped" left_delta="140"
+             name="rez_loop" radio_style="false" width="50" tool_tip="Set Target. Set MultiRez Item. Enable This Check Looped Rez. Mass Lulz Assured" />
+
+      <text bottom="-145" height="16" left="7" name="baked_label" width="268">
+        _______________________________________________________
+      </text>
+	  
+      <text bottom_delta="-45" height="16" left="7" name="baked_label" width="268">
+        OS Rapid Touch - touch object repeatedly.
+      </text>
+	  
+      <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+           bottom_delta="-35" drop_shadow_visible="true" follows="left|bottom"
+           font="SansSerifSmall" h_pad="0" halign="left" height="16" left="7"
+           mouse_opaque="true" name="object_name_label" v_pad="0" width="380">
+        No Target Set For Touch Spam
+      </text>
+
+      <button bottom_delta="15" font="SansSerif" halign="center" height="40" label=""
+         label_selected="" left="215" mouse_opaque="true" name="pick_btn"
+         tool_tip="Object Picker - Identify an object for touch spam"
+         width="50" />
+
+      <button bottom_delta="-15" font="SansSerif" halign="center" height="16" label="Clear"
+         left_delta="0" mouse_opaque="true" name="stop_touch_spam"
+         tool_tip="Clear Object Picker UUID - kill the object touch spam"
+         scale_image="TRUE" width="50" enabled="true"/>
+	  
+      <text bottom_delta="-7" height="16" left="5" name="lol1" width="260">
+        _______________________________________________________
+      </text>
+	  
+	  
+
+      <button bottom_delta="-25" font="SansSerif" halign="center" height="20" label="Delete All Your Objects On Current Sim"
+           left_delta="0" mouse_opaque="true" name="delete_all_button"
+           scale_image="TRUE" width="254" />
+
+      <text bottom_delta="-19" height="16" left="7" name="baked_label" width="255">
+        Currently Selected Object fuctions (edit prim)
+      </text>
+
+      <button bottom_delta="-20" font="SansSerif" halign="center" height="20" label="ObjBlink"
+            left="7" mouse_opaque="true" name="blink_button" tool_tip="edit a prim you own hit this to send offworld (if sat on is Lulzy) if your sitting on it this can protect you too "
+            scale_image="TRUE" width="80" />
+      <button bottom_delta="0" font="SansSerif" halign="center" height="20" label="RezPlat"
+           left_delta="85" mouse_opaque="true" name="rezplat_button"
+           scale_image="TRUE" width="80" />
+      <button bottom_delta="0" font="SansSerif" halign="center" height="20" label="Ztake"
+           left_delta="85" mouse_opaque="true" name="ztake_button"
+           scale_image="TRUE" width="80" />
+	 <text bottom_delta="-20" height="16" left="5" name="lol44" width="260">
+        Object Follower: set target, edit prim and click Add.
+      </text>
+      <scroll_list
+           name="followprim_list"
+           left="5"
+           right="-5"
+           top="-295"
+         bottom="25"
+           column_padding="0"
+           can_resize="true"
+           follows="left|top|bottom|right"
+           draw_heading="true"
+           multi_select="false"
+           search_column="1"
+           tool_tip="Shows which Prim follows whom">
+            <!-- Icons relating to the avatar, currently: tracking, and marked -->
+            <column name="aca" label=" " width="20" />
+            <column name="fpl_AvatarName" label="Destination Avatar" dynamicwidth="true" />
+            <column name="fpl_icon" label=" " width="40" />
+            <column name="fpl_ObjectsID" label="Object ID" dynamicwidth="true" />
+            <column name="ace" label=" " width="20" />
+      </scroll_list>
+      <button
+            name="addFollow_button"
+            label="Add"
+            tool_tip="Starts sending an FollowPrim"
+            left="4"
+            bottom_delta="-20"
+            width="90"
+            height="18"
+            font="SansSerifSmall"
+            follows="bottom|left"/>
+      <button
+            name="removeFollow_button"
+            label="Remove"
+            tool_tip="Remove selected FollowPrim"
+            right="-4"
+            bottom_delta="0"
+            width="90"
+            height="18"
+            font="SansSerifSmall"
+            follows="bottom|right"/>
+
+    </panel>
+    <panel border="true" bottom_delta="0" follows="left|top|right|bottom" height="500"
+           label="Defense" left="1" mouse_opaque="true" name="actions_tab4" width="450">
+
+      <text bottom_delta="-49" height="16" left="7" name="baked_label" width="255">
+        AntiGreifing/Protective Measures (defensive)
+      </text>
+      <button bottom_delta="-23" font="SansSerif" halign="center" height="20" label="Undeform"
+        left="180" mouse_opaque="true" name="undeform_button"
+        scale_image="TRUE" width="86" />
+      <button bottom_delta="-23" font="SansSerif" halign="center" height="20" label="SafeZone"
+          left_delta="0" mouse_opaque="true" name="tp_safe_button"
+          scale_image="TRUE" width="86" />
+      <button bottom_delta="-23" font="SansSerif" halign="center" height="20" label="TpGround"
+             left_delta="0" mouse_opaque="true" name="tp_ground_button"
+             scale_image="TRUE" width="86" />
+			 
+      <check_box bottom="-45" control_name="BroadcastViewerEffects" follows="top" initial_value="true" label="Broadcast Viewer Effects" left="10" name="broadcast_viewer_effects" width="400"/>
+      <check_box bottom_delta="-20" control_name="DisablePointAtAndBeam" follows="top" initial_value="true" label="Disable Point At And Beam" tool_tip="Don't point at or show your edit beam when selecting an object." name="disable_point_at_and_beams_check"/>
+      <check_box bottom_delta="-20" control_name="PrivateLookAt" follows="top" initial_value="false" label="Disable Look At" tool_tip="Disables headturns and lookat beacons, causing your avatar to look straight ahead (unless scripted to do otherwise)." name="private_look_at_check"/>
+      <check_box bottom_delta="-20" control_name="AscentShowLookAt" follows="top" initial_value="false" label="Show others' LookAt beacons" tool_tip="Shows you where others are looking." name="show_look_at_check"/>
+      <check_box bottom_delta="-20" left="10" control_name="AlchemyLookAtLines" follows="top" label="Show a line from look at beacon to avatar" tool_tip="See a line connecting the camera focus point to the avatar. Useful to find where they are." name="lineslookat"/>
+      <check_box bottom_delta="-20" control_name="AnnounceBumps" follows="top" label="Announce in chat when people bump you" name="announce_bumps"/>
+      <check_box bottom_delta="-20" control_name="RevokePermsOnStandUp" follows="top" initial_value="false" label="On standing up, revoke perms" tool_tip="Objects generally retain Take Control and Trigger Animation permissions until reset or given permission by another user. Enabling this will make sure you revoke these permissions immediately." name="revoke_perms_on_stand_up_check"/>
+      <check_box bottom_delta="-20" control_name="DisableClickSit" follows="top" initial_value="false" label="Disable click-to-sit on objects" tool_tip="Some griefer tools rely on forcing or tricking you to click on an object that will make you sit, giving the object automatic permissions to trigger animations amongst other things. This will disable llSitTarget - It does mean that you will need to select 'Sit' on poseballs and furniture." name="disable_click_sit_check"/>
+      <check_box disabled_control="DisableClickSit" bottom_delta="0" left_delta="166" control_name="DisableClickSitOtherOwner" follows="top" label="you don't own" tool_tip="Disables click to sit on objects you don't own (If used with the group check, only one is needed)" name="disable_click_sit_own_check"/>	 
+      <check_box bottom_delta="-20" left="10" follows="top" label="Render muted avatars" name="render_muted" control_name="LiruLegacyDisplayMuteds"/>
+      <check_box bottom_delta="-20" enabled="true" control_name="VolumeEnabled" follows="left|top" font="SansSerifSmall"
+              height="20" initial_value="false" label="Derender Objects" left_delta="0"
+              name="prims_toggle" radio_style="false" width="86" />
+      <check_box bottom_delta="0" enabled="true" control_name="WireFrameEnabled" follows="left|top" font="SansSerifSmall"
+              height="20" initial_value="false" label="Wireframe" left_delta="166"
+              name="wireframe_toggle" radio_style="false" width="86" />
+
+      <text bottom_delta="-30" height="16" left="5" name="lol1" width="260">
+        _______________________________________________________
+      </text>
+      <check_box control_name="AntiSpamEnabled" label="Enable Antispam" name="enable_as" width="256" left="3" bottom_delta="-20"/>
+      <check_box control_name="_NACL_AntiSpamGlobalQueue" label="No messagetype-specific spam queues" name="spammsg_checkbox" width="256" left="10" bottom_delta="-20"/>
+      <check_box control_name="AntiSpamNotify" height="16" label="Notify when spam is blocked" name="Notify On Spam" tool_tip="When enabled, the bottom right corner may become a source of pseudo-spam whenever real spam is blocked." left="10" bottom_delta="-20"/>
+      <check_box control_name="_NACL_Antispam" height="16" label="Disable -all- dialogs (resets on login)" name="antispam_checkbox" left="10" bottom_delta="-20"/>
+      <text name="Block All Dialogs From" left="10" bottom_delta="-20">Block All Dialogs From</text>
+      <check_box control_name="AntiSpamAlerts" height="16" label="Alerts" name="Alerts" left="14" bottom_delta="-23"/>
+      <check_box control_name="AntiSpamFriendshipOffers" height="16" label="Friendship Offers" name="Friendship Offers" bottom_delta="0" left_delta="120"/>
+      <check_box control_name="AntiSpamGroupInvites" height="16" label="Group Invites" name="Group Invites" bottom_delta="-20" left_delta="-120"/>
+      <check_box control_name="AntiSpamGroupNotices" height="16" label="Group Notices" name="Group Notices" bottom_delta="0" left_delta="120"/>
+      <check_box control_name="AntiSpamTeleports" height="16" label="Teleport Offers" name="Teleport Offers" bottom_delta="-20" left="14"/>
+      <check_box disabled_control="_NACL_Antispam" control_name="AntiSpamTeleportRequests" height="16" label="Teleport Requests" name="Teleport Requests" left_delta="120" bottom_delta="0"/>
+      <text disabled_control="_NACL_Antispam" name="Except those from:" left="147" bottom_delta="-10">Except those from:</text>
+      <check_box disabled_control="_NACL_Antispam" control_name="AntiSpamNotMine" height="16" label="My objects" name="My objects" left="147" bottom_delta="-23"/>
+      <check_box disabled_control="_NACL_Antispam" control_name="AntiSpamNotFriend" height="16" label="My friends" name="My friends" bottom_delta="-20" left_delta="0"/>
+      <check_box control_name="AntiSpamScripts" label="Scripts" name="Scripts" left="14" bottom_delta="33"/>
+      <check_box control_name="AntiSpamItemOffers" height="16" label="Item Offers" name="Item Offers" left="14" bottom_delta="-20"/>
+    </panel>
+  </tab_container>
+</floater>

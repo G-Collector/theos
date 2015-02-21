@@ -131,6 +131,10 @@
 
 #include "llgiveinventory.h"
 
+// <os>
+#include "os_floatertoolbox.h"
+// </os>
+
 #include <boost/tokenizer.hpp>
 
 #if LL_WINDOWS // For Windows specific error handler
@@ -146,7 +150,7 @@ static const boost::regex NEWLINES("\\n{1}");
 // NaCl End
 
 extern AIHTTPTimeoutPolicy authHandler_timeout;
-
+void cmdline_printchat(std::string message);
 //
 // Constants
 //
@@ -5363,7 +5367,23 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	{
 		return;
 	}
-
+	// <os>
+	if (OSFloaterTools::sInstance)
+	{
+		if (OSFloaterTools::sInstance->getSoundList()) {
+			std::string full_name;
+			if (gCacheName->getFullName(owner_id, full_name)) {
+				cmdline_printchat(std::string(full_name + (" triggered sound with a uuid of: ") + sound_id.asString()));
+			}
+			else {
+				cmdline_printchat(std::string("Avatar key: ") + owner_id.asString() + " triggered sound with a uuid of: " + sound_id.asString());
+			}
+		}
+		else if (OSFloaterTools::sInstance->getSoundEcho()) {
+			gAudiop->triggerSound(sound_id, owner_id, gain, LLAudioEngine::AUDIO_TYPE_AMBIENT, pos_global, object_id);
+		}
+	}
+	// </os>
 	// Don't play sounds from a region with maturity above current agent maturity
 	if( !gAgent.canAccessMaturityInRegion( region_handle ) )
 	{

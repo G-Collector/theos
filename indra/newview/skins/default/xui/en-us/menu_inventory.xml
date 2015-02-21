@@ -228,6 +228,10 @@
 	 name="Rez In World" width="128">
 	 <on_click filter="" function="Inventory.DoToSelected" userdata="rez object" />
 		</menu_item_call>
+  <menu_item_call bottom_delta="-18" height="18" label="Grief Rez" left="0" mouse_opaque="true"
+ name="Rez In World" width="128">
+    <on_click filter="" function="Inventory.DoToSelected" userdata="rez_spam" />
+  </menu_item_call>
 
 	<menu_item_call bottom_delta="-18" height="18" label="Rez Last Position" left="0" mouse_opaque="true"
 	     name="Restore to Last Position" width="128">

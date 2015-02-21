@@ -29,6 +29,7 @@
 
 class LLAvatarName;
 class LLInventoryPanel;
+class LLInventoryItem;
 class LLFloater;
 class LLView;
 
@@ -241,6 +242,7 @@ public:
 // <os>
 	static void goToGround();
 	static void goToPanic();
+	static void rezInvObject(LLInventoryItem* item, LLVector3 rezpos);
 // </os>
 
 private:

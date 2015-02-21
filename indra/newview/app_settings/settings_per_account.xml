@@ -832,6 +832,17 @@
       <key>Value</key>
       <string></string>
     </map>
+    <key>ToolRezItem</key>
+    <map>
+      <key>Comment</key>
+      <string>UUID of item added to new object created</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
     <key>FollowInterval</key>
     <map>
       <key>Comment</key>

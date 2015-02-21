@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llviewercontrol.cpp
  * @brief Viewer configuration
  * @author Richard Nelson
@@ -598,6 +598,24 @@ bool handleCloudSettingsChanged(const LLSD& newvalue)
 	return true;
 }
 
+// <os>
+bool handleVolumeSettingsChanged(const LLSD& newvalue)
+{
+	bool bVolumesEnabled = gSavedSettings.getBOOL("VolumeEnabled");
+	if ((bool)LLPipeline::hasRenderTypeControl((void*)LLPipeline::RENDER_TYPE_VOLUME) == bVolumesEnabled)
+		LLPipeline::toggleRenderTypeControl((void*)LLPipeline::RENDER_TYPE_VOLUME);
+	return true;
+}
+
+bool handleWireframeSettingsChanged(const LLSD& newvalue)
+{
+	BOOL bWireFrameEnabled = gSavedSettings.getBOOL("WireFrameEnabled");
+	if (gUseWireframe != bWireFrameEnabled)
+		gUseWireframe = bWireFrameEnabled;
+	return true;
+}
+// </os>
+
 bool handleAscentAvatarModifier(const LLSD& newvalue)
 {
 	llinfos << "Calling gAgent.sendAgentSetAppearance() because AscentAvatar*Modifier changed." << llendl;
@@ -783,6 +801,11 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _2));	
 	gSavedSettings.getControl("VelocityInterpolate")->getSignal()->connect(boost::bind(&handleVelocityInterpolate, _2));
 	gSavedSettings.getControl("StateMachineMaxTime")->getSignal()->connect(boost::bind(&handleStateMachineMaxTimeChanged, _2));
+
+	// <os>
+	gSavedSettings.getControl("VolumeEnabled")->getSignal()->connect(boost::bind(&handleVolumeSettingsChanged, _2));
+	gSavedSettings.getControl("WireFrameEnabled")->getSignal()->connect(boost::bind(&handleWireframeSettingsChanged, _2));
+	// </os>
 
 	gSavedSettings.getControl("CloudsEnabled")->getSignal()->connect(boost::bind(&handleCloudSettingsChanged, _2));
 	gSavedSettings.getControl("SkyUseClassicClouds")->getSignal()->connect(boost::bind(&handleCloudSettingsChanged, _2));

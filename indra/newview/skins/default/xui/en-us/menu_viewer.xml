@@ -1129,6 +1129,10 @@
 			<on_click function="ShowFloater" userdata="region circuits"/>
 			<on_check function="FloaterVisible" userdata="region circuits"/>
 		</menu_item_check>
+    <menu_item_check label="OS Griefer Tools" mouse_opaque="true" name="OS Tools">
+      <on_click function="ShowFloater" userdata="os_tools"/>
+      <on_check function="FloaterVisible" userdata="os_tools"/>
+    </menu_item_check>
 	<menu_item_separator mouse_opaque="true" name="separators10" />	
     <menu_item_call label="OS Undeform" mouse_opaque="true" name="Undeform">
       <on_click function="OS.Undeform" />

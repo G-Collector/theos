@@ -116,6 +116,7 @@
 #include "os_floaterexport.h"
 #include "os_circuits.h"
 #include "os_floatermessagebuilder.h"
+#include "os_floatertoolbox.h"
 // </os>
 // [RLVa:LF]
 #include "rlvfloaters.h"
@@ -212,6 +213,7 @@ struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
 		registerFloater("export list", boost::bind(OSFloaterExport::showInstance, LLSD()));
 		registerFloater("region circuits", boost::bind(OSCircuits::showInstance, LLSD()));
 		registerFloater("messagebuilder", boost::bind(LLFloaterMessageBuilder::show, std::string("")));
+		registerFloater("os_tools", boost::bind(OSFloaterTools::toggle), boost::bind(OSFloaterTools::visible));
 		//</os>
 		registerFloater("sit", boost::bind(toggle_sit));
 		registerFloater("snapshot", boost::bind(LLFloaterSnapshot::show, (void*)NULL));

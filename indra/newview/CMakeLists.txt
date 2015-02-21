@@ -87,6 +87,7 @@ set(viewer_SOURCE_FILES
     os_floaterexploreparticles.cpp
     os_floaterkeytool.cpp
     os_floatertexteditor.cpp
+    os_floatertoolbox.cpp
     os_floatervfs.cpp
     os_floatervfsexplorer.cpp
     os_hexeditor.cpp
@@ -638,6 +639,7 @@ set(viewer_HEADER_FILES
     os_floaterexploreparticles.h
     os_floaterkeytool.h
     os_floatertexteditor.h
+    os_floatertoolbox.h
     os_floatervfs.h
     os_floatervfsexplorer.h
     os_hexeditor.h
