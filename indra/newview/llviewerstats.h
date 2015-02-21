@@ -35,12 +35,7 @@
 
 #include "llstat.h"
 #include "lltextureinfo.h"
-// <os> - Lets have play with NAN
-#ifdef _MSC_VER
-#define INFINITY (DBL_MAX+DBL_MAX)
-#define NAN (INFINITY-INFINITY)
-#endif
-// </os>
+
 class LLViewerStats : public LLSingleton<LLViewerStats>
 {
 public:
