@@ -426,7 +426,10 @@ public:
 		}
 		else
 		{
-			llerrs << "Empty leaf" << llendl;
+			// <os> - LLVolumeOctree : there was a crash here
+			//llerrs << "Empty leaf" << llendl;
+			return;
+			// </os>
 		}
 
 		for (U32 i = 0; i < branch->getChildCount(); ++i)
