@@ -35,5 +35,7 @@
 #include "llchatbar.h"
 
 bool cmd_line_chat(std::string revised_text, EChatType type);
+void cmdline_rezplat(bool use_saved_value = true, F32 visual_radius = 30.0);
+void cmdline_printchat(std::string message);
 
 #endif
