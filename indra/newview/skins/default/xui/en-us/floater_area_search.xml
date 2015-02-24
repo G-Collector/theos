@@ -2,49 +2,56 @@
 <floater name="area search" title="Area Search for objects"
 	min_width="425" min_height="250" width="600" height="400" rect_control="FloaterAreaSearchRect"
 	can_resize="true" can_minimize="true" can_close="true" can_drag_on_left="false">
-	<text name="name_label" bottom="-35" follows="top|left" height="15" left="12">
-		Name search string:
-	</text>
-	<text name="desc_label" bottom_delta="0" follows="top|left" height="15" left="218">
-		Description search string:
-	</text>
+  <text name="name_label" bottom="-38" follows="top|left" height="15" left="12">
+    Name search string:
+  </text>
+  <text name="desc_label" bottom_delta="-20" follows="top|left" height="15" left="12">
+    Description search string:
+  </text>
   <filter_editor name="Name query chunk" tool_tip=""
 		bevel_style="in" border_style="line" border_thickness="1"
-		height="20" width="200" left="10" bottom_delta="-20" follows="left|top"
+		height="20" width="260" left="158" bottom="-38" right="-10" follows="left|top|right"
 		font="SansSerifSmall" max_length="256" mouse_opaque="true" />
   <filter_editor name="Description query chunk" tool_tip=""
 		bevel_style="in" border_style="line" border_thickness="1"
-		height="20" width="200" left_delta="206" bottom_delta="0" follows="left|top"
+		height="20" width="260" left="158" bottom_delta="-20" right="-10" follows="left|top|right"
 		font="SansSerifSmall" max_length="256" mouse_opaque="true" spell_check="true" />
-	<text name="owner_label" bottom_delta="-20" follows="top|left" height="15" left="12">
-		Owner search string:
-	</text>
-	<text name="group_label" bottom_delta="0" follows="top|left" height="15" left="218">
-		Group search string:
-	</text>
+  <text name="owner_label" bottom_delta="-20" follows="top|left" height="15" left="12">
+    Owner search string:
+  </text>
+  <text name="group_label" bottom_delta="-20" follows="top|left" height="15" left="12">
+    Group search string:
+  </text>
   <filter_editor name="Owner query chunk" tool_tip=""
 		bevel_style="in" border_style="line" border_thickness="1"
-		height="20" width="200" left="10" bottom_delta="-20" follows="left|top"
+		height="20" width="260" left="158" bottom_delta="20" right="-10" follows="left|top|right"
 		font="SansSerifSmall" max_length="256" mouse_opaque="true" />
   <filter_editor name="Group query chunk" tool_tip=""
 		bevel_style="in" border_style="line" border_thickness="1"
-		height="20" width="200" left_delta="206" bottom_delta="0" follows="left|top"
+		height="20" width="260" left="158" bottom_delta="-20" right="-10" follows="left|top|right"
 		font="SansSerifSmall" max_length="256" mouse_opaque="true" />
-	<scroll_list name="result_list"
-		left="10" right="-10" top="-103" bottom="32"
+  <text name="filter_label" bottom_delta="-20" follows="top|left" height="15" left="12">
+    Filter total objects by type:
+  </text>
+  <combo_box name="filter_combobox" left="158" bottom_delta="0" right="-10" follows="left|top|right" height="18" width="260"
+        max_chars="128" mouse_opaque="true" allow_text_entry="false"
+            tool_tip="Filter Object Search Results." />
+
+  <scroll_list name="result_list"
+		left="10" right="-10" top="-123" bottom="32"
 		follows="left|top|bottom|right" can_resize="true"
 		column_padding="0" draw_heading="true" multi_select="false" search_column="1">
-		<column name="Name" label="Name" dynamicwidth="true" tool_tip="Double click on any entry to get a position beacon"/>
-    	<column name="Description" label="Description" dynamicwidth="true" tool_tip="Double click on any entry to get a position beacon"/>
-    	<column name="Owner" label="Owner" dynamicwidth="true" tool_tip="Double click on any entry to get a position beacon"/>
-		<column name="Group" label="Group" dynamicwidth="true" tool_tip="Double click on any entry to get a position beacon"/>
-	</scroll_list>
-	<button name="Refresh" label="Refresh" font="SansSerif" mouse_opaque="true"
-		height="20" width="80" left="10" bottom="6" follows="left|bottom"/>
-	<button name="Stop" label="Stop" font="SansSerif" mouse_opaque="true"
-		height="20" width="80" left_delta="85" bottom="6" follows="left|bottom"/>
-	<text name="counter"
-		height="15" width="220" left_delta="85" bottom="9" follows="left|bottom">
-		Listed/Pending/Total
-	</text>
+    <column name="Name" label="Name" dynamicwidth="true" tool_tip="Double click on any entry to get a position beacon"/>
+    <column name="Description" label="Description" dynamicwidth="true" tool_tip="Double click on any entry to get a position beacon"/>
+    <column name="Owner" label="Owner" dynamicwidth="true" tool_tip="Double click on any entry to get a position beacon"/>
+    <column name="Group" label="Group" dynamicwidth="true" tool_tip="Double click on any entry to get a position beacon"/>
+  </scroll_list>
+  <text name="counter"
+		height="15" width="220" left="10" bottom="9" follows="left|bottom">
+    Listed/Pending/Total
+  </text>
+  <button name="Refresh" label="Refresh" font="SansSerif" mouse_opaque="true"
+		height="20" width="80" right="-92" bottom="6" follows="right|bottom"/>
+  <button name="Stop" label="Stop" font="SansSerif" mouse_opaque="true"
+		height="20" width="80" left_delta="85" bottom="6" follows="right|bottom"/>
 </floater>

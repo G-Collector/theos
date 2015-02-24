@@ -122,11 +122,11 @@ private:
 	void fillMAC();
 	void fillID0();
 	void fillVer();
-	static void onCheckMAC(LLUICtrl* ctrl, void* userData);
-	static void onCheckID0(LLUICtrl* ctrl, void* userData);
-	static void onClickMACRandom(void* userData);
-	static void onClickID0Random(void* userData);
-	// </is>
+	void onCheckMAC(const LLSD& value);
+	void onCheckID0(const LLSD& value);
+	void onClickMACRandom();
+	void onClickID0Random();
+	// </os>
 
 public:
 

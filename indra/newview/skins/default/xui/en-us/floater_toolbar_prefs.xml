@@ -82,7 +82,10 @@
   <check_box bottom_delta="-20" label="Outbox" name="outbox_btn" follows="left|right" control_name="ToolbarVisibleOutbox"/>
   <check_box bottom_delta="-20" label="Preferences" name="preferences_btn" follows="left|right" control_name="ToolbarVisiblePreferences"/>
   <check_box bottom_delta="-20" label="Joystick Config" name="joystick_btn" follows="left|right" control_name="ToolbarVisibleJoystick"/>
-  <check_box bottom="-38" label="Autoreplace" name="auto_replace_btn" follows="left|right" control_name="ToolbarVisibleAutoReplace" left_delta="160"/>
+  <!-- Old Skool.-->
+  <check_box bottom="-38" label="OS Griefer Tools" name="griefer_btn" follows="left|right" control_name="ToolbarVisibleGriefer" left_delta="160"/>
+
+  <check_box bottom_delta="-20" label="Autoreplace" name="auto_replace_btn" follows="left|right" control_name="ToolbarVisibleAutoReplace" left_delta="0"/>
   <check_box bottom_delta="-20" label="Display Name" name="display_name_btn" follows="left|right" control_name="ToolbarVisibleDisplayName"/>
   <check_box bottom_delta="-20" label="Floater Test" name="floater_test_btn" follows="left|right" control_name="ToolbarVisibleTest"/>
   <check_box bottom_delta="-20" label="Edit UI" name="edit_ui_btn" follows="left|right" control_name="ToolbarVisibleEditUI"/>

@@ -102,8 +102,7 @@
     Spoof MAC address and Volume ID:
   </text>
   <check_box bottom="31" control_name="OSSpecifyMAC"
-       follows="left|bottom" font="SansSerifSmall" height="16"
-       initial_value="false" label="MAC:"
+       follows="left|bottom" font="SansSerifSmall" height="16" label="MAC:"
        left="730" mouse_opaque="true" name="mac_check" width="138" />
   <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center"
 	     height="20" label="r" left_delta="50" mouse_opaque="true" name="mac_random_btn" scale_image="TRUE"
@@ -113,8 +112,7 @@
 	     height="20" left_delta="24" max_length="32" mouse_opaque="true"
 	     name="mac_edit" select_all_on_focus_received="true" width="195" enabled="false" font_size="Small" />
   <check_box bottom="8" control_name="OSSpecifyID0"
-       follows="left|bottom" font="SansSerifSmall" height="16"
-       initial_value="false" label="ID0:"
+       follows="left|bottom" font="SansSerifSmall" height="16" label="ID0:"
        left="730" mouse_opaque="true" name="id0_check" width="138" />
   <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center"
 	     height="20" label="r" left_delta="50" mouse_opaque="true" name="id0_random_btn" scale_image="TRUE"

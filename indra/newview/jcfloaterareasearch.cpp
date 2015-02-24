@@ -43,12 +43,29 @@
 #include "llagent.h"
 #include "lltracker.h"
 #include "llviewerobjectlist.h"
-
+// <os>
+#include "llcombobox.h"
+#include "lltrans.h"
+#include "llmenugl.h"
+#include "lltoolmgr.h"
+#include "lltoolpie.h"
+#include "lltoolcomp.h"
+#include "llselectmgr.h"
+#include "llviewermenu.h"
+#include "llagentcamera.h"
+#include "llfloatertools.h"
+#include "llviewerregion.h"
+// </os>
 const std::string request_string = "JCFloaterAreaSearch::Requested_\xF8\xA7\xB5";
 const F32 min_refresh_interval = 0.25f;	// Minimum interval between list refreshes in seconds.
 
 JCFloaterAreaSearch::JCFloaterAreaSearch(const LLSD& data) :
 	LLFloater(),
+	//<os>
+	mPopupMenuHandle(),
+	mSelectedObjectID(LLUUID::null),
+	mObjectFilter(LLCachedControl<std::string>(gSavedSettings, "ObjectAreaSearchFilter", "all")),
+	//</os>
 	mCounterText(0),
 	mResultList(0),
 	mLastRegion(0),
@@ -74,6 +91,25 @@ void JCFloaterAreaSearch::close(bool app)
 	}
 }
 
+// <os>
+BOOL JCFloaterAreaSearch::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	LLScrollListItem *item = mResultList->getFirstSelected();
+	if (!item) return TRUE;
+	mSelectedObjectID = item->getUUID();
+
+	setFocus(TRUE);
+	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+	if (menu)
+	{
+		menu->buildDrawLabels();
+		menu->updateParent(LLMenuGL::sMenuContainer);
+		LLMenuGL::showPopup(this, menu, x, y);
+	}
+	return TRUE;
+}
+// <os>
+
 BOOL JCFloaterAreaSearch::postBuild()
 {
 	mResultList = getChild<LLScrollListCtrl>("result_list");
@@ -90,11 +126,52 @@ BOOL JCFloaterAreaSearch::postBuild()
 	getChild<LLFilterEditor>("Owner query chunk")->setCommitCallback(boost::bind(&JCFloaterAreaSearch::onCommitLine,this,_1,_2,LIST_OBJECT_OWNER));
 	getChild<LLFilterEditor>("Group query chunk")->setCommitCallback(boost::bind(&JCFloaterAreaSearch::onCommitLine,this,_1,_2,LIST_OBJECT_GROUP));
 
+	// <os>
+	mFilterComboBox = getChild<LLComboBox>("filter_combobox");
+	mFilterComboBox->add("All Objects", std::string("all"));
+	mFilterComboBox->add("All Scripted Objects", std::string("scripted"));
+	mFilterComboBox->add("Scripted Touch Only", std::string("touch_only"));
+	mFilterComboBox->add("Physical Objects", std::string("physical"));
+	mFilterComboBox->add("Phantom Objects", std::string("phantom"));
+	mFilterComboBox->add("Flexible Objects", std::string("flexible"));
+	mFilterComboBox->add("Sculpted Objects", std::string("sculpted"));
+	mFilterComboBox->add("Payable Objects", std::string("payable"));
+
+	mFilterComboBox->add("Animation Sources", std::string("animations"));
+	mFilterComboBox->add("Sound Sources", std::string("sounds"));
+	mFilterComboBox->add("Particle Sources", std::string("particles"));
+	mFilterComboBox->add("Camera Sources", std::string("camera"));
+
+	mFilterComboBox->add("Attachment", std::string("attachment"));
+	mFilterComboBox->add("HUD Attachment", std::string("hudattachment"));
+
+	mFilterComboBox->add("Copyable Objects", std::string("copyable"));
+	mFilterComboBox->add("Modifiable Objects", std::string("modifiable"));
+	mFilterComboBox->add("Can Add Inventory", std::string("inventoryadd"));
+	mFilterComboBox->add("Inventory Is Empty", std::string("inventoryempty"));
+	mFilterComboBox->add("Any Owner", std::string("any_owner"));
+	mFilterComboBox->add("Owned by You", std::string("you_owner"));
+	mFilterComboBox->add("Owned by a Group", std::string("group_owner"));
+
+	mFilterComboBox->setCommitCallback(boost::bind(&JCFloaterAreaSearch::onCommitFilterComboBox, this, _1));
+
+	LLMenuGL* menu = new LLMenuGL("rclickmenu");
+	menu->addChild(new LLMenuItemCallGL("Edit", handleRightClickEdit, NULL, this));
+	menu->addChild(new LLMenuItemCallGL("Track", handleRightClickTrack, NULL, this));
+	menu->addChild(new LLMenuItemCallGL("Teleport To", handleRightClickTeleport, NULL, this));
+	menu->addChild(new LLMenuItemCallGL("Take Copy", handleRightClickTakeCopy, NULL, this));
+	//menu->addSeparator();
+	menu->setCanTearOff(FALSE);
+	menu->setVisible(FALSE);
+	mPopupMenuHandle = menu->getHandle();
+	// </os>
+
 	return TRUE;
 }
 
 void JCFloaterAreaSearch::onOpen()
 {
+	mFilterComboBox->setValue((std::string)gSavedSettings.getString("ObjectAreaSearchFilter"));
 	checkRegion();
 	results();
 }
@@ -113,11 +190,21 @@ void JCFloaterAreaSearch::checkRegion(bool force_clear)
 	}
 }
 
+// <os>
+void JCFloaterAreaSearch::onCommitFilterComboBox(LLUICtrl* ctrl)
+{
+	gSavedSettings.setString("ObjectAreaSearchFilter", mFilterComboBox->getValue().asString());
+	onRefresh();
+}
+// <os>
+
 void JCFloaterAreaSearch::onDoubleClick()
 {
 	LLScrollListItem *item = mResultList->getFirstSelected();
 	if (!item) return;
 	LLUUID object_id = item->getUUID();
+	// <os>
+	/*
 	std::map<LLUUID,ObjectData>::iterator it = mCachedObjects.find(object_id);
 	if(it != mCachedObjects.end())
 	{
@@ -127,6 +214,10 @@ void JCFloaterAreaSearch::onDoubleClick()
 			LLTracker::trackLocation(objectp->getPositionGlobal(), it->second.name, "", LLTracker::LOCATION_ITEM);
 		}
 	}
+	*/
+	if ( !gAgentCamera.lookAtObject(object_id, false) )
+		gAgentCamera.resetCamera();
+	// </os>
 }
 
 void JCFloaterAreaSearch::onStop()
@@ -180,6 +271,112 @@ bool JCFloaterAreaSearch::requestIfNeeded(LLUUID object_id)
 	return false;
 }
 
+// <os>
+void JCFloaterAreaSearch::handleRightClickEdit(void* userdata)
+{
+	JCFloaterAreaSearch* floaterp = (JCFloaterAreaSearch*)userdata;
+	if (!floaterp) return;
+	LLUUID object_id = floaterp->mSelectedObjectID;
+	std::map<LLUUID, ObjectData>::iterator it = floaterp->mCachedObjects.find(object_id);
+	if (it != floaterp->mCachedObjects.end())
+	{
+		LLViewerObject* objectp = gObjectList.findObject(object_id);
+		if (objectp)
+		{
+			//BACKUP SelectOwned Value
+			BOOL SelectionSettingBackup = gSavedSettings.getBOOL("SelectOwnedOnly");
+			//Set to false to select all objects
+			gSavedSettings.setBOOL("SelectOwnedOnly", FALSE);
+
+			LLSelectMgr::getInstance()->deselectAll();
+			//open Tool Manager (Edit) to select all
+			if (!LLToolMgr::getInstance()->inBuildMode())
+			{
+				gFloaterTools->open();
+				LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+				gFloaterTools->setEditTool(LLToolCompTranslate::getInstance());
+			}
+
+			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
+
+
+			//SET BACK TO Settings as it was before
+			gSavedSettings.setBOOL("SelectOwnedOnly", SelectionSettingBackup);;
+		}
+	}
+}
+
+void JCFloaterAreaSearch::handleRightClickTrack(void* userdata)
+{
+	JCFloaterAreaSearch* floaterp = (JCFloaterAreaSearch*)userdata;
+	if (!floaterp) return;
+	LLUUID object_id = floaterp->mSelectedObjectID;
+	std::map<LLUUID, ObjectData>::iterator it = floaterp->mCachedObjects.find(object_id);
+	if (it != floaterp->mCachedObjects.end())
+	{
+		LLViewerObject* objectp = gObjectList.findObject(object_id);
+		if (objectp)
+		{
+			LLTracker::trackLocation(objectp->getPositionGlobal(), it->second.name, "", LLTracker::LOCATION_ITEM);
+		}
+	}
+}
+
+void JCFloaterAreaSearch::handleRightClickTeleport(void* userdata)
+{
+	JCFloaterAreaSearch* floaterp = (JCFloaterAreaSearch*)userdata;
+	if (!floaterp) return;
+	LLUUID object_id = floaterp->mSelectedObjectID;
+	std::map<LLUUID, ObjectData>::iterator it = floaterp->mCachedObjects.find(object_id);
+	if (it != floaterp->mCachedObjects.end())
+	{
+		LLViewerObject* objectp = gObjectList.findObject(object_id);
+		if (objectp)
+		{
+			LLTracker::trackLocation(objectp->getPositionGlobal(), it->second.name, "", LLTracker::LOCATION_ITEM);
+			gAgent.teleportViaLocation(objectp->getPositionGlobal());
+		}
+	}
+}
+
+void JCFloaterAreaSearch::handleRightClickTakeCopy(void* userdata)
+{
+	JCFloaterAreaSearch* floaterp = (JCFloaterAreaSearch*)userdata;
+	if (!floaterp) return;
+	LLUUID object_id = floaterp->mSelectedObjectID;
+	std::map<LLUUID, ObjectData>::iterator it = floaterp->mCachedObjects.find(object_id);
+	if (it != floaterp->mCachedObjects.end())
+	{
+		LLViewerObject* objectp = gObjectList.findObject(object_id);
+		if (objectp)
+		{
+			LLUUID tid;
+			tid.generate();
+			LLMessageSystem* msg = gMessageSystem;
+			const LLUUID& category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
+			U8 packet_number = 0;
+			U8 packet_count = 1;
+
+			msg->newMessageFast(_PREHASH_DeRezObject);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_AgentBlock);
+			msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
+			msg->addU8Fast(_PREHASH_Destination, (U8)DRD_ACQUIRE_TO_AGENT_INVENTORY);
+			msg->addUUIDFast(_PREHASH_DestinationID, category_id);
+			msg->addUUIDFast(_PREHASH_TransactionID, tid);
+			msg->addU8Fast(_PREHASH_PacketCount, packet_count);
+			msg->addU8Fast(_PREHASH_PacketNumber, packet_number);
+			msg->nextBlockFast(_PREHASH_ObjectData);
+			msg->addU32Fast(_PREHASH_ObjectLocalID, objectp->getLocalID());
+			msg->sendReliable(objectp->getRegion()->getHost());
+			make_ui_sound("UISndObjectRezOut");
+		}
+	}
+}
+// </os>
+
 void JCFloaterAreaSearch::results()
 {
 	if (!getVisible()) return;
@@ -201,6 +398,33 @@ void JCFloaterAreaSearch::results()
 			if (objectp->getRegion() == our_region && !objectp->isAvatar() && objectp->isRoot() &&
 				!objectp->flagTemporary() && !objectp->flagTemporaryOnRez())
 			{
+				// <os>
+				const std::string filter = mObjectFilter.get();
+				if (filter != "all")
+				{
+					if (filter == "payable" && (bool)objectp->flagTakesMoney() != true) continue;
+					else if (filter == "touch_only" && (bool)objectp->flagHandleTouch() != true) continue;
+					else if (filter == "scripted" && (bool)objectp->flagScripted() != true) continue;
+					else if (filter == "sounds" && (bool)objectp->isAudioSource() != true) continue;
+					else if (filter == "particles" && (bool)objectp->isParticleSource() != true) continue;
+					else if (filter == "animations" && (bool)objectp->flagAnimSource() != true) continue;
+					else if (filter == "camera" && (bool)objectp->flagCameraSource() != true) continue;
+					else if (filter == "sculpted" && (bool)objectp->isSculpted() != true) continue;
+					else if (filter == "flexible" && (bool)objectp->isFlexible() != true) continue;
+					else if (filter == "phantom" && (bool)objectp->flagPhantom() != true) continue;
+					else if (filter == "physical" && (bool)objectp->flagUsePhysics() != true) continue;
+					else if (filter == "inventoryadd" && (bool)objectp->flagAllowInventoryAdd() != true) continue;
+					else if (filter == "inventoryempty" && (bool)objectp->flagInventoryEmpty() != true) continue;
+					else if (filter == "attachment" && (bool)objectp->isAttachment() != true) continue;
+					else if (filter == "hudattachment" && (bool)objectp->isHUDAttachment() != true) continue;
+					else if (filter == "copyable" && (bool)objectp->flagObjectCopy() != true) continue;
+					else if (filter == "modifiable" && (bool)objectp->flagObjectModify() != true) continue;
+					else if (filter == "any_owner" && (bool)objectp->flagObjectAnyOwner() != true) continue;
+					else if (filter == "you_owner" && (bool)objectp->flagObjectYouOwner() != true) continue;
+					else if (filter == "group_owner" && (bool)objectp->flagObjectGroupOwned() != true) continue;
+					
+				}
+				// </os>
 				LLUUID object_id = objectp->getID();
 				if(!requestIfNeeded(object_id))
 				{

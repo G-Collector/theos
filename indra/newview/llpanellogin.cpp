@@ -246,13 +246,13 @@ LLPanelLogin::LLPanelLogin(const LLRect& rect)
 
 	getChild<LLUICtrl>("grids_btn")->setCommitCallback(boost::bind(LLPanelLogin::onClickGrids));
 
-	std::string channel = gVersionChannel().c_str();
+	std::string channel = gVersionChannel().c_str();// </os>
 
 	std::string version = llformat("%d.%d.%d (%d)",
-		gVersionMajor(),
-		gVersionMinor(),
-		gVersionPatch(),
-		gVersionBuild() );
+		gVersionMajor(),// </os>
+		gVersionMinor(),// </os>
+		gVersionPatch(),// </os>
+		gVersionBuild() );// </os>
 	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
 	channel_text->setTextArg("[CHANNEL]", channel); // though not displayed
 	channel_text->setTextArg("[VERSION]", version);
@@ -299,32 +299,25 @@ LLPanelLogin::LLPanelLogin(const LLRect& rect)
 
 	bool specify_mac = gSavedSettings.getBOOL("OSSpecifyMAC");
 	bool specify_id0 = gSavedSettings.getBOOL("OSSpecifyID0");
-	std::string specified_mac = gSavedSettings.getString("OSSpecifiedMAC");
-	std::string specified_id0 = gSavedSettings.getString("OSSpecifiedID0");
 
-	// Don't allow specify for empty strings (just in case)
-	if(specified_mac.length() == 0) specify_mac = false;
-	if(specified_id0.length() == 0) specify_id0 = false;
+	LLCheckBoxCtrl* mac_check = getChild<LLCheckBoxCtrl>("mac_check");
+	LLCheckBoxCtrl* id0_check = getChild<LLCheckBoxCtrl>("id0_check");
 
-	gSavedSettings.setBOOL("OSSpecifyMAC", specify_mac);
-	gSavedSettings.setBOOL("OSSpecifyID0", specify_id0);
+	mac_check->setValue(LLSD(specify_mac));
+	id0_check->setValue(LLSD(specify_id0));
 
-	getChild<LLCheckBoxCtrl>("mac_check")->setValue(specify_mac);
-	getChild<LLLineEditor>("mac_edit")->setEnabled(specify_mac);
-	getChild<LLCheckBoxCtrl>("id0_check")->setValue(specify_id0);
-	getChild<LLLineEditor>("id0_edit")->setEnabled(specify_id0);
-
-	childSetEnabled("mac_random_btn",specify_mac);
-	childSetEnabled("id0_random_btn",specify_id0);
-
+	mac_check->setCommitCallback(boost::bind(&LLPanelLogin::onCheckMAC, this, _2));
+	id0_check->setCommitCallback(boost::bind(&LLPanelLogin::onCheckID0, this, _2));
+	
+	LLButton* mac_random_btn(findChild<LLButton>("mac_random_btn"));
+	mac_random_btn->setCommitCallback(boost::bind(&LLPanelLogin::onClickMACRandom, this));
+	
+	LLButton* id0_random_btn(findChild<LLButton>("id0_random_btn"));
+	id0_random_btn->setCommitCallback(boost::bind(&LLPanelLogin::onClickID0Random, this));
+	
 	fillMAC();
 	fillID0();
 	fillVer();
-
-	childSetCommitCallback("mac_check", onCheckMAC, this);
-	childSetCommitCallback("id0_check", onCheckID0, this);
-	childSetAction("mac_random_btn", onClickMACRandom, this);
-	childSetAction("id0_random_btn", onClickID0Random, this);
 	// </os>
 }
 
@@ -366,31 +359,48 @@ void LLPanelLogin::fillVer()
 	getChild<LLSpinCtrl>("verbuild_spin")->forceSetValue((S32)gSavedSettings.getU32("SpecifiedVersionBuild"));
 }
 
-// static
-void LLPanelLogin::onCheckMAC(LLUICtrl* ctrl, void* userData)
+void LLPanelLogin::onCheckMAC(const LLSD& value)
 {
-	LLPanelLogin* panel = (LLPanelLogin*)userData;
-	bool enabled = ((LLCheckBoxCtrl*)ctrl)->getValue();
-	gSavedSettings.setBOOL("OSSpecifyMAC", enabled);
-	panel->getChild<LLLineEditor>("mac_edit")->setEnabled(enabled);
-	panel->childSetEnabled("mac_random_btn",enabled);
-	panel->fillMAC();
+	LLButton* mac_random_btn(getChild<LLButton>("mac_random_btn"));
+	LLLineEditor* mac_edit(getChild<LLLineEditor>("mac_edit"));
+
+	if (value.asBoolean())
+	{
+		gSavedSettings.setBOOL("OSSpecifyMAC", TRUE);
+		mac_edit->setEnabled(true);
+		mac_random_btn->setEnabled(true);
+	}
+	else
+	{
+		gSavedSettings.setBOOL("OSSpecifyMAC", FALSE);
+		mac_edit->setEnabled(false);
+		mac_random_btn->setEnabled(false);
+	}
+	fillMAC();
 }
 
-// static
-void LLPanelLogin::onCheckID0(LLUICtrl* ctrl, void* userData)
+void LLPanelLogin::onCheckID0(const LLSD& value)
 {
-	LLPanelLogin* panel = (LLPanelLogin*)userData;
-	bool enabled = ((LLCheckBoxCtrl*)ctrl)->getValue();
-	gSavedSettings.setBOOL("OSSpecifyID0", enabled);
-	panel->getChild<LLLineEditor>("id0_edit")->setEnabled(enabled);
-	panel->childSetEnabled("id0_random_btn",enabled);
-	panel->fillID0();
+	LLButton* id0_random_btn(getChild<LLButton>("mac_random_btn"));
+	LLLineEditor* id0_edit(getChild<LLLineEditor>("id0_edit"));
+
+	if (value.asBoolean())
+	{
+		gSavedSettings.setBOOL("OSSpecifyID0", TRUE);
+		id0_edit->setEnabled(true);
+		id0_random_btn->setEnabled(true);
+	}
+	else
+	{
+		gSavedSettings.setBOOL("OSSpecifyID0", FALSE);
+		id0_edit->setEnabled(false);
+		id0_random_btn->setEnabled(false);
+	}
+	fillID0();
 }
-// static
-void LLPanelLogin::onClickMACRandom(void* userData)
+
+void LLPanelLogin::onClickMACRandom()
 {
-	LLPanelLogin* panel = (LLPanelLogin*)userData;
 	unsigned char seed[16];		/* Flawfinder: ignore */
 	LLUUID::getNodeID(&seed[0]);
 	seed[6]='U';
@@ -403,13 +413,11 @@ void LLPanelLogin::onClickMACRandom(void* userData)
 	hash.finalize();
 	hash.hex_digest(hash_string);
 	gSavedSettings.setString("OSSpecifiedMAC",std::string(hash_string));
-	panel->fillMAC();
+	fillMAC();
 }
 
-// static
-void LLPanelLogin::onClickID0Random(void* userData)
+void LLPanelLogin::onClickID0Random()
 {
-	LLPanelLogin* panel = (LLPanelLogin*)userData;
 	unsigned char seed[16];		/* Flawfinder: ignore */
 	LLUUID::getNodeID(&seed[0]);
 	seed[6]='W';
@@ -422,7 +430,7 @@ void LLPanelLogin::onClickID0Random(void* userData)
 	hash.finalize();
 	hash.hex_digest(hash_string);
 	gSavedSettings.setString("OSSpecifiedID0",std::string(hash_string));
-	panel->fillID0();
+	fillID0();
 }
 // </os>
 
@@ -478,38 +486,6 @@ void LLPanelLogin::reshapeBrowser()
 
 LLPanelLogin::~LLPanelLogin()
 {
-	//<os>
-	// save identity settings for login
-	bool specify_mac = sInstance->getChild<LLCheckBoxCtrl>("mac_check")->getValue();
-	bool specify_id0 = sInstance->getChild<LLCheckBoxCtrl>("id0_check")->getValue();
-		
-	gSavedSettings.setBOOL("SpecifyMAC", specify_mac);
-	gSavedSettings.setBOOL("SpecifyID0", specify_id0);
-		
-	if(specify_mac)
-	{
-		std::string specified_mac = sInstance->getChild<LLLineEditor>("mac_edit")->getText();
-		gSavedSettings.setString("SpecifiedMAC", specified_mac);
-	}
-		
-	if(specify_id0)
-	{
-		std::string specified_id0 = sInstance->getChild<LLLineEditor>("id0_edit")->getText();
-		gSavedSettings.setString("SpecifiedID0", specified_id0);
-	}
-		
-	std::string specified_channel = sInstance->getChild<LLLineEditor>("channel_edit")->getText();
-	gSavedSettings.setString("SpecifiedChannel", specified_channel);
-		
-	U32 specified_ver_maj = (U32)sInstance->getChild<LLSpinCtrl>("vermaj_spin")->getValue().asInteger();
-	gSavedSettings.setU32("SpecifiedVersionMaj", specified_ver_maj);
-	U32 specified_ver_min = (U32)sInstance->getChild<LLSpinCtrl>("vermin_spin")->getValue().asInteger();
-	gSavedSettings.setU32("SpecifiedVersionMin", specified_ver_min);
-	U32 specified_ver_patch = (U32)sInstance->getChild<LLSpinCtrl>("verpatch_spin")->getValue().asInteger();
-	gSavedSettings.setU32("SpecifiedVersionPatch", specified_ver_patch);
-	U32 specified_ver_build = (U32)sInstance->getChild<LLSpinCtrl>("verbuild_spin")->getValue().asInteger();
-	gSavedSettings.setU32("SpecifiedVersionBuild", specified_ver_build);
-	// </os>
 	std::string login_hist_filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "saved_logins_sg2.xml");
 	LLSavedLogins::saveFile(mLoginHistoryData, login_hist_filepath);
 	LLPanelLogin::sInstance = NULL;
@@ -922,9 +898,10 @@ void LLPanelLogin::loadLoginPage()
  	}
  
 	params["version"]= llformat("%d.%d.%d (%d)",
+	// <os>
 				gVersionMajor(), gVersionMinor(), gVersionPatch(), gVersionBuild());
 	params["channel"] = gVersionChannel().c_str();
-
+	// </os>
 	// Grid
 
 	if (gHippoGridManager->getCurrentGrid()->isSecondLife())

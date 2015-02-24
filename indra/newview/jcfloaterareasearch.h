@@ -38,10 +38,16 @@
 #include "lluuid.h"
 #include "llstring.h"
 #include "llframetimer.h"
+// <os>
+#include "llcontrol.h"
+// </os>
 
 class LLTextBox;
 class LLScrollListCtrl;
 class LLViewerRegion;
+// <os>
+class LLComboBox;
+// </os>
 
 class JCFloaterAreaSearch : public LLFloater, public LLFloaterSingleton<JCFloaterAreaSearch>
 {
@@ -52,6 +58,9 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void close(bool app = false);
 	/*virtual*/ void onOpen();
+	//<os>
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	//</os>
 
 	void results();
 	static void processObjectPropertiesFamily(LLMessageSystem* msg, void** user_data);
@@ -66,7 +75,17 @@ private:
 		LIST_OBJECT_GROUP,
 		LIST_OBJECT_COUNT
 	};
-
+	//<os>
+	void onCommitFilterComboBox(LLUICtrl* ctrl);
+	static void handleRightClickEdit(void* userdata);
+	static void handleRightClickTrack(void* userdata);
+	static void handleRightClickTeleport(void* userdata);
+	static void handleRightClickTakeCopy(void* userdata);
+	LLCachedControl<std::string> mObjectFilter;
+	LLComboBox* mFilterComboBox;
+	LLHandle<LLView> mPopupMenuHandle;
+	LLUUID mSelectedObjectID;
+	//</os>
 	void checkRegion(bool force_clear = false);
 	void onStop();
 	void onRefresh();
