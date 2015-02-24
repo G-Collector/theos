@@ -96,7 +96,7 @@
 		<key>OSSpoofedLanguage</key>
 		<map>
       <key>Comment</key>
-      <string>The string to send to the server when PCSpoofLanguage is enabled. Example: en-us</string>
+      <string>The string to send to the server when SpoofLanguage is enabled. Example: en-us</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

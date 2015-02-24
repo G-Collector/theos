@@ -297,6 +297,9 @@ LLPanelLogin::LLPanelLogin(const LLRect& rect)
 	std::string specified_channel = gSavedSettings.getString("SpecifiedChannel");
 	getChild<LLLineEditor>("channel_edit")->setText(specified_channel);
 
+	std::string specified_language = gSavedSettings.getString("OSSpoofedLanguage");
+	getChild<LLLineEditor>("spoofed_lang")->setText(specified_language);
+
 	bool specify_mac = gSavedSettings.getBOOL("OSSpecifyMAC");
 	bool specify_id0 = gSavedSettings.getBOOL("OSSpecifyID0");
 
@@ -966,6 +969,13 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 
 void LLPanelLogin::onClickConnect()
 {
+	// <os>
+	std::string specified_channel = getChild<LLLineEditor>("channel_edit")->getText();
+	gSavedSettings.setString("SpecifiedChannel", specified_channel);
+	
+	std::string specified_language = getChild<LLLineEditor>("spoofed_lang")->getText();
+	gSavedSettings.setString("OSSpoofedLanguage", specified_language);
+	// </os>
 	// JC - Make sure the fields all get committed.
 	gFocusMgr.setKeyboardFocus(NULL);
 
