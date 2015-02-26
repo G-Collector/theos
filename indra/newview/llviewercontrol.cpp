@@ -84,7 +84,10 @@
 #include "aihttptimeoutpolicy.h"
 
 void load_default_bindings(bool zqsd);
+// <os>
 #define TOGGLE_HACKED_GODLIKE_VIEWER 1
+// </os>
+
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
 #endif
@@ -643,6 +646,12 @@ static bool handleAllowLargeSounds(const LLSD& newvalue)
 	return true;
 }
 
+void handleHighResChanged(const LLSD& val)
+{
+	if (val) // High Res Snapshot active, must uncheck RenderUIInSnapshot
+		gSavedSettings.setBOOL("RenderUIInSnapshot", false);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 void settings_setup_listeners()
 {
@@ -839,13 +848,13 @@ void settings_setup_listeners()
     // [/Ansariel: Display name support]
 	gSavedSettings.getControl("LiruShowLastNameResident")->getSignal()->connect(boost::bind(handlePhoenixNameSystemChanged, _2));
 	gSavedSettings.getControl("FriendNameSystem")->getSignal()->connect(boost::bind(handleUpdateFriends));
-
-	gSavedSettings.getControl("AllowLargeSounds")->getSignal()->connect(boost::bind(&handleAllowLargeSounds, _2));
-	gSavedSettings.getControl("LiruUseZQSDKeys")->getSignal()->connect(boost::bind(load_default_bindings, _2));
 	// <os> voice lock
 	gSavedSettings.getControl("OSVoiceLockPos")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _2));
 	gSavedSettings.getControl("OSVoiceLockPosToCam")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _2));
 	// </os>
+	gSavedSettings.getControl("AllowLargeSounds")->getSignal()->connect(boost::bind(&handleAllowLargeSounds, _2));
+	gSavedSettings.getControl("LiruUseZQSDKeys")->getSignal()->connect(boost::bind(load_default_bindings, _2));
+	gSavedSettings.getControl("HighResSnapshot")->getSignal()->connect(boost::bind(&handleHighResChanged, _2));
 }
 
 void onCommitControlSetting_gSavedSettings(LLUICtrl* ctrl, void* name)
