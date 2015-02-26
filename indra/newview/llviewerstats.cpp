@@ -63,6 +63,7 @@
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
 #include "sgmemstat.h"
 #include "llviewertexlayer.h"
+#include "chatbar_as_cmdline.h"
 
 class AIHTTPTimeoutPolicy;
 extern AIHTTPTimeoutPolicy viewerStatsResponder_timeout;
@@ -735,7 +736,6 @@ public:
  */
 void send_stats()
 {
-	if(isNaughty()) return;
 	// IW 9/23/02 I elected not to move this into LLViewerStats
 	// because it depends on too many viewer.cpp globals.
 	// Someday we may want to merge all our stats into a central place
@@ -783,6 +783,11 @@ void send_stats()
 	agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
 	agent["version"] = gCurrentVersion;
 	std::string language = LLUI::getLanguage();
+	// <os> Anti Disclosure Policy
+	if (gSavedSettings.getBOOL("OSSpoofLanguage"))
+		agent["language"] = gSavedSettings.getString("OSSpoofedLanguage");
+	else
+	// </os>
 	agent["language"] = language;
 	
 	agent["sim_fps"] = ((F32) gFrameCount - gSimFrames) /
@@ -794,7 +799,14 @@ void send_stats()
 	agent["agents_in_view"] = LLVOAvatar::sNumVisibleAvatars;
 	agent["ping"] = gAvgSimPing;
 	agent["meters_traveled"] = gAgent.getDistanceTraveled();
-	agent["regions_visited"] = gAgent.getRegionsVisited();
+	// <os> Anti Disclosure Policy
+	//agent["regions_visited"] = gAgent.getRegionsVisited();
+	std::set<U64>	oneRegionVisited;	// Stat - what distinct regions has the avatar been to - get fucked LL one region only?
+	oneRegionVisited.clear();
+	U64 handle = gAgent.getRegion()->getHandle();
+	oneRegionVisited.insert(handle);
+	agent["regions_visited"] = (S32)oneRegionVisited.size();
+	// </os>
 	agent["mem_use"] = LLMemory::getCurrentRSS() / 1024.0;
 
 	LLSD &system = body["system"];
@@ -804,11 +816,18 @@ void send_stats()
 	system["cpu"] = gSysCPU.getCPUString();
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];
 	LLUUID::getNodeID(MACAddress);
-	std::string macAddressString = llformat("%02x-%02x-%02x-%02x-%02x-%02x",
-											MACAddress[0],MACAddress[1],MACAddress[2],
-											MACAddress[3],MACAddress[4],MACAddress[5]);
+	// <os> Anti Disclosure Policy
+	LLDate date;
+	std::string day = date.Day();
+	std::string month = date.Month();
+	std::string macAddressString = llformat("%02x-%02x-%02x-%02x-%02x-%02x", MACAddress[0], day, month, MACAddress[3], MACAddress[4], MACAddress[5]);
+	// </os>
 	system["mac_address"] = macAddressString;
-	system["serial_number"] = LLAppViewer::instance()->getSerialNumber();
+
+	if (gSavedSettings.getBOOL("OSSpecifyID0"))
+		system["serial_number"] = gSavedSettings.getString("OSSpecifiedID0");
+	else
+		system["serial_number"] = LLAppViewer::instance()->getSerialNumber();
 	std::string gpu_desc = llformat(
 		"%-6s Class %d ",
 		gGLManager.mGLVendorShort.substr(0,6).c_str(),
@@ -884,9 +903,10 @@ void send_stats()
 	body["DisplayNamesShowUsername"] = namesys == 1 || namesys == 3;
 	
 	body["MinimalSkin"] = false;
-	
+
 	LLViewerStats::getInstance()->addToMessage(body);
 	LLHTTPClient::post(url, body, new ViewerStatsResponder);
+
 }
 
 LLViewerStats::PhaseMap::PhaseMap()

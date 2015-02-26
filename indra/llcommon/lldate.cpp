@@ -95,6 +95,42 @@ std::string LLDate::asRFC1123() const
 	return toHTTPDateString (std::string ("%A, %d %b %Y %H:%M:%S GMT"));
 }
 
+// <os>
+std::string LLDate::Second() const
+{
+	return toHTTPDateString (std::string ("%S"));
+}
+
+std::string LLDate::Minute() const
+{
+	return toHTTPDateString (std::string ("%M"));
+}
+
+std::string LLDate::Hour() const
+{
+	return toHTTPDateString (std::string ("%H"));
+}
+
+std::string LLDate::Day() const
+{
+	return toHTTPDateString (std::string ("%d"));
+}
+
+std::string LLDate::Year() const
+{
+	return toHTTPDateString (std::string ("%Y"));
+}
+
+std::string LLDate::Today() const
+{
+	return toHTTPDateString (std::string ("%A"));
+}
+
+std::string LLDate::Month() const
+{
+	return toHTTPDateString (std::string ("%b"));
+}
+// </os>
 LLFastTimer::DeclareTimer FT_DATE_FORMAT("Date Format");
 
 std::string LLDate::toHTTPDateString (std::string fmt) const
