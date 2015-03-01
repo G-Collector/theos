@@ -173,6 +173,9 @@ public:
 		   void		onBtnPipette(  );
 	static void		onBtnUUID( void* userdata );
 	//static void		onBtnRevert( void* userdata );
+	// <os>
+	static void		onBtnApplyClipboardUUID( void* userdata );
+	// </os>
 	static void		onBtnWhite( void* userdata );
 	static void		onBtnNone( void* userdata );
 	static void		onBtnInvisible( void* userdata );
@@ -568,6 +571,11 @@ BOOL LLFloaterTexturePicker::postBuild()
 	childSetAction("ApplyUUID", LLFloaterTexturePicker::onBtnUUID,this);
 	childSetAction("Cancel", LLFloaterTexturePicker::onBtnCancel,this);
 	childSetAction("Select", LLFloaterTexturePicker::onBtnSelect,this);
+	// <os>
+	childSetAction("ApplyClipboardUUID", LLFloaterTexturePicker::onBtnApplyClipboardUUID,this);
+	std::string clipstr = utf8str_trim(wstring_to_utf8str(gClipboard.getPasteWString()));
+	if (clipstr.length() == 36) getChildView("ApplyClipboardUUID")->setEnabled(clipstr.length() == 36);
+	// </os>
 
 	mFilterEdit->setFocus(true);
 	// update permission filter once UI is fully initialized
@@ -986,6 +994,27 @@ void LLFloaterTexturePicker::onBtnUUID( void* userdata )
 	}
 }
 
+// <os>
+// static 
+void LLFloaterTexturePicker::onBtnApplyClipboardUUID(void* userdata)
+{
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+
+	if ( self)
+	{
+		std::string clipstr = utf8str_trim(wstring_to_utf8str(gClipboard.getPasteWString()));
+		LLUUID key = LLUUID(clipstr);
+		if(key.notNull())
+		{
+			self->setImageID(key);
+			self->mIsDirty = TRUE;
+			self->commitIfImmediateSet();
+			self->childSetValue("texture_uuid", clipstr);
+		}
+	}
+}
+// </os>
+
 // static 
 void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
@@ -1009,6 +1038,8 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 				childSetValue("texture_uuid", LLUUID::null.asString());
 			*/
 			childSetValue("texture_uuid", mImageAssetID);
+			std::string clipstr = utf8str_trim(wstring_to_utf8str(gClipboard.getPasteWString()));
+			if (clipstr.length() == 36) getChildView("ApplyClipboardUUID")->setEnabled(clipstr.length() == 36);
 			//</os>
 			// </dogmode>
 			//</os>
@@ -1142,6 +1173,8 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 			childSetValue("texture_uuid", inventory_item_id.asString());
 		}*/
 		childSetValue("texture_uuid", te.getID().asString());
+		std::string clipstr = utf8str_trim(wstring_to_utf8str(gClipboard.getPasteWString()));
+		if (clipstr.length() == 36) getChildView("ApplyClipboardUUID")->setEnabled(clipstr.length() == 36);
 		//</os>
 		
 		commitIfImmediateSet();

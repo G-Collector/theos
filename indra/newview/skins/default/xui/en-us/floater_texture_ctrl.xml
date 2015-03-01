@@ -51,13 +51,18 @@
 	<button bottom="-322" enabled="true" follows="right|bottom" font="SansSerif"
 	     halign="center" height="20" label="Select" label_selected="Select"
 	     left="280" mouse_opaque="true" name="Select" scale_image="true" width="100" />
-	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom="-345"
-	     left="8" follows="bottom|left" font="SansSerif" handle_edit_keys_directly="false"
+	<button bottom="-345" enabled="false" follows="left|bottom" font="SansSerif"
+	     halign="center" height="21" image_selected="apply_uuid.tga"
+	     image_unselected="script_paste.png" label="" label_selected=""
+	     tool_tip="Paste And Apply UUID From ClipBoard"
+	     left="8" mouse_opaque="true" name="ApplyClipboardUUID" scale_image="true" width="21" /> 
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+	     left_delta="21" follows="bottom|left" font="SansSerif" handle_edit_keys_directly="false"
 	     height="20" max_length="36" mouse_opaque="true" name="texture_uuid"
 	     select_all_on_focus_received="false" width="230" />
 	<button enabled="true" follows="left|bottom" font="SansSerif"
 	     height="20" label="Apply UUID" label_selected="Apply UUID"
-	     left="238" bottom="-345" mouse_opaque="true" 
+	     left="259" bottom="-345" mouse_opaque="true" 
 	     name="ApplyUUID" scale_image="true" width="100" />
 	<string name="pick title">
 		Pick:
