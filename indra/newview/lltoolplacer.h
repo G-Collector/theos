@@ -65,6 +65,7 @@ private:
 	BOOL raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, S32* hit_face, 
 							  BOOL* b_hit_land, LLVector3* ray_start_region, LLVector3* ray_end_region, LLViewerRegion** region );
 	BOOL addDuplicate(S32 x, S32 y);
+	BOOL addSpoofed(S32 x, S32 y);
 };
 
 #endif

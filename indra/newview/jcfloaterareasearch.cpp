@@ -44,6 +44,7 @@
 #include "lltracker.h"
 #include "llviewerobjectlist.h"
 // <os>
+#include "llscrolllistitem.h"
 #include "llcombobox.h"
 #include "lltrans.h"
 #include "llmenugl.h"
@@ -164,6 +165,8 @@ BOOL JCFloaterAreaSearch::postBuild()
 	menu->setCanTearOff(FALSE);
 	menu->setVisible(FALSE);
 	mPopupMenuHandle = menu->getHandle();
+
+	getChild<LLButton>("SelectAll")->setClickedCallback(boost::bind(&JCFloaterAreaSearch::onSelectAll, this));
 	// </os>
 
 	return TRUE;
@@ -219,6 +222,34 @@ void JCFloaterAreaSearch::onDoubleClick()
 		gAgentCamera.resetCamera();
 	// </os>
 }
+
+// <os>
+void JCFloaterAreaSearch::onSelectAll()
+{
+	LLSelectMgr::getInstance()->deselectAll();
+	std::vector<LLScrollListItem*> items = mResultList->getAllData();
+	std::vector<LLScrollListItem*>::iterator item_iter = items.begin();
+	std::vector<LLScrollListItem*>::iterator items_end = items.end();
+	for (; item_iter != items_end; ++item_iter)
+	{
+		LLScrollListItem* item = (*item_iter);
+
+		LLViewerObject* objectp = gObjectList.findObject(item->getUUID());
+		if (objectp)
+		{
+			//open Tool Manager (Edit) to select all
+			if (!LLToolMgr::getInstance()->inBuildMode())
+			{
+				gFloaterTools->open();
+				LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+				gFloaterTools->setEditTool(LLToolCompTranslate::getInstance());
+			}
+
+			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
+		}
+	}
+}
+// </os>
 
 void JCFloaterAreaSearch::onStop()
 {

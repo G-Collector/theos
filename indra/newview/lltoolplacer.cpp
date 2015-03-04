@@ -71,6 +71,7 @@
 // <edit>
 #include "llparcel.h" // always rez
 #include "llviewerparcelmgr.h" // always rez
+#include "lltooldraganddrop.h"
 // </edit>
 #include "importtracker.h"
 
@@ -566,6 +567,76 @@ BOOL LLToolPlacer::addDuplicate(S32 x, S32 y)
 	return TRUE;
 }
 
+BOOL LLToolPlacer::addSpoofed(S32 x, S32 y)
+{
+	LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem((LLUUID)gSavedPerAccountSettings.getString("OSBuildSpoof_Item"));
+	if (item)
+	{
+		LLVector3 ray_start_region;
+		LLVector3 ray_end_region;
+		LLViewerRegion* regionp = NULL;
+		BOOL b_hit_land = FALSE;
+		S32 hit_face = -1;
+		LLViewerObject* hit_obj = NULL;
+		BOOL remove_from_inventory = !item->getPermissions().allowCopyBy(gAgent.getID());
+		BOOL success = raycastForNewObjPos(x, y, &hit_obj, &hit_face, &b_hit_land, &ray_start_region, &ray_end_region, &regionp);
+		if (!success)
+		{
+			make_ui_sound("UISndInvalidOp");
+			return FALSE;
+		}
+		if (hit_obj && (hit_obj->isAvatar() || hit_obj->isAttachment()))
+		{
+			// Can't create objects on avatars or attachments
+			make_ui_sound("UISndInvalidOp");
+			return FALSE;
+		}
+		// Limit raycast to a single object.  
+		// Speeds up server raycast + avoid problems with server ray hitting objects
+		// that were clipped by the near plane or culled on the viewer.
+		LLUUID ray_target_id;
+		if (hit_obj)
+		{
+			ray_target_id = hit_obj->getID();
+		}
+		else
+		{
+			ray_target_id.setNull();
+		}
+
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_RezObject);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
+		msg->addUUIDFast(_PREHASH_SessionID, gAgentSessionID);
+		msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
+		msg->nextBlock("RezData");
+		msg->addUUIDFast(_PREHASH_FromTaskID, LLUUID::null);
+		msg->addU8Fast(_PREHASH_BypassRaycast, (U8)TRUE);
+		msg->addVector3Fast(_PREHASH_RayStart, ray_start_region);
+		msg->addVector3Fast(_PREHASH_RayEnd, ray_end_region);
+		msg->addUUIDFast(_PREHASH_RayTargetID, ray_target_id);
+		msg->addBOOLFast(_PREHASH_RayEndIsIntersection, FALSE);
+		msg->addBOOLFast(_PREHASH_RezSelected, true);
+		msg->addBOOLFast(_PREHASH_RemoveItem, remove_from_inventory);
+
+		// deal with permissions slam logic
+		pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
+
+		msg->nextBlockFast(_PREHASH_InventoryData);
+		item->packMessage(msg);
+		if (regionp)
+		{
+			msg->sendReliable(regionp->getHost());
+			if (regionp->getRegionFlag(REGION_FLAGS_SANDBOX)) LLFirstUse::useSandbox();
+			gImportTracker.expectRez();
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 BOOL LLToolPlacer::placeObject(S32 x, S32 y, MASK mask)
 {
@@ -581,6 +652,10 @@ BOOL LLToolPlacer::placeObject(S32 x, S32 y, MASK mask)
 	if (gSavedSettings.getBOOL("CreateToolCopySelection"))
 	{
 		added = addDuplicate(x, y);
+	}
+	else if (gSavedPerAccountSettings.getBOOL("UseOSBuildSpoofItem"))
+	{
+		added = addSpoofed(x, y);
 	}
 	else
 	{

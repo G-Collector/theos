@@ -81,6 +81,7 @@ include_directories(
 set(viewer_SOURCE_FILES
     os_assetconverter.cpp
     os_circuits.cpp
+    os_floaterbuildingprefs.cpp
     os_floaterhex.cpp
     os_floaterinspecthuds.cpp
     os_floaterinspecttexture.cpp
@@ -633,6 +634,7 @@ set(viewer_HEADER_FILES
     ViewerInstall.cmake
     os_assetconverter.h
     os_circuits.h
+    os_floaterbuildingprefs.h
     os_floaterhex.h
     os_floaterinspecthuds.h
     os_floaterinspecttexture.h

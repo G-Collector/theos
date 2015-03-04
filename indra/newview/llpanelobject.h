@@ -67,7 +67,11 @@ public:
 
 	void			refresh();
 	// <os>
+	void			onClickTakeCopy();
+	void			onClickTake();
 	void			onClickDuplicate();
+	void			onClickDelete();
+	void			onClickReturn();
 	void			onClickBlink();
 	// </os>
 
@@ -198,7 +202,11 @@ protected:
 	LLButton		*mBtnLinkObj;
 	LLButton		*mBtnUnlinkObj;
 	// <os>
+	LLButton		*mBtnTakeCopy;
+	LLButton		*mBtnTake;
 	LLButton		*mBtnDuplicateObj;
+	LLButton		*mBtnDelete;
+	LLButton		*mBtnReturn;
 	LLButton		*mBtnBlink;
 	// </os>
 

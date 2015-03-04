@@ -68,6 +68,7 @@
 #include "llui.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
+#include "llviewermenu.h" // </os>
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llvovolume.h"
@@ -207,9 +208,18 @@ BOOL	LLPanelObject::postBuild()
 	mBtnUnlinkObj = getChild<LLButton>("unlink_obj");
 	childSetAction("unlink_obj",onUnlinkObj, this);
 	// <os>
+	mBtnTakeCopy = getChild<LLButton>("takecopy_obj");
+	mBtnTake = getChild<LLButton>("take_obj");
 	mBtnDuplicateObj = getChild<LLButton>("duplicate_obj");
-	mBtnDuplicateObj->setClickedCallback(boost::bind(&LLPanelObject::onClickDuplicate, this));
+	mBtnDelete = getChild<LLButton>("delete_obj");
+	mBtnReturn = getChild<LLButton>("return_obj");
 	mBtnBlink = getChild<LLButton>("blink_btn");
+
+	mBtnTakeCopy->setClickedCallback(boost::bind(&LLPanelObject::onClickTakeCopy, this));
+	mBtnTake->setClickedCallback(boost::bind(&LLPanelObject::onClickTake, this));
+	mBtnDuplicateObj->setClickedCallback(boost::bind(&LLPanelObject::onClickDuplicate, this));
+	mBtnDelete->setClickedCallback(boost::bind(&LLPanelObject::onClickDelete, this));
+	mBtnReturn->setClickedCallback(boost::bind(&LLPanelObject::onClickReturn, this));
 	mBtnBlink->setClickedCallback(boost::bind(&LLPanelObject::onClickBlink, this));
 	// </os>
 	mBtnCopyPos = getChild<LLButton>("copypos");
@@ -540,8 +550,12 @@ void LLPanelObject::getState( )
 	mBtnPastePos->setEnabled(enable_move);
 	mBtnPastePosClip->setEnabled(enable_move);
 	// <os>
+	mBtnTakeCopy->setEnabled(enable_object_take_copy());
+	mBtnTake->setEnabled(visible_take_object());
 	mBtnDuplicateObj->setEnabled(LLSelectMgr::getInstance()->canDuplicate());
-	mBtnBlink->setEnabled(enable_move);
+	mBtnDelete->setEnabled(enable_object_delete());
+	mBtnReturn->setEnabled(enable_object_return());
+	mBtnBlink->setEnabled(enable_object_delete());
 	// </os>
 	if (enable_scale)
 	{
@@ -2590,6 +2604,16 @@ void LLPanelObject::onUnlinkObj(void* user_data)
 }
 
 // <os>
+void LLPanelObject::onClickTakeCopy()
+{
+	handle_take_copy();
+}
+
+void LLPanelObject::onClickTake()
+{
+	handle_take();
+}
+
 void LLPanelObject::onClickDuplicate()
 {
 	LLVector3 offset = LLVector3(0.0f, 0.0f, mCtrlScaleZ->get());
@@ -2600,7 +2624,14 @@ void LLPanelObject::onClickDuplicate()
 	// the new copy will be coming in selected
 	LLSelectMgr::getInstance()->deselectAll();
 }
-
+void LLPanelObject::onClickDelete()
+{
+	handle_object_delete();
+}
+void LLPanelObject::onClickReturn()
+{
+	handle_object_return();
+}
 void LLPanelObject::onClickBlink()
 {
 	// move current selection based on delta from position and update z position

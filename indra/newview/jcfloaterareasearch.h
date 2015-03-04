@@ -85,6 +85,7 @@ private:
 	LLComboBox* mFilterComboBox;
 	LLHandle<LLView> mPopupMenuHandle;
 	LLUUID mSelectedObjectID;
+	void onSelectAll();
 	//</os>
 	void checkRegion(bool force_clear = false);
 	void onStop();

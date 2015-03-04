@@ -120,6 +120,9 @@ private:
 	void refreshMedia();
 	void getMediaState();
 	void updateMediaSettings();
+	// <os>
+	void onClickBuildingPrefs();
+	// </os>
 	static bool deleteMediaConfirm(const LLSD& notification, const LLSD& response);
 	static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
 	static void setObjectType( LLPCode pcode );
@@ -133,6 +136,10 @@ public:
 	LLButton		*mBtnLand;
 
 	LLTextBox		*mTextStatus;
+
+	// <os>
+	LLButton		*mBtnBuildingPrefs;
+	// </os>
 
 	// Focus buttons
 	LLCheckBoxCtrl	*mRadioOrbit;

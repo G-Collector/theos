@@ -97,6 +97,8 @@
 #include "llvograss.h"
 #include "llvotree.h"
 
+#include "os_floaterbuildingprefs.h"// </os>
+
 // Globals
 LLFloaterTools *gFloaterTools = NULL;
 
@@ -269,6 +271,11 @@ BOOL	LLFloaterTools::postBuild()
 	mBtnGridOptions			= getChild<LLButton>("Options...");
 	mTitleMedia			= getChild<LLMediaCtrl>("title_media");
 	
+	// <os>
+	mBtnBuildingPrefs		= getChild<LLButton>("buildingprefs_btn");
+	mBtnBuildingPrefs->setCommitCallback(boost::bind(&LLFloaterTools::onClickBuildingPrefs, this));
+	// </os>
+
 	mCheckSelectIndividual	= getChild<LLCheckBoxCtrl>("checkbox edit linked parts");
 	getChild<LLUICtrl>("checkbox edit linked parts")->setValue((BOOL)gSavedSettings.getBOOL("EditLinkedParts"));
 	mCheckSnapToGrid		= getChild<LLCheckBoxCtrl>("checkbox snap to grid");
@@ -374,7 +381,10 @@ LLFloaterTools::LLFloaterTools()
 	mRadioSelectFace(NULL),
 	mRadioAlign(NULL),
 	mCheckSelectIndividual(NULL),
-
+	
+	// <os>
+	mBtnBuildingPrefs(NULL),
+	// </os>
 	mCheckSnapToGrid(NULL),
 	mBtnGridOptions(NULL),
 	mTextGridMode(NULL),
@@ -1543,6 +1553,18 @@ void LLFloaterTools::onClickBtnEditMedia()
 	U32 height_offset = rect.getHeight() - LLFloaterMediaSettings::getInstance()->getRect().getHeight();
 	LLFloaterMediaSettings::getInstance()->setOrigin(rect.mRight, rect.mBottom + height_offset);
 }
+
+// <os>
+void LLFloaterTools::onClickBuildingPrefs()
+{
+	LLFloaterBuildPrefs* floaterp = LLFloaterBuildPrefs::showInstance();
+	// grandparent is a floater, which can have a dependent
+	if (floaterp)
+	{
+		gFloaterView->getParentFloater(this)->addDependentFloater(floaterp);
+	}
+}
+// </os>
 
 //////////////////////////////////////////////////////////////////////////////
 // called when a user wants to delete media from a prim or prim face

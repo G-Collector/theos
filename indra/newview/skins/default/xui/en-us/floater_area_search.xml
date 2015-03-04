@@ -50,6 +50,8 @@
 		height="15" width="220" left="10" bottom="9" follows="left|bottom">
     Listed/Pending/Total
   </text>
+  <button name="SelectAll" label="SelectAll" font="SansSerif" mouse_opaque="true"
+		height="20" width="80" right="-172" bottom="6" follows="right|bottom"/>
   <button name="Refresh" label="Refresh" font="SansSerif" mouse_opaque="true"
 		height="20" width="80" right="-92" bottom="6" follows="right|bottom"/>
   <button name="Stop" label="Stop" font="SansSerif" mouse_opaque="true"

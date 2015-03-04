@@ -77,9 +77,9 @@ public:
 	void setChildRects(LLRect rect);
 	void fillParent(const LLView* parent);
 	void setEntityID(const LLUUID& id) { mEntityID = id;}
-
-protected:
 	virtual void setItem(const class LLInventoryItem* item);
+protected:
+	//virtual void setItem(const class LLInventoryItem* item);
 	void setControlValue(const std::string& val);
 
 	LLUUID mEntityID;
