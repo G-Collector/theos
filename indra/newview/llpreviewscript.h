@@ -163,6 +163,10 @@ private:
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
 	void			(*mSearchReplaceCallback) (void* userdata);
 	void*			mUserdata;
+	// <os>
+	LLCheckBoxCtrl	*mCacheSaves;
+	void onCheckCacheSaves(const LLSD& value);
+	// </os>
 	LLComboBox		*mFunctions;
 	BOOL			mForceClose;
 	LLPanel*		mCodePanel;

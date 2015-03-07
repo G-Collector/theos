@@ -85,8 +85,14 @@ public:
 	S32 getSquareMetersCredit() const;
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
+	// <os>
+	static std::string getTime();
+	// </os>
 
 private:
+	// <os>
+	static std::string mTime;
+	// </os>
 	// simple method to setup the part that holds the date
 	void setupDate();
 

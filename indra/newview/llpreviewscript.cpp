@@ -88,6 +88,11 @@
 #include "rlvlocks.h"
 // [/RLVa:KB]
 
+// <os>
+#include "llstatusbar.h"
+const char* script_cache_dirname = "scriptcache";
+// </os
+
 const std::string HELLO_LSL =
 	"default\n"
 	"{\n"
@@ -264,6 +269,11 @@ LLScriptEdCore::~LLScriptEdCore()
 
 BOOL LLScriptEdCore::postBuild()
 {
+	// <os>
+	mCacheSaves = getChild<LLCheckBoxCtrl>("cache_scripts");
+	getChild<LLUICtrl>("cache_scripts")->setValue((BOOL)gSavedSettings.getBOOL("CacheScriptSaves"));
+	mCacheSaves->setCommitCallback(boost::bind(&LLScriptEdCore::onCheckCacheSaves, this, _2));
+	// </os>
 	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
 
 	mFunctions = getChild<LLComboBox>( "Insert...");
@@ -874,6 +884,20 @@ void LLScriptEdCore::onHelpComboCommit(LLUICtrl* ctrl, void* userdata)
 		web_browser->navigateTo(url_string);
 	}
 }
+
+//<os>
+void LLScriptEdCore::onCheckCacheSaves(const LLSD& value)
+{
+	if (value.asBoolean())
+	{
+		gSavedSettings.setBOOL("CacheScriptSaves", TRUE);
+	}
+	else
+	{
+		gSavedSettings.setBOOL("CacheScriptSaves", FALSE);
+	}
+}
+// </os>
 
 // static 
 void LLScriptEdCore::onBtnInsertFunction(LLUICtrl *ui, void* userdata)
@@ -1501,6 +1525,36 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
 			uploadAssetLegacy(filename, mItemUUID, tid);
 		}
 #endif
+		// <os> -  make dated copies of every script you ever save
+		if (gSavedSettings.getBOOL("CacheScriptSaves"))
+		{
+			std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, script_cache_dirname);
+			if (!LLFile::isdir(cache_dir)) LLFile::mkdir(cache_dir, 0700);
+			std::string default_filename("untitled");
+			if (const LLInventoryItem* item = getItem())
+			{
+				default_filename = LLDir::getScrubbedFileName(item->getName() + "." + LLStatusBar::getTime());
+			}
+			else
+			{
+				default_filename = LLDir::getScrubbedFileName(asset_id.asString() + "." + LLStatusBar::getTime());
+			}
+			std::string saveFilename = cache_dir + gDirUtilp->getDirDelimiter() + default_filename + ".lsl";
+
+			FILE* fp = LLFile::fopen(saveFilename.c_str(), "wb");
+			if (!fp)
+			{
+				llwarns << "Unable to write to " << saveFilename << llendl;
+				return;
+			}
+
+			std::string utf8text = mScriptEd->mEditor->getText();
+			fputs(utf8text.c_str(), fp);
+			fclose(fp);
+			fp = NULL;
+			llinfos << "autosave: " << saveFilename << llendl;
+		}
+		// </os>
 	}
 }
 
@@ -2245,6 +2299,36 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 		uploadAssetLegacy(filename, object, tid, is_running);
 	}
 #endif
+	// <os> -  make dated copies of every script you ever save
+	if (gSavedSettings.getBOOL("CacheScriptSaves"))
+	{
+		std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, script_cache_dirname);
+		if (!LLFile::isdir(cache_dir)) LLFile::mkdir(cache_dir, 0700);
+		std::string default_filename("untitled");
+		if (const LLInventoryItem* item = mItem)
+		{
+			default_filename = LLDir::getScrubbedFileName(item->getName() + "." + LLStatusBar::getTime());
+		}
+		else
+		{
+			default_filename = LLDir::getScrubbedFileName(asset_id.asString() + "." + LLStatusBar::getTime());
+		}
+		std::string saveFilename = cache_dir + gDirUtilp->getDirDelimiter() + default_filename + ".lsl";
+
+		FILE* fp = LLFile::fopen(saveFilename.c_str(), "wb");
+		if (!fp)
+		{
+			llwarns << "Unable to write to " << saveFilename << llendl;
+			return;
+		}
+
+		std::string utf8text = mScriptEd->mEditor->getText();
+		fputs(utf8text.c_str(), fp);
+		fclose(fp);
+		fp = NULL;
+		llinfos << "autosave: " << saveFilename << llendl;
+	}
+	// </os>
 }
 
 void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,

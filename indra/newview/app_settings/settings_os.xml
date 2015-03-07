@@ -488,6 +488,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CacheScriptSaves</key>
+    <map>
+      <key>Comment</key>
+      <string>Cache all script compiles.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <!--OS Floater Tools-->
     <key>OSToolNumPackets</key>
     <map>

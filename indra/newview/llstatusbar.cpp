@@ -105,7 +105,7 @@
 LLStatusBar *gStatusBar = NULL;
 S32 STATUS_BAR_HEIGHT = 0;
 extern S32 MENU_BAR_HEIGHT;
-
+std::string LLStatusBar::mTime;
 
 // TODO: these values ought to be in the XML too
 const S32 MENU_PARCEL_SPACING = 1;	// Distance from right of menu item to parcel information
@@ -313,6 +313,12 @@ void LLStatusBar::draw()
 	LLPanel::draw();
 }
 
+// <os>
+std::string LLStatusBar::getTime()
+{
+	return mTime;
+}
+// </os>
 
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
@@ -358,13 +364,18 @@ void LLStatusBar::refresh()
 	{
 		t += " PST";
 	}
-	mTextTime->setText(t);
-
+	// <os>
+	mTime = t.c_str();
+	mTextTime->setText(mTime);
+	//mTextTime->setText(t);
+	// </<os>
 	static const LLCachedControl<std::string> long_date_fmt(gSavedSettings, "LongDateFormat");
 	std::string date;
 	timeStructToFormattedString(internal_time, long_date_fmt, date);
+	// <os>
+	mTime = mTime + (date);
+	// </os>
 	mTextTime->setToolTip(date);
-
 	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 	S32 x = MENU_RIGHT + MENU_PARCEL_SPACING;
