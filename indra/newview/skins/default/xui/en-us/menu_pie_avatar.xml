@@ -27,11 +27,6 @@
                  name="Save As...">
       <on_click function="Avatar.SaveAs" />
     </menu_item_call>
-		<menu_item_separator />
-		<menu_item_separator />
-		<menu_item_separator />
-		<menu_item_separator />
-		<menu_item_separator />
 	<menu_item_call label="OBJ..." mouse_opaque="true" name="Save OBJ...">
 		<on_click function="Avatar.SaveAsOBJ" />
 		</menu_item_call>
@@ -47,13 +42,12 @@
     <menu_item_call enabled="true" label="Textures" mouse_opaque="true" name="Inspect Textures">
       <on_click function="Avatar.TextureInspect" />
     </menu_item_call>
+	<menu_item_call enabled="true" label="AvTextures" mouse_opaque="true" name="Debug Layers">
+        <on_click function="Avatar.Debug" />
+      </menu_item_call>
     <menu_item_call enable="true" hidden="false" label="Anims..." mouse_opaque="true" name="Anims...">
       <on_click function="Avatar.Anims" />
     </menu_item_call>
-	  	<menu_item_separator />
-	  	<menu_item_separator />
-	  	<menu_item_separator />
-      <menu_item_separator />
     <menu_item_call enabled="true" label="Huds" mouse_opaque="true" name="AvatarHuds">
       <on_click function="Avatar.HudList" />
       <on_enable function="Avatar.EnableHudList" />
@@ -71,9 +65,6 @@
 			</menu_item_call>
       <menu_item_call enabled="true" label="Reload" mouse_opaque="true" name="Reload Textures">
         <on_click function="Avatar.ReloadTextures" />
-      </menu_item_call>
-      <menu_item_call enabled="true" label="AvTextures" mouse_opaque="true" name="Debug Layers">
-        <on_click function="Avatar.Debug" />
       </menu_item_call>
 		</pie_menu>
 		<menu_item_call enabled="false" label="Give Card" mouse_opaque="true" name="Give Card">

@@ -1043,41 +1043,30 @@
 		<menu_item_call label="Close All Dialogs" mouse_opaque="true" name="Close All Dialogs" shortcut="control|alt|shift|D">
 			<on_click function="CloseAllDialogs"/>
 		</menu_item_call>
-		<menu_item_separator mouse_opaque="true" name="separators0"/>
 		<menu_item_call label="Teleport to a safe level" mouse_opaque="true" name="Teleport to safe level" shortcut="control|pgup">
 			<on_click function="Avatar.TpSafety"/>
 		</menu_item_call>
 		<menu_item_call label="Teleport to ground level" mouse_opaque="true" name="Teleport to ground level" shortcut="control|pgdn">
 			<on_click function="Avatar.TpGround"/>
 		</menu_item_call>
+		<menu_item_separator mouse_opaque="true" name="separators0"/>
+		
+		<menu_item_call label="Kill Viewer Effects" mouse_opaque="true" name="Clear Viewer Effects">
+			<on_click function="OS.ClearEffects" />
+		</menu_item_call>
+		<menu_item_call label="Particle Explorer" mouse_opaque="true" name="particle explorer">
+			<on_click function="OS.ParticleExplorer" userdata=""/>
+		</menu_item_call>
+		<menu_item_check enabled="true" label="Hide Particles"
+			mouse_opaque="true" name="Hide Particles">
+			<on_click function="View.ToggleRenderType" userdata="hideparticles" />
+			<on_check function="View.CheckRenderType" userdata="hideparticles" />
+		</menu_item_check>
+		<menu_item_call label="Rebake" mouse_opaque="true" name="Rebake" shortcut="control|alt|R">
+			<on_click function="Rebake"/>
+		</menu_item_call>
 		<menu_item_separator mouse_opaque="true" name="separators1"/>
-		<menu_item_call label="Fake Away Status" mouse_opaque="true" name="Fake Away Status">
-			<on_click function="World.FakeAway"/>
-		</menu_item_call>
-		<menu_item_call label="Force Ground Sit" mouse_opaque="true" name="Force Ground Sit">
-			<on_click function="World.SitOnGround"/>
-		</menu_item_call>
-		<menu_item_separator mouse_opaque="true" name="separators2"/>
-		<menu_item_call label="Animation Override..." mouse_opaque="true" name="Animation Override ...">
-			<on_click function="ShowFloater" userdata="ao"/>
-		</menu_item_call>
-		<menu_item_check label="Nimble" mouse_opaque="true" name="Nimble">
-			<on_click function="ToggleControl" userdata="Nimble"/>
-			<on_check control="Nimble"/>
-		</menu_item_check>
-		<menu_item_separator mouse_opaque="true" name="separators3"/>
-		<menu_item_check label="Object Area Search" mouse_opaque="true" name="Object Area Search">
-			<on_click function="ShowFloater" userdata="areasearch"/>
-			<on_check function="FloaterVisible" userdata="areasearch"/>
-		</menu_item_check>
-		<menu_item_check label="Sound Explorer" mouse_opaque="true" name="Sound Explorer">
-			<on_click function="ShowFloater" userdata="sound_explorer"/>
-			<on_check function="FloaterVisible" userdata="sound_explorer"/>
-		</menu_item_check>
-		<menu_item_check label="Asset Blacklist" mouse_opaque="true" name="Asset Blacklist">
-			<on_click function="ShowFloater" userdata="asset_blacklist"/>
-			<on_check function="FloaterVisible" userdata="asset_blacklist"/>
-		</menu_item_check>
+		
 		<menu_item_check label="Media Filter" name="Media Filter">
 			<on_click function="ShowFloater" userdata="media filter" />
 			<on_check function="FloaterVisible" userdata="media filter" />
@@ -1087,65 +1076,87 @@
 			<on_check function="FloaterVisible" userdata="media ticker"/>
 			<on_enable function="EnableStreamingAudioDisplay"/>
 		</menu_item_check>
+		<menu_item_check label="Sound Explorer" mouse_opaque="true" name="Sound Explorer">
+			<on_click function="ShowFloater" userdata="sound_explorer"/>
+			<on_check function="FloaterVisible" userdata="sound_explorer"/>
+		</menu_item_check>
+		<menu_item_separator mouse_opaque="true" name="separators2"/>
+		
+		<menu_item_call label="Animation Override..." mouse_opaque="true" name="Animation Override ...">
+			<on_click function="ShowFloater" userdata="ao"/>
+		</menu_item_call>
 		<menu_item_check label="Pose Stand" mouse_opaque="true" name="Pose Stand">
 			<on_click function="PoseStand"/>
 			<on_check function="CheckPoseStand"/>
 		</menu_item_check>
-		<menu_item_check label="Region Debug Console" mouse_opaque="true" name="Region Debug Console">
-			<on_click function="ShowFloater" userdata="RegionDebugConsole"/>
-			<on_check function="FloaterVisible" userdata="RegionDebugConsole"/>
-			<on_visible function="VisibleRegionDebugConsole"/>
-		</menu_item_check>
-		<menu_item_separator mouse_opaque="true" name="separators4" />
-		<menu_item_call label="Rebake" mouse_opaque="true" name="Rebake" shortcut="control|alt|R">
-			<on_click function="Rebake"/>
+		<menu_item_call label="Fake Away Status" mouse_opaque="true" name="Fake Away Status">
+			<on_click function="World.FakeAway"/>
 		</menu_item_call>
-    <menu_item_separator mouse_opaque="true" name="separators5" />
-    <menu_item_separator mouse_opaque="true" name="separators6" />
-    <menu_item_call label="OS Clipboard KeyTool" mouse_opaque="true" name="KeyTool" shortcut="control|shift|K">
-      <on_click function="OS.KeyTool" />
-    </menu_item_call>
-    <menu_item_separator mouse_opaque="true" name="separators7" />
-    <menu_item_call label="OS VFS Injector" mouse_opaque="true" name="VFS Local Assets">
-      <on_click function="OS.LocalAssets" />
-    </menu_item_call>
-    <menu_item_call label="OS VFS Explorer" mouse_opaque="true" name="VFS Explorer">
-      <on_click function="OS.VFSExplorer" />
-    </menu_item_call>
-    <menu_item_separator mouse_opaque="true" name="separators8" />
-    <menu_item_call label="OS Particle Explorer" mouse_opaque="true" name="particle explorer">
-      <on_click function="OS.ParticleExplorer" userdata=""/>
-    </menu_item_call>
-	<menu_item_separator mouse_opaque="true" name="separators9" />
-      <menu_item_check label="OS Message Packet Logger" mouse_opaque="true" name="message logger">
-        <on_click function="ShowFloater" userdata="messagelog"/>
-        <on_check function="FloaterVisible" userdata="messagelog"/>
-      </menu_item_check>
-      <menu_item_check label="OS Message Packet Builder" mouse_opaque="true" name="message builder">
-        <on_click function="ShowFloater" userdata="messagebuilder"/>
-        <on_check function="FloaterVisible" userdata="messagebuilder"/>
-      </menu_item_check>
-	<menu_item_check label="OS Region Circuits" mouse_opaque="true" name="region circuits">
+		<menu_item_call label="Force Ground Sit" mouse_opaque="true" name="Force Ground Sit">
+			<on_click function="World.SitOnGround"/>
+		</menu_item_call>
+		<menu_item_check label="Nimble" mouse_opaque="true" name="Nimble">
+			<on_click function="ToggleControl" userdata="Nimble"/>
+			<on_check control="Nimble"/>
+		</menu_item_check>
+		<menu_item_call label="Resync Animations" mouse_opaque="true" name="Resync Animations">
+      <on_click function="OS.ResyncAnims" />
+		</menu_item_call>
+		<menu_item_call  enabled="false" height="19" label="Stop Animating My Avatar"
+		     mouse_opaque="true" name="Stop Animating My Avatar">
+			<on_click function="Tools.StopAllAnimations" userdata="" />
+		</menu_item_call>	
+		<menu_item_call label="Undeform" mouse_opaque="true" name="Undeform">
+			<on_click function="OS.Undeform" />
+		</menu_item_call>
+		<menu_item_separator mouse_opaque="true" name="separators3"/>
+
+		<menu_item_call label="Delete All Owned Objects" mouse_opaque="true" name="OS DeleteAllYours" shortcut="control|del">
+			<on_click function="OS.DeleteAllYours" />
+		</menu_item_call>		
+		<menu_item_check label="Object Area Search" mouse_opaque="true" name="Object Area Search">
+			<on_click function="ShowFloater" userdata="areasearch"/>
+			<on_check function="FloaterVisible" userdata="areasearch"/>
+		</menu_item_check>
+		<menu_item_separator mouse_opaque="true" name="separators4" />			
+		
+		<menu_item_check label="Asset Blacklist" mouse_opaque="true" name="Asset Blacklist">
+			<on_click function="ShowFloater" userdata="asset_blacklist"/>
+			<on_check function="FloaterVisible" userdata="asset_blacklist"/>
+		</menu_item_check>
+		<menu_item_call label="Clipboard KeyTool" mouse_opaque="true" name="KeyTool" shortcut="control|shift|K">
+			<on_click function="OS.KeyTool" />
+		</menu_item_call>
+		<menu_item_call label="VFS Injector" mouse_opaque="true" name="VFS Local Assets">
+			<on_click function="OS.LocalAssets" />
+		</menu_item_call>
+		<menu_item_call label="VFS Explorer" mouse_opaque="true" name="VFS Explorer">
+			<on_click function="OS.VFSExplorer" />
+		</menu_item_call>
+		<menu_item_separator mouse_opaque="true" name="separators5" />	
+		
+		<menu_item_check label="Message Packet Logger" mouse_opaque="true" name="message logger">
+			<on_click function="ShowFloater" userdata="messagelog"/>
+			<on_check function="FloaterVisible" userdata="messagelog"/>
+		</menu_item_check>
+		<menu_item_check label="Message Packet Builder" mouse_opaque="true" name="message builder">
+			<on_click function="ShowFloater" userdata="messagebuilder"/>
+			<on_check function="FloaterVisible" userdata="messagebuilder"/>
+		</menu_item_check>
+		<menu_item_check label="Region Circuits" mouse_opaque="true" name="region circuits">
 			<on_click function="ShowFloater" userdata="region circuits"/>
 			<on_check function="FloaterVisible" userdata="region circuits"/>
 		</menu_item_check>
-    <menu_item_check label="OS Griefer Tools" mouse_opaque="true" name="OS Tools">
-      <on_click function="ShowFloater" userdata="os_tools"/>
-      <on_check function="FloaterVisible" userdata="os_tools"/>
-    </menu_item_check>
-	<menu_item_separator mouse_opaque="true" name="separators10" />	
-    <menu_item_call label="OS Undeform" mouse_opaque="true" name="Undeform">
-      <on_click function="OS.Undeform" />
-    </menu_item_call>
-    <menu_item_call label="OS Resync Animations" mouse_opaque="true" name="Resync Animations">
-      <on_click function="OS.ResyncAnims" />
-    </menu_item_call>
-    <menu_item_call label="OS Kill Viewer Effects" mouse_opaque="true" name="Clear Viewer Effects">
-      <on_click function="OS.ClearEffects" />
-    </menu_item_call>
-	<menu_item_call label="OS Delete All Owned Objects" mouse_opaque="true" name="OS DeleteAllYours" shortcut="control|del">
-      <on_click function="OS.DeleteAllYours" />
-    </menu_item_call>
+		<menu_item_check label="Region Debug Console" mouse_opaque="true" name="Region Debug Console">
+			<on_click function="ShowFloater" userdata="RegionDebugConsole"/>
+			<on_check function="FloaterVisible" userdata="RegionDebugConsole"/>
+		</menu_item_check>
+		<menu_item_separator mouse_opaque="true" name="separators6" />
+
+		<menu_item_check label="OS Griefer Tools" mouse_opaque="true" name="OS Tools">
+			<on_click function="ShowFloater" userdata="os_tools"/>
+			<on_check function="FloaterVisible" userdata="os_tools"/>
+		</menu_item_check>
 
 	</menu>
 </menu_bar>
