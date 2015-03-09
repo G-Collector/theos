@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater bottom="-379" can_close="true" can_drag_on_left="false" can_minimize="true"
-     can_resize="false" follows="left|top" height="580"
-     left="308" min_height="130" min_width="102" mouse_opaque="true"
+<floater bottom="-359" can_close="true" can_drag_on_left="false" can_minimize="true"
+     can_resize="false" follows="left|top" height="550" 
+     left="308" min_height="100" min_width="102" mouse_opaque="true"
      name="buildprefs floater" rect_control="ToolboxRect" sound_flags="0" title=""
      short_title="Building Preferences" width="274">
 	 

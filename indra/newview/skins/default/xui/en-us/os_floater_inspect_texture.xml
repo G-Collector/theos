@@ -5,28 +5,28 @@
  height="400"
  layout="topleft"
  min_height="400"
- min_width="730"
+ min_width="790"
  name="inspect textures"
  help_topic="inspect_texture"
  save_rect="true"
  title="Object Texture Inspect"
- width="850">
+ width="790">
   <floater.string
    name="timeStamp">
     [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
   </floater.string>
 
-  <texture_picker 
-    allow_no_texture="true" 
-    bottom="124" 
-    can_apply_immediately="false"     
-    default_image_name="" 
-    enabled="true" 
-    follows="left|top" 
-    height="256"   
-    label="" 
-    left="5" 
-    mouse_opaque="true" 
+  <texture_picker
+    allow_no_texture="true"
+    bottom="124"
+    can_apply_immediately="false"
+    default_image_name=""
+    enabled="true"
+    follows="left|top"
+    height="256"
+    label=""
+    left="5"
+    mouse_opaque="true"
     name="imagette"
     width="256" />
   <text_editor
@@ -47,17 +47,17 @@
     translate="false"
     value="(loading...)"
     word_wrap="true"/>
-   <scroll_list
-   bottom="35"
-   height="344"
-   column_padding="0"
-   draw_heading="true"
-   follows="all"
-   layout="topleft"
-   left="265"
-   name="object_list"
-   right="-10"
-   tool_tip="Select an object from this list to highlight it in-world">
+  <scroll_list
+  bottom="35"
+  height="344"
+  column_padding="0"
+  draw_heading="true"
+  follows="all"
+  layout="topleft"
+  left="265"
+  name="object_list"
+  right="-10"
+  tool_tip="Select an object from this list to highlight it in-world">
     <column
      label="UUID Texture"
      name="uuid_text"
@@ -121,28 +121,56 @@
     <button.commit_callback
 		function="Inspect.CpToInvAll" />
   </button>
+
   <button
    follows="left|bottom"
    height="22"
-   label="Rip selected particle script"
+   label="Copy Selected UUID"
+   layout="topleft"
+   left_delta="130"
+   name="button uuid"
+   bottom_delta="0"
+   width="129">
+    <button.commit_callback
+		function="Inspect.CpUuid" />
+  </button>
+
+  <button
+   follows="left|bottom"
+   height="22"
+   label="Copy all UUIDs"
+   layout="topleft"
+   left_delta="130"
+   name="button uuidall"
+   bottom_delta="0"
+   width="129">
+    <button.commit_callback
+		function="Inspect.CpUuidAll" />
+  </button>
+
+  <button
+   follows="left|bottom"
+   height="22"
+   label="Rip Particle Script"
    layout="topleft"
    left_delta="130"
    name="ripparticle"
    bottom_delta="0"
-   width="200">
+   width="129">
     <button.commit_callback
 		function="Inspect.RipParticleScript" />
   </button>
   <button
-  follows="left|bottom"
-  height="22"
-  label="Rip selected anim script"
-  layout="topleft"
-  left_delta="200"
-  name="ripanim"
-  bottom_delta="0"
-  width="200">
+   follows="left|bottom"
+   height="22"
+   label="Rip Anim Script"
+   layout="topleft"
+   left_delta="130"
+   name="ripanim"
+   bottom_delta="0"
+   width="129">
     <button.commit_callback
 		function="Inspect.RipAnimScript" />
   </button>
+
 </floater>

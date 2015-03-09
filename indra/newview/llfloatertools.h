@@ -122,6 +122,7 @@ private:
 	void updateMediaSettings();
 	// <os>
 	void onClickBuildingPrefs();
+	void onClickObjectFunctions();
 	// </os>
 	static bool deleteMediaConfirm(const LLSD& notification, const LLSD& response);
 	static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
@@ -139,6 +140,7 @@ public:
 
 	// <os>
 	LLButton		*mBtnBuildingPrefs;
+	LLButton		*mBtnObjectFunctions;
 	// </os>
 
 	// Focus buttons

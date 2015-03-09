@@ -68,7 +68,7 @@
 #include "llui.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
-#include "llviewermenu.h" // </os>
+//#include "llviewermenu.h" // </os>
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llvovolume.h"
@@ -123,14 +123,6 @@ enum {
 	MI_HOLE_TRIANGLE,
 	MI_HOLE_COUNT
 };
-
-//<os>
-struct OSDuplicateData
-{
-	LLVector3	offset;
-	U32			flags;
-};
-//</os>
 
 // *TODO:translate (deprecated, so very low priority)
 static const std::string LEGACY_FULLBRIGHT_DESC("Fullbright (Legacy)");
@@ -203,25 +195,11 @@ BOOL	LLPanelObject::postBuild()
 	mCtrlRotZ = getChild<LLSpinCtrl>("Rot Z");
 	childSetCommitCallback("Rot Z",onCommitRotation,this);
 
-	mBtnLinkObj = getChild<LLButton>("link_obj");
-	childSetAction("link_obj",onLinkObj, this);
-	mBtnUnlinkObj = getChild<LLButton>("unlink_obj");
-	childSetAction("unlink_obj",onUnlinkObj, this);
-	// <os>
-	mBtnTakeCopy = getChild<LLButton>("takecopy_obj");
-	mBtnTake = getChild<LLButton>("take_obj");
-	mBtnDuplicateObj = getChild<LLButton>("duplicate_obj");
-	mBtnDelete = getChild<LLButton>("delete_obj");
-	mBtnReturn = getChild<LLButton>("return_obj");
-	mBtnBlink = getChild<LLButton>("blink_btn");
-
-	mBtnTakeCopy->setClickedCallback(boost::bind(&LLPanelObject::onClickTakeCopy, this));
-	mBtnTake->setClickedCallback(boost::bind(&LLPanelObject::onClickTake, this));
-	mBtnDuplicateObj->setClickedCallback(boost::bind(&LLPanelObject::onClickDuplicate, this));
-	mBtnDelete->setClickedCallback(boost::bind(&LLPanelObject::onClickDelete, this));
-	mBtnReturn->setClickedCallback(boost::bind(&LLPanelObject::onClickReturn, this));
-	mBtnBlink->setClickedCallback(boost::bind(&LLPanelObject::onClickBlink, this));
-	// </os>
+	//mBtnLinkObj = getChild<LLButton>("link_obj");
+	//childSetAction("link_obj",onLinkObj, this);
+	//mBtnUnlinkObj = getChild<LLButton>("unlink_obj");
+	//childSetAction("unlink_obj",onUnlinkObj, this);
+	
 	mBtnCopyPos = getChild<LLButton>("copypos");
 	childSetAction("copypos",onCopyPos, this);
 	mBtnPastePos = getChild<LLButton>("pastepos");
@@ -540,23 +518,17 @@ void LLPanelObject::getState( )
 	mCtrlPosX->setEnabled(enable_move);
 	mCtrlPosY->setEnabled(enable_move);
 	mCtrlPosZ->setEnabled(enable_move);
-	mBtnLinkObj->setEnabled(LLSelectMgr::getInstance()->enableLinkObjects());
+	/*mBtnLinkObj->setEnabled(LLSelectMgr::getInstance()->enableLinkObjects());
 	LLViewerObject* linkset_parent = objectp->getSubParent()? objectp->getSubParent() : objectp;
 	mBtnUnlinkObj->setEnabled(
 				LLSelectMgr::getInstance()->enableUnlinkObjects()
 				&& (linkset_parent->numChildren() >= 1)
 				&& LLSelectMgr::getInstance()->getSelection()->getRootObjectCount()<=1);
+				*/
 	mBtnCopyPos->setEnabled(enable_move);
 	mBtnPastePos->setEnabled(enable_move);
 	mBtnPastePosClip->setEnabled(enable_move);
-	// <os>
-	mBtnTakeCopy->setEnabled(enable_object_take_copy());
-	mBtnTake->setEnabled(visible_take_object());
-	mBtnDuplicateObj->setEnabled(LLSelectMgr::getInstance()->canDuplicate());
-	mBtnDelete->setEnabled(enable_object_delete());
-	mBtnReturn->setEnabled(enable_object_return());
-	mBtnBlink->setEnabled(enable_object_delete());
-	// </os>
+
 	if (enable_scale)
 	{
 		vec = objectp->getScale();
@@ -2590,7 +2562,7 @@ void LLPanelObject::onPasteParams(void* user_data)
 
 	objp->updateVolume(mClipboardVolumeParams);
 }
-
+/*
 void LLPanelObject::onLinkObj(void* user_data)
 {
 	llinfos << "Attempting link." << llendl;
@@ -2602,56 +2574,7 @@ void LLPanelObject::onUnlinkObj(void* user_data)
 	llinfos << "Attempting unlink." << llendl;
 	LLSelectMgr::getInstance()->unlinkObjects();
 }
-
-// <os>
-void LLPanelObject::onClickTakeCopy()
-{
-	handle_take_copy();
-}
-
-void LLPanelObject::onClickTake()
-{
-	handle_take();
-}
-
-void LLPanelObject::onClickDuplicate()
-{
-	LLVector3 offset = LLVector3(0.0f, 0.0f, mCtrlScaleZ->get());
-	OSDuplicateData	data;
-	data.offset = offset;
-	data.flags = FLAGS_CREATE_SELECTED;
-	LLSelectMgr::getInstance()->sendListToRegions("ObjectDuplicate", LLSelectMgr::getInstance()->packDuplicateHeader, LLSelectMgr::getInstance()->packDuplicate, &data, SEND_ONLY_ROOTS);
-	// the new copy will be coming in selected
-	LLSelectMgr::getInstance()->deselectAll();
-}
-void LLPanelObject::onClickDelete()
-{
-	handle_object_delete();
-}
-void LLPanelObject::onClickReturn()
-{
-	handle_object_return();
-}
-void LLPanelObject::onClickBlink()
-{
-	// move current selection based on delta from position and update z position
-	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-		iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
-	{
-		LLSelectNode* node = *iter;
-		if (node)
-		{
-			LLVector3d cur_pos = node->getObject()->getPositionGlobal();
-			LLVector3d new_pos = cur_pos.mdV[VZ] = 340282346638528859811704183484516925440.0f;
-			node->mDuplicatePos = node->getObject()->getPositionGlobal();
-			node->getObject()->setPositionGlobal(new_pos);
-		}
-	}
-
-	LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
-}
-// </os>
-
+*/
 void LLPanelObject::onPastePos(void* user_data)
 {
 	if(mClipboardPos.isNull()) return;

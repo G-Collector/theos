@@ -87,6 +87,7 @@ set(viewer_SOURCE_FILES
     os_floaterinspecttexture.cpp
     os_floaterexploreparticles.cpp
     os_floaterkeytool.cpp
+	os_floaterobjectfunctions.cpp
     os_floatertexteditor.cpp
     os_floatertoolbox.cpp
     os_floatervfs.cpp
@@ -640,6 +641,7 @@ set(viewer_HEADER_FILES
     os_floaterinspecttexture.h
     os_floaterexploreparticles.h
     os_floaterkeytool.h
+	os_floaterobjectfunctions.h
     os_floatertexteditor.h
     os_floatertoolbox.h
     os_floatervfs.h

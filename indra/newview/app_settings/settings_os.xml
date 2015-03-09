@@ -566,6 +566,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ObjectFunctionType</key>
+    <map>
+      <key>Comment</key>
+      <string>Derez Function Type</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
     <!--Toolbar Visibility-->
     <key>ToolbarVisibleGriefer</key>
     <map>

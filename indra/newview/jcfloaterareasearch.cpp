@@ -244,7 +244,10 @@ void JCFloaterAreaSearch::onSelectAll()
 				LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 				gFloaterTools->setEditTool(LLToolCompTranslate::getInstance());
 			}
-
+			if (gFloaterTools)
+			{
+				gFloaterView->bringToFront(gFloaterTools);
+			}
 			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
 		}
 	}

@@ -66,14 +66,6 @@ public:
 	virtual void 	clearCtrls();
 
 	void			refresh();
-	// <os>
-	void			onClickTakeCopy();
-	void			onClickTake();
-	void			onClickDuplicate();
-	void			onClickDelete();
-	void			onClickReturn();
-	void			onClickBlink();
-	// </os>
 
 	static bool		precommitValidate(const LLSD& data);
 
@@ -85,8 +77,8 @@ public:
 	static void 	onCommitPhantom(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitPhysics(		LLUICtrl* ctrl, void* userdata);
 
-	static void		onLinkObj(				void* user_data);
-	static void		onUnlinkObj(			void* user_data);
+	//static void		onLinkObj(				void* user_data);
+	//static void		onUnlinkObj(			void* user_data);
 	static void 	onCopyPos(				void* user_data);
 	static void 	onPastePos(				void* user_data);
 	static void 	onPastePosClip(			void* user_data);
@@ -199,16 +191,8 @@ protected:
 	LLSpinCtrl*		mCtrlRotY;
 	LLSpinCtrl*		mCtrlRotZ;
 
-	LLButton		*mBtnLinkObj;
-	LLButton		*mBtnUnlinkObj;
-	// <os>
-	LLButton		*mBtnTakeCopy;
-	LLButton		*mBtnTake;
-	LLButton		*mBtnDuplicateObj;
-	LLButton		*mBtnDelete;
-	LLButton		*mBtnReturn;
-	LLButton		*mBtnBlink;
-	// </os>
+	//LLButton		*mBtnLinkObj;
+	//LLButton		*mBtnUnlinkObj;
 
 	LLButton		*mBtnCopyPos;
 	LLButton		*mBtnPastePos;

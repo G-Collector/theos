@@ -53,6 +53,8 @@ LLFloaterInspectTexture::LLFloaterInspectTexture(const LLSD&)
 	mCommitCallbackRegistrar.add("Inspect.SelectObject",	boost::bind(&LLFloaterInspectTexture::onSelectTexture, this));
 	mCommitCallbackRegistrar.add("Inspect.RipAnimScript",	boost::bind(&LLFloaterInspectTexture::onClickRipTextureAnim, this));
 	mCommitCallbackRegistrar.add("Inspect.RipParticleScript",	boost::bind(&LLFloaterInspectTexture::onClickRipParticle, this));
+	mCommitCallbackRegistrar.add("Inspect.CpUuid", boost::bind(&LLFloaterInspectTexture::onClickCpUuid, this));
+	mCommitCallbackRegistrar.add("Inspect.CpUuidAll", boost::bind(&LLFloaterInspectTexture::onClickCpAllUuid, this));
 	LLUICtrlFactory::getInstance()->buildFloater(this, "os_floater_inspect_texture.xml", NULL, false);
 }
 
@@ -630,6 +632,33 @@ void LLFloaterInspectTexture::addToList(const LLUUID& uuid, const LLUUID& upload
 	mTextureList->addElement(row, ADD_TOP);
 
 	mStatsMemoryTotal += memoryusage2;
+}
+
+void LLFloaterInspectTexture::onClickCpUuid()
+{
+	std::vector< LLScrollListItem * > items = mTextureList->getAllSelected();
+	for( std::vector< LLScrollListItem * >::iterator itr = items.begin(); itr != items.end(); itr++ )
+	{
+		LLScrollListItem *item = *itr;
+		LLUUID image_id = item->getUUID();
+		gClipboard.copyFromSubstring(utf8str_to_wstring(image_id.asString()), 0, image_id.asString().size());
+	}
+}
+
+void LLFloaterInspectTexture::onClickCpAllUuid()
+{
+	std::ostringstream stream;
+	typedef std::map<LLUUID, bool>::iterator map_iter;
+	for (map_iter i = unique_textures.begin(); i != unique_textures.end(); ++i)
+	{
+		LLUUID mUUID = (*i).first;
+		stream << mUUID << "\n";
+	}
+	LLChat chat;
+	chat.mSourceType = CHAT_SOURCE_SYSTEM;
+	chat.mText = " Texture UUIDs have been copied to your clipboard.";
+	gClipboard.copyFromSubstring(utf8str_to_wstring(stream.str()), 0, stream.str().size());
+	LLFloaterChat::addChat(chat);
 }
 
 void LLFloaterInspectTexture::onClickCpToInvSelected()

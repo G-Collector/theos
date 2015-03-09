@@ -98,6 +98,7 @@
 #include "llvotree.h"
 
 #include "os_floaterbuildingprefs.h"// </os>
+#include "os_floaterobjectfunctions.h"// </os>
 
 // Globals
 LLFloaterTools *gFloaterTools = NULL;
@@ -274,6 +275,8 @@ BOOL	LLFloaterTools::postBuild()
 	// <os>
 	mBtnBuildingPrefs		= getChild<LLButton>("buildingprefs_btn");
 	mBtnBuildingPrefs->setCommitCallback(boost::bind(&LLFloaterTools::onClickBuildingPrefs, this));
+	mBtnObjectFunctions = getChild<LLButton>("objectfunctions_btn");
+	mBtnObjectFunctions->setCommitCallback(boost::bind(&LLFloaterTools::onClickObjectFunctions, this));
 	// </os>
 
 	mCheckSelectIndividual	= getChild<LLCheckBoxCtrl>("checkbox edit linked parts");
@@ -384,6 +387,7 @@ LLFloaterTools::LLFloaterTools()
 	
 	// <os>
 	mBtnBuildingPrefs(NULL),
+	mBtnObjectFunctions(NULL),
 	// </os>
 	mCheckSnapToGrid(NULL),
 	mBtnGridOptions(NULL),
@@ -705,6 +709,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 		return;
 	}
 	
+	mBtnObjectFunctions->setEnabled(TRUE);
+
 	// Focus buttons
 	BOOL focus_visible = (	tool == LLToolCamera::getInstance() );
 
@@ -1558,6 +1564,15 @@ void LLFloaterTools::onClickBtnEditMedia()
 void LLFloaterTools::onClickBuildingPrefs()
 {
 	LLFloaterBuildPrefs* floaterp = LLFloaterBuildPrefs::showInstance();
+	// grandparent is a floater, which can have a dependent
+	if (floaterp)
+	{
+		gFloaterView->getParentFloater(this)->addDependentFloater(floaterp);
+	}
+}
+void LLFloaterTools::onClickObjectFunctions()
+{
+	LLFloaterObjectFunctions* floaterp = LLFloaterObjectFunctions::showInstance();
 	// grandparent is a floater, which can have a dependent
 	if (floaterp)
 	{

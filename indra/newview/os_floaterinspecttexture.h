@@ -33,6 +33,8 @@ public:
 	void onSelectTexture();
 	void onClickRipTextureAnim();
 	void onClickRipParticle();
+	void onClickCpUuid();
+	void onClickCpAllUuid();
 	static void particle_rip(const LLSD& notification, const LLSD& response, LLViewerObject* src_object);
 	static void animtext_rip(const LLSD& notification, const LLSD& response, LLViewerObject* src_object);
 	LLScrollListCtrl* mTextureList;
