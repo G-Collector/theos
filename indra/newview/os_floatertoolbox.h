@@ -59,6 +59,7 @@ class OSFloaterTools
 public:
 	OSFloaterTools();
 	BOOL postBuild(void);
+	void refresh();
 	virtual BOOL tick();
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);//online status
 
@@ -83,7 +84,9 @@ public:
 	void onClickDuplicate();
 	void onClickAddFollowPrim();//Follow Prims
 	void onClickRemoveFollowPrim();//Follow Prims
+	void onClickDerez();
 	void onClickUpdateChkbox();
+	void onCommitDerezCombo(LLUICtrl* ctrl);
 	void onCommitFunctionCombo(LLUICtrl* ctrl);
 	void onCommitSoundCombo(LLUICtrl* ctrl);
 	void setOnlineStatus(OnlineStatus online_status);//online status
@@ -124,6 +127,7 @@ protected:
 	LLLineEditor* mTextEditor;
 	LLComboBox* mFunctionComboBox;
 	LLComboBox* mSoundComboBox;
+	LLComboBox* mDerezComboBox;
 	LLCheckBoxCtrl* mSoundChkBox;
 	LLCheckBoxCtrl* mEchoChkBox;
 	LLCheckBoxCtrl* mSndLoopChkBox;
@@ -146,6 +150,7 @@ protected:
 	LLButton* mDuplicateBtn;
 	LLButton* mAddFollowPrimBtn;//Follow Prims
 	LLButton* mRemoveFollowPrimBtn;//Follow Prims
+	LLButton *mBtnDerez;
 
 	LLUUID mTargetAvatar;
 	std::string mTargetAvatarName;
@@ -158,6 +163,7 @@ protected:
 	BOOL mSoundLoop;
 	BOOL mRezLoop;
 	BOOL mRdmPos;
+	S32 DerezType;
 };
 
 //Touch Spammer//

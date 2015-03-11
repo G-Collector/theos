@@ -228,7 +228,7 @@
 
       <button bottom_delta="-25" font="SansSerif" halign="center" height="20" label="Delete All Your Objects On Current Sim"
            left_delta="0" mouse_opaque="true" name="delete_all_button"
-           scale_image="TRUE" width="254" />
+           scale_image="TRUE" width="257" />
 
       <text bottom_delta="-19" height="16" left="7" name="baked_label" width="255">
         Currently Selected Object fuctions (edit prim)
@@ -236,13 +236,19 @@
 
       <button bottom_delta="-20" font="SansSerif" halign="center" height="20" label="ObjBlink"
             left="7" mouse_opaque="true" name="blink_button" tool_tip="edit a prim you own hit this to send offworld (if sat on is Lulzy) if your sitting on it this can protect you too "
-            scale_image="TRUE" width="80" />
+            scale_image="TRUE" width="83" />
       <button bottom_delta="0" font="SansSerif" halign="center" height="20" label="RezPlat"
            left_delta="85" mouse_opaque="true" name="rezplat_button"
-           scale_image="TRUE" width="80" />
+           scale_image="TRUE" width="83" />
       <button bottom_delta="0" font="SansSerif" halign="center" height="20" label="Ztake"
            left_delta="85" mouse_opaque="true" name="ztake_button"
-           scale_image="TRUE" width="80" />
+           scale_image="TRUE" width="83" />
+	  <button bottom_delta="-20" font="SansSerif" halign="center" height="20" label="Send Packet"
+            left="7" mouse_opaque="true" name="derez_obj"
+            scale_image="TRUE" width="83" />
+	  <combo_box name="derez_combobox" bottom_delta="1" left="93" height="18" width="166"
+           max_chars="110" font="SansSerifsmall" mouse_opaque="true" allow_text_entry="true"
+           tool_tip="Choose what packet type to send." />
 	 <text bottom_delta="-20" height="16" left="5" name="lol44" width="260">
         Object Follower: set target, edit prim and click Add.
       </text>
@@ -250,7 +256,7 @@
            name="followprim_list"
            left="5"
            right="-5"
-           top="-295"
+           top="-312"
          bottom="25"
            column_padding="0"
            can_resize="true"

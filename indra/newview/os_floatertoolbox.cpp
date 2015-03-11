@@ -64,6 +64,8 @@
 #include "os_floaterkeytool.h"
 #include "llfloatertools.h" //gfloatertools
 #include "chatbar_as_cmdline.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
 
 TouchTimer* OSFloaterTools::mTouchTimer = NULL;//Touch Spammer
 
@@ -347,6 +349,7 @@ BOOL OSFloaterTools::postBuild(void)
 	mTextEditor = getChild<LLLineEditor>("text_editor");
 	mFunctionComboBox = getChild<LLComboBox>("function_combobox");
 	mSoundComboBox = getChild<LLComboBox>("sound_combobox");
+	mDerezComboBox = getChild<LLComboBox>("derez_combobox");
 	mSoundChkBox = getChild<LLCheckBoxCtrl>("sound_checkbox");
 	mSndLoopChkBox = getChild<LLCheckBoxCtrl>("snd_loop");
 	mEchoChkBox = getChild<LLCheckBoxCtrl>("echo_checkbox");
@@ -369,6 +372,7 @@ BOOL OSFloaterTools::postBuild(void)
 	mDuplicateBtn = getChild<LLButton>("duplicate_button");
 	mAddFollowPrimBtn = getChild<LLButton>("addFollow_button");
 	mRemoveFollowPrimBtn = getChild<LLButton>("removeFollow_button");
+	mBtnDerez = getChild<LLButton>("derez_obj");
 
 	//touch spam
 	std::string status = mTouchTimer ? mTouchTimer->getTarget() : "No Target";
@@ -399,6 +403,7 @@ BOOL OSFloaterTools::postBuild(void)
 	mDuplicateBtn->setClickedCallback(boost::bind(&OSFloaterTools::onClickDuplicate, this));
 	mAddFollowPrimBtn->setClickedCallback(boost::bind(&OSFloaterTools::onClickAddFollowPrim, this));
 	mRemoveFollowPrimBtn->setClickedCallback(boost::bind(&OSFloaterTools::onClickRemoveFollowPrim, this));
+	mBtnDerez->setClickedCallback(boost::bind(&OSFloaterTools::onClickDerez, this));
 
 	// combo callback
 	packetType = IM_NOTHING_SPECIAL;
@@ -573,6 +578,19 @@ BOOL OSFloaterTools::postBuild(void)
 	mSoundComboBox->add("ANNIHILATION - WAAAAAAAAAAAH", std::string("d20787ec-845b-8f83-b71c-84149ecb1a94"));
 	mSoundComboBox->setCommitCallback(boost::bind(&OSFloaterTools::onCommitSoundCombo, this, _1));
 
+	mDerezComboBox->add("Derez Attachment", LLSD(DRD_ATTACHMENT));
+	mDerezComboBox->add("Attachment Exists", LLSD(DRD_ATTACHMENT_EXISTS));
+	mDerezComboBox->add("Attachment Agent Inventory", LLSD(DRD_ATTACHMENT_TO_INV));
+	mDerezComboBox->add("Agent Inventory", LLSD(DRD_SAVE_INTO_AGENT_INVENTORY));
+	mDerezComboBox->add("Agent Inventory Copy", LLSD(DRD_ACQUIRE_TO_AGENT_INVENTORY));
+	mDerezComboBox->add("Agent Inventory Take", LLSD(DRD_TAKE_INTO_AGENT_INVENTORY));
+	mDerezComboBox->add("Object Inventory", LLSD(DRD_SAVE_INTO_TASK_INVENTORY));
+	mDerezComboBox->add("Godlike Agent Inventory", LLSD(DRD_FORCE_TO_GOD_INVENTORY));
+	mDerezComboBox->add("Move to Trash", LLSD(DRD_TRASH));
+	mDerezComboBox->add("Return To Owner", LLSD(DRD_RETURN_TO_OWNER));
+	mDerezComboBox->add("Return To LastOwner", LLSD(DRD_RETURN_TO_LAST_OWNER));
+	mDerezComboBox->setCommitCallback(boost::bind(&OSFloaterTools::onCommitDerezCombo, this, _1));
+
 	// line editor callbacks
 	mTextEditor->setRevertOnEsc(FALSE);
 	mTextEditor->setCommitOnFocusLost(TRUE);
@@ -619,8 +637,14 @@ BOOL OSFloaterTools::postBuild(void)
 	//mFollowPrimList->setCallbackUserData(this);
 	mFollowPrimList->sortByColumn("fpl_AvatarName", TRUE);
 
+	refresh();
 	tick();
 	return TRUE;
+}
+
+void OSFloaterTools::refresh()
+{
+	mFunctionComboBox->setValue((S32)gSavedSettings.getS32("ObjectFunctionType"));
 }
 
 BOOL OSFloaterTools::tick()
@@ -1042,6 +1066,65 @@ void OSFloaterTools::onClickDuplicate()
 	}
 }
 
+void OSFloaterTools::onClickDerez()
+{
+	S32 function = gSavedSettings.getS32("ObjectFunctionType");
+	EDeRezDestination derez = (EDeRezDestination)function;
+	U8 d = (U8)derez;
+	LLUUID tid;
+	LLUUID dest_id = LLUUID::null;
+	LLUUID category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
+	LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	tid.generate();
+
+	if (function == 1 || function == 4 || function == 5 || function == 6 || function == 7)
+	{
+		dest_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
+	}
+
+	for (LLObjectSelection::valid_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_begin(); iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); iter++)
+	{
+		LLSelectNode* obj = *iter;
+		if (obj->mCreationDate == 0)
+		{
+			continue;
+		}
+
+		if (obj->getObject()->isRoot())
+		{
+			if (function == 2)
+			{
+				if (obj && (obj->mValid) && (!obj->mFromTaskID.isNull()))
+				{
+					// *TODO: check to see if the fromtaskid object exists.
+					dest_id = obj->mFromTaskID;
+				}
+			}
+			LLViewerObject* object = obj->getObject();
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_DeRezObject);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_AgentBlock);
+			msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
+			msg->addU8Fast(_PREHASH_Destination, d);
+			msg->addUUIDFast(_PREHASH_DestinationID, dest_id);
+			msg->addUUIDFast(_PREHASH_TransactionID, tid);
+			msg->addU8Fast(_PREHASH_PacketCount, (U8)1);
+			msg->addU8Fast(_PREHASH_PacketNumber, (U8)1);
+			msg->nextBlockFast(_PREHASH_ObjectData);
+			msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
+			msg->sendReliable(object->getRegion()->getHost());
+			make_ui_sound("UISndObjectRezOut");
+			// Busy count decremented by inventory update, so only increment
+			// if will be causing an update.
+			if (derez != DRD_RETURN_TO_OWNER)
+				gViewerWindow->getWindow()->incBusyCount();
+		}
+	}
+}
+
 //######## Follow Prim ########
 void OSFloaterTools::onClickAddFollowPrim()
 {
@@ -1184,6 +1267,12 @@ void OSFloaterTools::onCommitFunctionCombo(LLUICtrl* ctrl)
 void OSFloaterTools::onCommitSoundCombo(LLUICtrl* ctrl)
 {
 	getChild<LLUICtrl>("sound_asset_id")->setValue(mSoundComboBox->getValue().asString());
+}
+
+void OSFloaterTools::onCommitDerezCombo(LLUICtrl* ctrl)
+{
+	DerezType = atoi(mDerezComboBox->getValue().asString().c_str());
+	gSavedSettings.setS32("ObjectFunctionType", DerezType);
 }
 
 void OSFloaterTools::onCommitSetText()

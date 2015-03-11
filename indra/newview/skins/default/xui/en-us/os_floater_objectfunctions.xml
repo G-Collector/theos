@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater bottom="-359" can_close="true" can_drag_on_left="false" can_minimize="true"
+     can_resize="false" follows="left|top" height="550"
+     left="308" min_height="100" min_width="100" mouse_opaque="true"
+     name="objectfunctions floater" rect_control="ToolboxRect" sound_flags="0" title=""
+     short_title="Selected Object Functions" width="100">
+
+  <button bottom="4" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Link" label_selected="Link" left="4"
+     mouse_opaque="true" name="link_obj" scale_image="true" width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Unlink" label_selected="Unlink"
+     left_delta="0" mouse_opaque="true" name="unlink_obj" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Take Copy" label_selected="Take Copy"
+     left_delta="0" mouse_opaque="true" name="takecopy_obj" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Take" label_selected="Take"
+     left_delta="0" mouse_opaque="true" name="take_obj" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Duplicate" label_selected="Duplicate"
+     left_delta="0" mouse_opaque="true" name="duplicate_obj" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Delete" label_selected="Delete"
+     left_delta="0" mouse_opaque="true" name="delete_obj" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Return" label_selected="Return"
+     left_delta="0" mouse_opaque="true" name="return_obj" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Blink" label_selected="Blink"
+     left_delta="0" mouse_opaque="true" name="blink_btn" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+	     halign="center" height="20" label="Textures" label_selected="Textures"
+	     left_delta="0" mouse_opaque="true" name="texture_obj" scale_image="true"
+	     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+	     halign="center" height="20" label="Export Xml" label_selected="Export Xml"
+	     left_delta="0" mouse_opaque="true" name="export_xml" scale_image="true"
+	     width="92" />
+</floater>

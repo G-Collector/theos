@@ -413,6 +413,7 @@ void LLFloaterInspectTexture::iterateObjects(LLViewerObject* object, U8 te_count
 
 	S32 height;
 	S32 width;
+	static const LLCachedControl<S32> expected_size("TextureIspectForceSize", 0);
 	S32 components;
 	std::string type_str;
 	LLUUID uuid;
@@ -438,7 +439,7 @@ void LLFloaterInspectTexture::iterateObjects(LLViewerObject* object, U8 te_count
 		components = img->getComponents();
 		type_str = "Diffuse map";
 		uploader = findUploader(img);
-		addToList(uuid, uploader, object, height, width, components, type_str);
+		if (expected_size <= height || expected_size <= width) addToList(uuid, uploader, object, height, width, components, type_str);
 
 		// materials per face
 		if(object->getTE(j)->getMaterialParams().notNull())
@@ -454,7 +455,7 @@ void LLFloaterInspectTexture::iterateObjects(LLViewerObject* object, U8 te_count
 				components = img->getComponents();
 				type_str = "Normal map";
 				uploader = findUploader(img);
-				addToList(uuid, uploader, NULL, height, width, components, type_str);
+				if (expected_size <= height || expected_size <= width) addToList(uuid, uploader, NULL, height, width, components, type_str);
 			}
 			uuid = object->getTE(j)->getMaterialParams()->getSpecularID();
 			if (uuid.notNull())
@@ -467,7 +468,7 @@ void LLFloaterInspectTexture::iterateObjects(LLViewerObject* object, U8 te_count
 				components = img->getComponents();
 				type_str = "Specular map";
 				uploader = findUploader(img);
-				addToList(uuid, uploader, NULL, height, width, components, type_str);
+				if (expected_size <= height || expected_size <= width) addToList(uuid, uploader, NULL, height, width, components, type_str);
 			}
 		}
 	}
@@ -485,7 +486,7 @@ void LLFloaterInspectTexture::iterateObjects(LLViewerObject* object, U8 te_count
 			components = img->getComponents();
 			type_str = "*Light map";
 			uploader = findUploader(img);
-			addToList(uuid, uploader, NULL, height, width, components, type_str);
+			if (expected_size <= height || expected_size <= width) addToList(uuid, uploader, NULL, height, width, components, type_str);
 		}
 
 	}
@@ -503,7 +504,7 @@ void LLFloaterInspectTexture::iterateObjects(LLViewerObject* object, U8 te_count
 			components = img->getComponents();
 			type_str = "*Sculpt map";
 			uploader = findUploader(img);
-			addToList(uuid, uploader, NULL, height, width, components, type_str);
+			if (expected_size <= height || expected_size <= width) addToList(uuid, uploader, NULL, height, width, components, type_str);
 		}
 	}
 
@@ -519,7 +520,7 @@ void LLFloaterInspectTexture::iterateObjects(LLViewerObject* object, U8 te_count
 			components = img->getComponents();
 			type_str = "*Particle";
 			uploader = findUploader(img);
-			addToList(uuid, uploader, object, height, width, components, type_str);
+			if (expected_size <= height || expected_size <= width) addToList(uuid, uploader, object, height, width, components, type_str);
 		}
 	}
 }
