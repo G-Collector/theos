@@ -4864,9 +4864,17 @@ void LLContextMenu::hide()
 
 	if (mHoverItem)
 	{
-		mHoverItem->setHighlight( FALSE );
+		// <os>
+		if( !mHoverItemHandle.isDead() )
+			mHoverItem->setHighlight( FALSE );
+		else
+			llwarns << "Hoveritem is already dead" << llendl;
+		// </os>
 	}
 	mHoverItem = NULL;
+	// <os>
+	mHoverItemHandle = LLHandle< LLView >();
+	// </os>
 }
 
 
@@ -4893,9 +4901,17 @@ BOOL LLContextMenu::handleHoverOver(LLMenuItemGL* item, S32 x, S32 y)
 		{
 			if (mHoverItem)
 			{
-				mHoverItem->setHighlight( FALSE );
+				// <os>
+				if( !mHoverItemHandle.isDead() )
+					mHoverItem->setHighlight( FALSE );
+				else
+					llwarns << "Hoveritem is already dead" << llendl;
+				// </os>
 			}
 			mHoverItem = item;
+			// <os>
+			mHoverItemHandle = item->getHandle();
+			// </os>
 			mHoverItem->setHighlight( TRUE );
 		}
 		mHoveredAnyItem = TRUE;
@@ -4905,7 +4921,13 @@ BOOL LLContextMenu::handleHoverOver(LLMenuItemGL* item, S32 x, S32 y)
 		// clear out our selection
 		if (mHoverItem)
 		{
-			mHoverItem->setHighlight(FALSE);
+			// <os>
+			if( !mHoverItemHandle.isDead() )
+				mHoverItem->setHighlight(FALSE);
+			else
+				llwarns << "Hoveritem is already dead" << llendl;
+			mHoverItemHandle = LLHandle< LLView >();
+			// </os>
 			mHoverItem = NULL;
 		}
 	}

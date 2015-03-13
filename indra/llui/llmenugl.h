@@ -732,6 +732,9 @@ public:
 protected:
 	BOOL			mHoveredAnyItem;
 	LLMenuItemGL*	mHoverItem;
+	// <os>
+	LLHandle<LLView>			mHoverItemHandle;
+	// </os>
 };
 
 //-----------------------------------------------------------------------------
