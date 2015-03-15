@@ -20,6 +20,7 @@
 #include "stdenums.h"
 
 #include "llagent.h"
+#include "llvoavatarself.h"
 #include "llselectmgr.h"
 #include "llviewermenu.h"
 #include "llviewerobject.h"
@@ -56,6 +57,8 @@ BOOL LLFloaterObjectFunctions::postBuild()
 	mBtnUnlinkObj = getChild<LLButton>("unlink_obj");
 	mBtnTextures = getChild<LLButton>("texture_obj");
 	mBtnExportXml = getChild<LLButton>("export_xml");
+	mBtnTouch = getChild<LLButton>("touch_obj");
+	mBtnSit = getChild<LLButton>("sit_obj");
 
 	mBtnTakeCopy->setClickedCallback(boost::bind(&LLFloaterObjectFunctions::onClickTakeCopy, this));
 	mBtnTake->setClickedCallback(boost::bind(&LLFloaterObjectFunctions::onClickTake, this));
@@ -67,6 +70,8 @@ BOOL LLFloaterObjectFunctions::postBuild()
 	mBtnUnlinkObj->setClickedCallback(boost::bind(&LLFloaterObjectFunctions::onClickUnlinkObj, this));
 	mBtnTextures->setClickedCallback(boost::bind(&LLFloaterObjectFunctions::onClickTextures, this));
 	mBtnExportXml->setClickedCallback(boost::bind(&LLFloaterObjectFunctions::onClickExportXml, this));
+	mBtnTouch->setClickedCallback(boost::bind(&LLFloaterObjectFunctions::onClickTouch, this));
+	mBtnSit->setClickedCallback(boost::bind(&LLFloaterObjectFunctions::onClickSit, this));
 
 	LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterObjectFunctions::updateSelection, this));
 
@@ -126,6 +131,11 @@ void LLFloaterObjectFunctions::refresh()
 		mBtnBlink->setEnabled(false);
 		mBtnLinkObj->setEnabled(false);
 		mBtnUnlinkObj->setEnabled(false);
+		mBtnTextures->setEnabled(false);
+		mBtnExportXml->setEnabled(false);
+		mBtnTouch->setEnabled(false);
+		mBtnSit->setEnabled(false);
+
 	}
 	else
 	{
@@ -146,6 +156,11 @@ void LLFloaterObjectFunctions::refresh()
 
 			if (obj->getObject()->isRoot())
 			{
+				mBtnTextures->setEnabled(true);
+				mBtnExportXml->setEnabled(true);
+				mBtnTouch->setEnabled(true);
+				mBtnSit->setEnabled(true);
+
 				LLViewerObject* objectp = obj->getObject();
 				mBtnLinkObj->setEnabled(LLSelectMgr::getInstance()->enableLinkObjects());
 				LLViewerObject* linkset_parent = objectp->getSubParent() ? objectp->getSubParent() : objectp;
@@ -230,4 +245,40 @@ void LLFloaterObjectFunctions::onClickTextures()
 void LLFloaterObjectFunctions::onClickExportXml()
 {
 	show_floater("export list");
+}
+
+void LLFloaterObjectFunctions::onClickTouch()
+{
+	handle_object_touch();
+}
+
+void LLFloaterObjectFunctions::onClickSit()
+{
+	LLViewerObject* object = mObjectSelection->getFirstRootObject();
+	if (object)
+	{
+		if (object->isRoot())
+		{
+
+			if (gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == object)
+			{
+				gAgent.standUp();
+				return;
+			}
+
+			LLVector3 scale = object->getScale();
+			LLVector3 offset = LLVector3(0.0f, 0.0f, scale.mV[VZ]);
+			gReSitTargetID = object->mID;
+			gReSitOffset = offset;
+			gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
+			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
+			gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
+			gMessageSystem->addVector3Fast(_PREHASH_Offset, LLVector3::zero);
+
+			object->getRegion()->sendReliableMessage();
+		}
+	}
 }

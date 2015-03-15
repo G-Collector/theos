@@ -47,6 +47,8 @@ private:
 	void onClickUnlinkObj();
 	void onClickTextures();
 	void onClickExportXml();
+	void onClickTouch();
+	void onClickSit();
 	
 	LLButton *mBtnTakeCopy;
 	LLButton *mBtnTake;
@@ -58,6 +60,8 @@ private:
 	LLButton *mBtnUnlinkObj;
 	LLButton *mBtnTextures;
 	LLButton *mBtnExportXml;
+	LLButton *mBtnTouch;
+	LLButton *mBtnSit;
 
 };
 

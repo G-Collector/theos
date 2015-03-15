@@ -136,8 +136,8 @@ BOOL JCFloaterAreaSearch::postBuild()
 	mFilterComboBox->add("Phantom Objects", std::string("phantom"));
 	mFilterComboBox->add("Flexible Objects", std::string("flexible"));
 	mFilterComboBox->add("Sculpted Objects", std::string("sculpted"));
+	mFilterComboBox->add("Mesh Objects", std::string("mesh"));
 	mFilterComboBox->add("Payable Objects", std::string("payable"));
-
 	mFilterComboBox->add("Animation Sources", std::string("animations"));
 	mFilterComboBox->add("Sound Sources", std::string("sounds"));
 	mFilterComboBox->add("Particle Sources", std::string("particles"));
@@ -153,6 +153,8 @@ BOOL JCFloaterAreaSearch::postBuild()
 	mFilterComboBox->add("Any Owner", std::string("any_owner"));
 	mFilterComboBox->add("Owned by You", std::string("you_owner"));
 	mFilterComboBox->add("Owned by a Group", std::string("group_owner"));
+	mFilterComboBox->add("Returnable", std::string("returnable"));
+	mFilterComboBox->add("Is a Seat", std::string("is_seat"));
 
 	mFilterComboBox->setCommitCallback(boost::bind(&JCFloaterAreaSearch::onCommitFilterComboBox, this, _1));
 
@@ -427,6 +429,7 @@ void JCFloaterAreaSearch::results()
 	for (i = 0; i < total; i++)
 	{
 		LLViewerObject *objectp = gObjectList.getObject(i);
+		LLViewerObject *parent = (LLViewerObject *)objectp->getParent();
 		if (objectp)
 		{
 			if (objectp->getRegion() == our_region && !objectp->isAvatar() && objectp->isRoot() &&
@@ -436,14 +439,15 @@ void JCFloaterAreaSearch::results()
 				const std::string filter = mObjectFilter.get();
 				if (filter != "all")
 				{
-					if (filter == "payable" && (bool)objectp->flagTakesMoney() != true) continue;
-					else if (filter == "touch_only" && (bool)objectp->flagHandleTouch() != true) continue;
+					if (filter == "payable" && (bool)objectp->flagTakesMoney() || parent && (bool)parent->flagTakesMoney() != true) continue;
+					else if (filter == "touch_only" && (bool)objectp->flagHandleTouch() || parent && (bool)parent->flagHandleTouch() != true) continue;
 					else if (filter == "scripted" && (bool)objectp->flagScripted() != true) continue;
 					else if (filter == "sounds" && (bool)objectp->isAudioSource() != true) continue;
 					else if (filter == "particles" && (bool)objectp->isParticleSource() != true) continue;
 					else if (filter == "animations" && (bool)objectp->flagAnimSource() != true) continue;
 					else if (filter == "camera" && (bool)objectp->flagCameraSource() != true) continue;
 					else if (filter == "sculpted" && (bool)objectp->isSculpted() != true) continue;
+					else if (filter == "mesh" && (bool)objectp->isMesh() != true) continue;
 					else if (filter == "flexible" && (bool)objectp->isFlexible() != true) continue;
 					else if (filter == "phantom" && (bool)objectp->flagPhantom() != true) continue;
 					else if (filter == "physical" && (bool)objectp->flagUsePhysics() != true) continue;
@@ -456,7 +460,8 @@ void JCFloaterAreaSearch::results()
 					else if (filter == "any_owner" && (bool)objectp->flagObjectAnyOwner() != true) continue;
 					else if (filter == "you_owner" && (bool)objectp->flagObjectYouOwner() != true) continue;
 					else if (filter == "group_owner" && (bool)objectp->flagObjectGroupOwned() != true) continue;
-					
+					else if (filter == "returnable" && (bool)objectp->isReturnable() != true) continue;
+					else if (filter == "is_seat" && (bool)objectp->isSeat() != true) continue;
 				}
 				// </os>
 				LLUUID object_id = objectp->getID();

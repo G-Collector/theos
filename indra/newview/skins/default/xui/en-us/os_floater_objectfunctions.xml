@@ -13,6 +13,14 @@
      left_delta="0" mouse_opaque="true" name="unlink_obj" scale_image="true"
      width="92" />
   <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Touch" label_selected="Touch"
+     left_delta="0" mouse_opaque="true" name="touch_obj" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
+     halign="center" height="20" label="Sit" label_selected="Sit"
+     left_delta="0" mouse_opaque="true" name="sit_obj" scale_image="true"
+     width="92" />
+  <button bottom_delta="21" enabled="true" follows="right|bottom" font="SansSerif"
      halign="center" height="20" label="Take Copy" label_selected="Take Copy"
      left_delta="0" mouse_opaque="true" name="takecopy_obj" scale_image="true"
      width="92" />
