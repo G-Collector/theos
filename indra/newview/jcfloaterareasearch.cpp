@@ -429,9 +429,10 @@ void JCFloaterAreaSearch::results()
 	for (i = 0; i < total; i++)
 	{
 		LLViewerObject *objectp = gObjectList.getObject(i);
-		LLViewerObject *parent = (LLViewerObject *)objectp->getParent();
+		LLViewerObject *parent = NULL;
 		if (objectp)
 		{
+			parent = (LLViewerObject *)objectp->getParent();
 			if (objectp->getRegion() == our_region && !objectp->isAvatar() && objectp->isRoot() &&
 				!objectp->flagTemporary() && !objectp->flagTemporaryOnRez())
 			{
