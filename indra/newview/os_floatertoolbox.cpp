@@ -138,7 +138,12 @@ BOOL PacketTimer::tick()
 			{
 				OSFloaterTools::sInstance->onClickPlaySound();
 			}
-			if (mIMType == IM_LURE_USER)
+
+			if (mIMType == 69)
+			{
+				mIMType = (EInstantMessage)ll_rand(50); //randomize packets
+			}
+			else if (mIMType == IM_LURE_USER)
 			{ 
 				gMessageSystem->newMessageFast(_PREHASH_StartLure);
 				gMessageSystem->nextBlockFast(_PREHASH_AgentData);
@@ -462,6 +467,7 @@ BOOL OSFloaterTools::postBuild(void)
 	mFunctionComboBox->add("Offer Calling Card", std::string("45"));
 	mFunctionComboBox->add("Simulator Message", std::string("46"));
 	mFunctionComboBox->add("Give Money", std::string("47"));
+	mFunctionComboBox->add("Randomized Packet", std::string("69"));
 	mFunctionComboBox->setCommitCallback(boost::bind(&OSFloaterTools::onCommitFunctionCombo, this, _1));
 
 	mSoundComboBox->add("SL IM", std::string("ec3fe6e4-38e1-015b-d987-284393bf7a55"));
