@@ -159,7 +159,8 @@ class ViewerManifest(LLManifest):
                  "oldskool":'OldSkool'}
         return mapping[self.viewer_branding_id()]
     def installer_prefix(self):
-        return self.viewer_name_string() + "_"
+        #return self.viewer_name_string() + "_"
+		return mapping[self.viewer_branding_id()] + "_"
 
     def flags_list(self):
         """ Convenience function that returns the command-line flags
